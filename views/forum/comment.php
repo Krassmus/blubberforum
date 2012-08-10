@@ -23,7 +23,7 @@
         </div>
         <div class="name">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($posting['user_id']))) ?>">
-                <?= get_fullname($posting['user_id']) ?>
+                <?= htmlReady(get_fullname($posting['user_id'])) ?>
             </a>
         </div>
         <div class="content">

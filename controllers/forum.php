@@ -112,7 +112,7 @@ class ForumController extends ApplicationController {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $thread = new ForumPosting(Request::option("thread"));
-        if (Request::option("thread") && $thread['name']) {
+        if (Request::option("thread")) {
             $output = array();
             $thread = new ForumPosting(Request::option("thread"));
             $posting = new ForumPosting();

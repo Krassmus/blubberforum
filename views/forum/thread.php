@@ -23,10 +23,10 @@
         </div>
         <div class="name">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">
-                <?= get_fullname($thread['user_id']) ?>
+                <?= htmlReady(get_fullname($thread['user_id'])) ?>
             </a>
         </div>
-        <div class="title"><?= htmlReady($thread['name']) ?></div>
+        <div class="title"><?= formatReady($thread['name']) ?></div>
         <div class="content">
             <?= formatReady(forum_kill_edit($thread['description'])) ?>
         </div>
