@@ -18,6 +18,7 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/ff.js"), "");
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
+        ForumPosting::expireThreads($_SESSION['SessionSeminar']);
         $this->threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], false, $this->max_threads + 1);
         $this->more_threads = count($this->threads) > $max_threads;
         if ($this->more_threads) {

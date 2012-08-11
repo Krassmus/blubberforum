@@ -8,8 +8,9 @@
  *  published by the Free Software Foundation; either version 2 of
  *  the License, or (at your option) any later version.
  */
+
 ?>
-<li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['mkdate']) ?>">
+<li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>">
     <div class="avatar_column">
         <div class="avatar">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">
@@ -19,7 +20,7 @@
     </div>
     <div class="content_column">
         <div class="timer">
-            <?= ($thread['mkdate'] / 86400 == time() / 86400) ? sprintf(_("%s Uhr"), date("G:i", $posting['mkdate'])) : date("j.n.Y", $thread['mkdate']) ?>
+            <?= (date("j.n.Y", $thread['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $thread['mkdate'])) : date("j.n.Y", $thread['mkdate']) ?>
         </div>
         <div class="name">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">

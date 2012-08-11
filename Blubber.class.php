@@ -70,7 +70,26 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
     public function getIconNavigation($course_id, $last_visit) {
         $icon = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getLink($this, array(), "forum/forum"));
-        $icon->setImage($this->getPluginURL()."/assets/images/blubber_grey.png");
+        $db = DBManager::get();
+        $last_own_posting_time = (int) $db->query(
+            "SELECT mkdate " .
+            "FROM px_topics " .
+            "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
+                "AND Seminar_id = ".$db->quote($course_id)." " .
+        "")->fetch(PDO::FETCH_COLUMN, 0);
+        $new_ones = $db->query(
+            "SELECT COUNT(*) " .
+            "FROM px_topics " .
+            "WHERE chdate > ".$db->quote($last_visit > $last_own_posting_time ? $last_visit : $last_own_posting_time)." " .
+                "AND user_id != ".$db->quote($GLOBALS['user']->id)." " .
+                "AND Seminar_id = ".$db->quote($course_id)." " .
+        "")->fetch(PDO::FETCH_COLUMN, 0);
+        if ($new_ones) {
+            $icon->setImage($this->getPluginURL()."/assets/images/blubber_red.png");
+            $icon->setTitle($new_ones > 1 ? sprintf(_("%s neue Blubber"), $new_ones) : _("1 neuer Blubber"));
+        } else {
+            $icon->setImage($this->getPluginURL()."/assets/images/blubber_grey.png");
+        }
         return $icon;
     }
 

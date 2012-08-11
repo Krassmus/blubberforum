@@ -47,11 +47,11 @@
     #forum_threads .timer {
         float: right;
         color: #bbbbbb;
+        font-size: 0.8em;
         visibility: hidden;
     }
-    #forum_threads li:hover > .timer {
+    #forum_threads .content_column:hover > .timer {
         visibility: visible;
-        padding: 3px;
     }
     #forum_threads .writer {
         margin-left: 60px;
@@ -93,6 +93,11 @@
         display: table-cell;
         padding: 5px;
         width: 100%;
+    }
+    #forum_threads .content_column {
+        /*<? $width = 20 ?>
+        background: url('<?= $assets_url . "/images/bubble.svg" ?>') bottom right no-repeat;
+        background-size: <?= $width * 1.3 ?>px <?= $width ?>px;*/
     }
     #forum_threads .content_column > .name a {
         color: #888888;

@@ -14,16 +14,60 @@ require_once 'lib/forum.inc.php';
 class ForumPosting extends SimpleORMap {
 
     protected $db_table = "px_topics";
+    
+    static public function expireThreads($seminar_id) {
+        StudipCacheFactory::getCache()->expire("BLUBBERTHREADS_FROM_".$seminar_id);
+    }
 
     static public function getThreads($seminar_id, $before = false, $limit = false) {
-        if ($limit) {
-            $limit_constrain = "LIMIT 0, ".(int) $limit;
+        $cache = StudipCacheFactory::getCache();
+        $threads = $cache->read("BLUBBERTHREADS_FROM_".$seminar_id);
+        if (!$threads) {
+            $db = DBManager::get();
+            $thread_ids = $db->query(
+                "SELECT px_topics.root_id " .
+                "FROM px_topics " .
+                "WHERE px_topics.Seminar_id = ".$db->quote($seminar_id)." " .
+                "GROUP BY px_topics.root_id " .
+                "ORDER BY MAX(mkdate) DESC " .
+            "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            $threads = array();
+            foreach ($thread_ids as $thread_id) {
+                $threads[] = new ForumPosting($thread_id);
+            }
+            $cache->write("BLUBBERTHREADS_FROM_".$seminar_id, serialize($threads));
+        } else {
+            $threads = unserialize($threads);
         }
-        return self::findBySQL(__class__, "parent_id = '0' AND Seminar_id = ".DBManager::get()->quote($seminar_id)." ".($before ? "AND mkdate < ".DBManager::get()->quote($before)." " : "")." ORDER BY mkdate DESC ".$limit_constrain);
+        if ($before) {
+            while ($threads[0]['mkdate'] > $before) {
+                array_shift($threads);
+            }
+        }
+        if ($limit) {
+            $threads = array_slice($threads, 0, $limit);
+        }
+        return $threads;
     }
     
     static public function getPostings($seminar_id, $since = 0) {
         return self::findBySQL(__class__, "Seminar_id = ".DBManager::get()->quote($seminar_id)." ".($since ? "AND chdate > ".DBManager::get()->quote($since) :"")." ORDER BY mkdate ASC ");
+    }
+    
+    public function restore() {
+        parent::restore();
+        if ($this['topic_id'] === $this['root_id']) {
+            $db = DBManager::get();
+            $this->content['discussion_time'] = $db->query(
+                "SELECT mkdate " .
+                "FROM px_topics " .
+                "WHERE root_id = ".$db->quote($this->getId())." " .
+                "ORDER BY mkdate DESC " .
+                "LIMIT 1 " .
+            "")->fetch(PDO::FETCH_COLUMN, 0);
+        } else {
+            $this->content['discussion_time'] = $this['mkdate'];
+        }
     }
     
     public function isThread() {

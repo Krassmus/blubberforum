@@ -19,7 +19,7 @@
     </div>
     <div class="content_column">
         <div class="timer">
-            <?= ($posting['mkdate'] / 86400 == time() / 86400) ? sprintf(_("%s Uhr"), date("G:i", $posting['mkdate'])) : date("j.n.Y", $posting['mkdate']) ?>
+            <?= (date("j.n.Y", $posting['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $posting['mkdate'])) : date("j.n.Y", $posting['mkdate']) ?>
         </div>
         <div class="name">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($posting['user_id']))) ?>">
