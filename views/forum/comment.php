@@ -8,8 +8,11 @@
  *  published by the Free Software Foundation; either version 2 of
  *  the License, or (at your option) any later version.
  */
+if (!$last_visit) {
+    $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
+}
 ?>
-<li class="posting" id="<?= $posting->getId() ?>" mkdate="<?= htmlReady($posting['mkdate']) ?>">
+<li class="posting<?= $posting['mkdate'] > $last_visit ? " new" : "" ?>" id="<?= $posting->getId() ?>" mkdate="<?= htmlReady($posting['mkdate']) ?>">
     <div class="avatar_column">
         <div class="avatar">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($posting['user_id']))) ?>">

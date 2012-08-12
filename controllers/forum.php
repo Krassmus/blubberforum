@@ -15,8 +15,9 @@ class ForumController extends ApplicationController {
     protected $max_threads = 20;
     
     public function forum_action() {
+        object_set_visit($_SESSION['SessionSeminar'], "forum");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
-        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/ff.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
         ForumPosting::expireThreads($_SESSION['SessionSeminar']);
         $this->threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], false, $this->max_threads + 1);

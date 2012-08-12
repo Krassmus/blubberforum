@@ -9,8 +9,10 @@
  *  the License, or (at your option) any later version.
  */
 
+$last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
+
 ?>
-<li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>">
+<li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>" class="posting<?= $last_visit < $thread['mkdate'] ? " new" : "" ?>">
     <div class="avatar_column">
         <div class="avatar">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">
@@ -42,7 +44,7 @@
         <?= $this->render_partial("forum/comment.php", array('posting' => $postings[count($postings)-1])) ?>
         <? else : ?>
         <? foreach ($postings as $posting) : ?>
-        <?= $this->render_partial("forum/comment.php", array('posting' => $posting)) ?>
+        <?= $this->render_partial("forum/comment.php", array('posting' => $posting, 'last_visit' => $last_visit)) ?>
         <? endforeach ?>
         <? endif ?>
     </ul>
