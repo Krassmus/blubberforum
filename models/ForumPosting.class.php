@@ -80,7 +80,14 @@ class ForumPosting extends SimpleORMap {
             return self::findBySQL(__class__, "root_id = ".$db->quote($this->getId())." AND parent_id != '0' ORDER BY mkdate ASC");
         } else {
             return false;
-            }
+        }
+    }
+    
+    public function delete() {
+        foreach ((array) self::findBySQL(__class__, "parent_id = ".DBManager::get()->quote($this->getId())) as $child_posting) {
+            $child_posting->delete();
+        }
+        return parent::delete();
     }
 
 }

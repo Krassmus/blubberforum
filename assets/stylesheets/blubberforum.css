@@ -23,9 +23,9 @@
 #forum_threads > li:first-child, #forum_threads > li > ul > li:first-child {
     border: none;
 }
-#forum_threads li.thread.new, #forum_threads li.comment.new {
+/*#forum_threads li.thread.new, #forum_threads li.comment.new {
     border-left: 1px red solid;
-}
+}*/
 #forum_threads h2 {
     margin-top: 0px;
     margin-bottom: 5px;
@@ -96,6 +96,7 @@
 }
 #forum_threads .content_column > .content {
     margin-top: 7px;
+    width: 100%;
 }
 
 
@@ -111,5 +112,9 @@
 }
 #threadwriter textarea {
     width: 97%;
+    height: 20px;
+}
+#forum_threads textarea.corrector {
+    width: 100%;
     height: 20px;
 }

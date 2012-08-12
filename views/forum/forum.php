@@ -9,9 +9,6 @@
  *  the License, or (at your option) any later version.
  */
 ?>
-<style>
-    
-</style>
 <input type="hidden" id="last_check" value="<?= time() ?>">
 <input type="hidden" id="seminar_id" value="<?= $_SESSION['SessionSeminar'] ?>">
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">

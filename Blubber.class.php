@@ -33,11 +33,12 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $template = $factory->open("forum/comment.php");
                         $template->set_attribute('posting', $new_posting);
                     }
+                    $template->set_attribute("course_id", $data['FF']['seminar_id']);
                     $output['postings'][] = array(
                         'posting_id' => $new_posting['topic_id'],
                         'mkdate' => $new_posting['mkdate'],
                         'root_id' => $new_posting['root_id'],
-                        'content' => studip_utf8encode($template->render())
+                        'content' => $template->render()
                     );
                 }
                 UpdateInformation::setInformation("FF.getNewPosts", $output);

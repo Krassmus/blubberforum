@@ -54,7 +54,9 @@ STUDIP.FF = {
     },
     insertComment: function (thread, posting_id, mkdate, comment) {
         if (jQuery("#" + posting_id).length) {
-            jQuery("#" + posting_id).replaceWith(comment);
+            if (jQuery("#" + posting_id + " textarea.corrector").length === 0) {
+                jQuery("#" + posting_id).replaceWith(comment);
+            }
         } else {
             if (jQuery("#" + thread + " ul.comments > li").length === 0) {
                 jQuery(comment).appendTo("#" + thread + " ul.comments").hide().fadeIn();
@@ -74,9 +76,11 @@ STUDIP.FF = {
     },
     insertThread: function (posting_id, mkdate, comment) {
         if (jQuery("#" + posting_id).length) {
-            var new_version = jQuery(comment);
-            jQuery("#" + posting_id + " .content").html(new_version.find(".content").html());
-            new_version.remove();
+            if (jQuery("#" + posting_id + " textarea.corrector").length === 0) {
+                var new_version = jQuery(comment);
+                jQuery("#" + posting_id + " .content").html(new_version.find(".content").html());
+                new_version.remove();
+            }
         } else {
             if (jQuery("#forum_threads > li").length === 0) {
                 jQuery(comment).appendTo("#forum_threads").hide().fadeIn();
@@ -95,8 +99,45 @@ STUDIP.FF = {
         }
         STUDIP.FF.makeTextareasAutoresizable();
     },
+    startEditingComment: function () {
+        var id = jQuery(this).closest("li").attr("id");
+        jQuery.ajax({
+            'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/get_source",
+            'data': { 
+                'topic_id': id,
+                'cid': jQuery("#seminar_id").val()
+            },
+            'success': function (source) {
+                jQuery("#" + id).find(".content_column .content").first().html(
+                    jQuery('<textarea class="corrector"/>').val(source).focus()
+                );
+                jQuery("#" + id).find(".corrector").focus();
+                STUDIP.FF.makeTextareasAutoresizable();
+            }
+        });
+        
+    },
+    submitEditedPosting: function () {
+        var id = jQuery(this).closest("li").attr("id");
+        jQuery.ajax({
+            'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/edit_posting",
+            'data': {
+                'topic_id': id,
+                'content': jQuery(this).val(),
+                'cid': jQuery("#seminar_id").val()
+            },
+            'type': "post",
+            'success': function (new_content) {
+                if (new_content) {
+                    jQuery("#" + id).find(".content_column .content").html(new_content);
+                } else {
+                    jQuery("#" + id).fadeOut(function () { jQuery("#" + id).remove(); });
+                }
+            }
+        });
+    },
     makeTextareasAutoresizable: function () {
-        jQuery(".writer textarea:not(.autoresize), #new_posting:not(.autoresize)").autoResize({
+        jQuery(".writer textarea:not(.autoresize), #new_posting:not(.autoresize), #forum_threads textarea.corrector").autoResize({
             // On resize:
             onResize : function() {
                 $(this).css({opacity: 0.8});
@@ -119,6 +160,12 @@ jQuery("#threadwriter > textarea").live("keydown", function (event) {
         event.preventDefault();
     }
 });
+jQuery("#forum_threads textarea.corrector").live("keydown", function (event) {
+    if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
+        STUDIP.FF.submitEditedPosting();
+        event.preventDefault();
+    }
+});
 jQuery(".writer > textarea").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
         STUDIP.FF.write(this);
@@ -132,7 +179,7 @@ jQuery("#forum_threads > li > ul.comments > li.more").live("click", function () 
         url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_comments",
         data: {
             'thread_id': thread_id,
-            'seminar_id': jQuery("#seminar_id").val()
+            'cid': jQuery("#seminar_id").val()
         },
         dataType: "json",
         success: function (data) {
@@ -152,6 +199,8 @@ jQuery(function () {
             STUDIP.FF.makeTextareasAutoresizable();
         });
     });
+    jQuery("#forum_threads a.edit").live("click", STUDIP.FF.startEditingComment);
+    jQuery("#forum_threads textarea.corrector").live("blur", STUDIP.FF.submitEditedPosting);
 });
 
 jQuery(window.document).bind('scroll', function (event) {
@@ -162,7 +211,8 @@ jQuery(window.document).bind('scroll', function (event) {
         jQuery.ajax({
             url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_postings",
             data: {
-                'before': jQuery("#forum_threads > li:nth-last-child(2)").attr("mkdate")
+                'before': jQuery("#forum_threads > li:nth-last-child(2)").attr("mkdate"),
+                'cid': jQuery("#seminar_id").val()
             },
             dataType: "json",
             success: function (response) {

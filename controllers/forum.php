@@ -18,10 +18,13 @@ class ForumController extends ApplicationController {
         object_set_visit($_SESSION['SessionSeminar'], "forum");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
+        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
+        
         ForumPosting::expireThreads($_SESSION['SessionSeminar']);
         $this->threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], false, $this->max_threads + 1);
         $this->more_threads = count($this->threads) > $max_threads;
+        $this->course_id = $_SESSION['SessionSeminar'];
         if ($this->more_threads) {
             $this->threads = array_slice($this->threads, 0, $max_threads);
         }
@@ -38,6 +41,7 @@ class ForumController extends ApplicationController {
         foreach ($comments as $posting) {
             $template = $factory->open("forum/comment.php");
             $template->set_attribute('posting', $posting);
+            $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
             $output['comments'][] = array(
                 'content' => studip_utf8encode($template->render()),
                 'mkdate' => $posting['mkdate'],
@@ -62,6 +66,7 @@ class ForumController extends ApplicationController {
         foreach ($threads as $posting) {
             $template = $factory->open("forum/thread.php");
             $template->set_attribute('thread', $posting);
+            $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
             $output['threads'][] = array(
                 'content' => studip_utf8encode($template->render()),
                 'mkdate' => $posting['mkdate'],
@@ -82,15 +87,14 @@ class ForumController extends ApplicationController {
         $content = studip_utf8decode(Request::get("content"));
         if (strpos($content, "\n") !== false) {
             $thread['name'] = substr($content, 0, strpos($content, "\n"));
-            $thread['description'] = substr($content, strpos($content, "\n") + 1);
+            $thread['description'] = $content;
         } else {
             if (strlen($content) > 255) {
                 $thread['name'] = "";
-                $thread['description'] = $content;
             } else {
                 $thread['name'] = $content;
-                $thread['description'] = "";
             }
+            $thread['description'] = $content;
         }
         $thread['user_id'] = $GLOBALS['user']->id;
         $thread['author'] = get_fullname();
@@ -102,11 +106,36 @@ class ForumController extends ApplicationController {
             $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
             $template = $factory->open("forum/thread.php");
             $template->set_attribute('thread', $thread);
+            $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
             $output['content'] = studip_utf8encode($template->render());
             $output['mkdate'] = time();
             $output['posting_id'] = $thread->getId();
         }
         $this->render_json($output);
+    }
+    
+    public function get_source_action() {
+        $posting = new ForumPosting(Request::get("topic_id"));
+        if (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) {
+            throw new AccessDeniedException("Kein Zugriff");
+        }
+        echo studip_utf8encode($posting['description']);
+        $this->render_nothing();
+    }
+    
+    public function edit_posting_action () {
+        $posting = new ForumPosting(Request::get("topic_id"));
+        if (!$GLOBALS['perm']->have_studip_perm("tutor", $posting['Seminar_id']) 
+                && ($posting['user_id'] !== $GLOBALS['user']->id)) {
+            throw new AccessDeniedException("Kein Zugriff");
+        }
+        if (Request::get("content")) {
+            $posting['description'] = studip_utf8decode(Request::get("content"));
+            $posting->store();
+        } else {
+            $posting->delete();
+        }
+        $this->render_text(studip_utf8encode(formatReady($posting['description'])));
     }
     
     public function post_action() {
@@ -129,6 +158,7 @@ class ForumController extends ApplicationController {
                 $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views/forum");
                 $template = $factory->open("comment.php");
                 $template->set_attribute('posting', $posting);
+                $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
                 $output['content'] = studip_utf8encode($template->render($template->render()));
                 $output['mkdate'] = time();
                 $output['posting_id'] = $posting->getId();

@@ -12,7 +12,6 @@ class ApplicationController extends Trails_Controller{
         $this->flash = Trails_Flash::instance();
         $this->standard_templates = $GLOBALS['STUDIP_BASE_PATH'] . '/templates/';
         $this->set_layout('layout.php');
-        $GLOBALS['CURRENT_PAGE'] = $this->plugin->getDisplayTitle();
 
         $this->assets_url = $this->plugin->getPluginUrl(). '/assets/';
         PageLayout::addScript('jquery.tablesorter.min.js');
