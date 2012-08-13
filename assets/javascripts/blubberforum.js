@@ -113,6 +113,7 @@ STUDIP.FF = {
                 );
                 jQuery("#" + id).find(".corrector").focus();
                 STUDIP.FF.makeTextareasAutoresizable();
+                jQuery("#" + id).find(".corrector").trigger("keydown");
             }
         });
         
@@ -184,6 +185,7 @@ STUDIP.FF = {
                             'success': function (json) {
                                 jQuery.each(json.inserts, function (index, text) {
                                     jQuery(textarea).val(jQuery(textarea).val() + " " + text);
+                                    jQuery(textarea).trigger("keydown");
                                 });
                             }
                         });
