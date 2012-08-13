@@ -174,6 +174,7 @@ STUDIP.FF = {
                         };
                     }(file));
                     reader.onloadend = (function () {
+                        jQuery(textarea).addClass("uploading");
                         jQuery.ajax({
                             'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
                             'data': {
@@ -187,7 +188,7 @@ STUDIP.FF = {
                                     jQuery(textarea).val(jQuery(textarea).val() + " " + text);
                                     jQuery(textarea).trigger("keydown");
                                 });
-                                jQuery(textarea).removeClass("hovered");
+                                jQuery(textarea).removeClass("hovered").removeClass("uploading");
                             }
                         });
                     });

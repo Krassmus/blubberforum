@@ -62,6 +62,10 @@
 #forum_threads .writer textarea:hover {
     opacity: 1;
 }
+#forum_threads textarea.uploading {
+    background: url('../../../../../assets/images/ajax_indicator_small.gif') bottom right no-repeat;
+    background-color: yellow;
+}
 #forum_threads .avatar, #forum_threads .content {
     vertical-align: middle;
     display: inline-block;
@@ -102,7 +106,9 @@
     margin-top: 7px;
     width: 100%;
 }
-
+#forum_threads .posting img {
+    max-width: 600px;
+}
 
 #forum_threads li.more {
     cursor: pointer;
