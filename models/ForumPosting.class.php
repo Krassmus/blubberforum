@@ -19,7 +19,7 @@ class ForumPosting extends SimpleORMap {
         StudipCacheFactory::getCache()->expire("BLUBBERTHREADS_FROM_".$seminar_id);
     }
 
-    static public function getThreads($seminar_id, $before = false, $limit = false) {
+    static public function getThreads($seminar_id, $after_thread_id = false, $limit = false) {
         $cache = StudipCacheFactory::getCache();
         $threads = $cache->read("BLUBBERTHREADS_FROM_".$seminar_id);
         if (!$threads) {
@@ -39,10 +39,11 @@ class ForumPosting extends SimpleORMap {
         } else {
             $threads = unserialize($threads);
         }
-        if ($before) {
-            while ($threads[0]['mkdate'] > $before) {
+        if ($after_thread_id !== false) {
+            while ($threads[0]->getId() !== $after_thread_id) {
                 array_shift($threads);
             }
+            array_shift($threads);
         }
         if ($limit) {
             $threads = array_slice($threads, 0, $limit);

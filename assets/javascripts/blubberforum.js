@@ -260,7 +260,7 @@ jQuery(window.document).bind('scroll', function (event) {
         jQuery.ajax({
             url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_postings",
             data: {
-                'before': jQuery("#forum_threads > li:nth-last-child(2)").attr("mkdate"),
+                'before': jQuery("#forum_threads > li:nth-last-child(2)").attr("id"),
                 'cid': jQuery("#seminar_id").val()
             },
             dataType: "json",

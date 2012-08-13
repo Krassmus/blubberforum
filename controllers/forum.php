@@ -23,10 +23,10 @@ class ForumController extends ApplicationController {
         
         ForumPosting::expireThreads($_SESSION['SessionSeminar']);
         $this->threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], false, $this->max_threads + 1);
-        $this->more_threads = count($this->threads) > $max_threads;
+        $this->more_threads = count($this->threads) > $this->max_threads;
         $this->course_id = $_SESSION['SessionSeminar'];
         if ($this->more_threads) {
-            $this->threads = array_slice($this->threads, 0, $max_threads);
+            $this->threads = array_slice($this->threads, 0, $this->max_threads);
         }
     }
     
@@ -56,10 +56,10 @@ class ForumController extends ApplicationController {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $output = array();
-        $threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], Request::int("before"), $this->max_threads + 1);
-        $output['more'] = count($this->threads) > $max_threads;
+        $threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], Request::option("before"), $this->max_threads + 1);
+        $output['more'] = count($this->threads) > $this->max_threads;
         if ($output['more']) {
-            $threads = array_slice($threads, 0, $max_threads);
+            $threads = array_slice($threads, 0, $this->max_threads);
         }
         $output['threads'] = array();
         $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
