@@ -217,28 +217,32 @@ class ForumController extends ApplicationController {
         
 
         $output = array();
+        
         foreach ($files as $file) {
-            $document = new StudipDocument();
-            $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['filename']));
-            $document['user_id'] = $GLOBALS['user']->id;
-            $document['author_name'] = get_fullname();
-            $document['seminar_id'] = $_SESSION['SessionSeminar'];
-            $document['range_id'] = $folder_id;
-            $document->store();
-            $path = get_upload_file_path($document->getId());
-            file_put_contents($path, base64_decode($file['content']));
-            $document['size'] = filesize($path);
-            $document->store();
-            $image = false;
-            foreach (array(".jpg",".png",".bmp",".gif",".svg") as $type) {
-                if (strpos($document['filename'], $type)) {
-                    $image = true;
+            if ($file['content']) {
+                $document = new StudipDocument();
+                $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['filename']));
+                $document['user_id'] = $GLOBALS['user']->id;
+                $document['author_name'] = get_fullname();
+                $document['seminar_id'] = $_SESSION['SessionSeminar'];
+                $document['range_id'] = $folder_id;
+                $document->store();
+                $path = get_upload_file_path($document->getId());
+                $pure_file = base64_decode($file['content']);
+                file_put_contents($path, $pure_file);
+                $document['filesize'] = strlen($pure_file);
+                $document->store();
+                $image = false;
+                foreach (array(".jpg",".png",".bmp",".gif",".svg") as $type) {
+                    if (strpos($document['filename'], $type)) {
+                        $image = true;
+                    }
                 }
-            }
-            if ($image) {
-                $output['inserts'][] = "[img]".GetDownloadLink($document->getId(), $document['filename']);
-            } else {
-                $output['inserts'][] = "[".$document['filename']."]".GetDownloadLink($document->getId(), $document['filename']);
+                if ($image) {
+                    $output['inserts'][] = "[img]".GetDownloadLink($document->getId(), $document['filename']);
+                } else {
+                    $output['inserts'][] = "[".$document['filename']."]".GetDownloadLink($document->getId(), $document['filename']);
+                }
             }
         }
         $this->render_json($output);

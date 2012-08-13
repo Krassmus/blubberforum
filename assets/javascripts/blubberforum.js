@@ -184,10 +184,14 @@ STUDIP.FF = {
                             'type': "post",
                             'dataType': "json",
                             'success': function (json) {
-                                jQuery.each(json.inserts, function (index, text) {
-                                    jQuery(textarea).val(jQuery(textarea).val() + " " + text);
-                                    jQuery(textarea).trigger("keydown");
-                                });
+                                if (typeof json.inserts === "object") {
+                                    jQuery.each(json.inserts, function (index, text) {
+                                        jQuery(textarea).val(jQuery(textarea).val() + " " + text);
+                                    });
+                                } else {
+                                    alert("Bild zu groﬂ zum Hochladen per AJAX.");
+                                }
+                                jQuery(textarea).trigger("keydown");
                                 jQuery(textarea).removeClass("hovered").removeClass("uploading");
                             }
                         });
