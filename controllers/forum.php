@@ -226,8 +226,6 @@ class ForumController extends ApplicationController {
             $document['range_id'] = $folder_id;
             $document->store();
             $path = get_upload_file_path($document->getId());
-            $output['path'] = $path;
-            $output['length'] = strlen(base64_decode($file['content']));
             file_put_contents($path, base64_decode($file['content']));
             $document['size'] = filesize($path);
             $document->store();

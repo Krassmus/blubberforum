@@ -187,13 +187,13 @@ STUDIP.FF = {
                                     jQuery(textarea).val(jQuery(textarea).val() + " " + text);
                                     jQuery(textarea).trigger("keydown");
                                 });
+                                jQuery(textarea).removeClass("hovered");
                             }
                         });
                     });
                     reader.readAsDataURL(file);
                 });
             }, false);
-            jQuery("textarea").removeClass("hovered");
         });
     }
 };

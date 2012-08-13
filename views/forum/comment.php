@@ -24,7 +24,7 @@ if (!$last_visit) {
         <div class="timer">
             <?= (date("j.n.Y", $posting['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $posting['mkdate'])) : date("j.n.Y", $posting['mkdate']) ?>
             <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) or ($posting['user_id'] === $GLOBALS['user']->id)) : ?>
-            <a href="#" class="edit" onClick="return false;" style="vertical-align: middle; opacity: 0.6; width: 14px; height:14px; display: inline-block; background: url('<?= Assets::image_path("icons/16/grey/tools.png") ?>') center center; background-position: center center;"></a>
+            <a href="#" class="edit" onClick="return false;" title="<?= _("Bearbeiten") ?>" style="vertical-align: middle; opacity: 0.6; width: 14px; height:14px; display: inline-block; background: url('<?= Assets::image_path("icons/16/grey/tools.png") ?>') center center; background-position: center center;"></a>
             <? endif ?>
         </div>
         <div class="name">
