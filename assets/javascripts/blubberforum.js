@@ -157,15 +157,41 @@ STUDIP.FF = {
         }).each(function (index, textarea) {
             textarea.addEventListener("drop", function (event) {
                 event.preventDefault();
-                var files = event.dataTransfer.files;
-                jQuery.each(files, function (index, file) {
+                var files = [];
+                var file_info = event.dataTransfer.files;
+                jQuery.each(file_info, function (index, file) {
                     var reader = new FileReader();
                     var filename = file.name;
-                    var content = reader.readAsBinaryString(file);
-                    console.log(content);
+                    var content = "";
+                    reader.onload = (function (f) {
+                        return function(event) {
+                            files.push({
+                                'filename': filename,
+                                'content': event.target.result
+                            });
+                        };
+                    }(file));
+                    reader.onloadend = (function () {
+                        console.log(files);
+                        jQuery.ajax({
+                            'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
+                            'data': {
+                                'cid': jQuery("#seminar_id").val(),
+                                'files': files
+                            },
+                            'type': "post",
+                            'dataType': "json",
+                            'success': function (json) {
+                                jQuery.each(json.inserts, function (index, text) {
+                                    jQuery(textarea).val(jQuery(textarea).val() + " " + text);
+                                });
+                            }
+                        });
+                    });
+                    reader.readAsBinaryString(file);
                 });
             }, false);
-            jQuery(textarea).removeClass("hovered");
+            jQuery("textarea").removeClass("hovered");
         });
     }
 };

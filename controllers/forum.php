@@ -119,7 +119,7 @@ class ForumController extends ApplicationController {
         if (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        echo studip_utf8encode($posting['description']);
+        echo studip_utf8encode(forum_kill_edit($posting['description']));
         $this->render_nothing();
     }
     
@@ -169,6 +169,79 @@ class ForumController extends ApplicationController {
                 'error' => "Konnte thread nicht zuordnen."
             ));
         }
+    }
+
+    public function post_files_action() {
+        if (count($_POST) === 0 || !$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+            throw new AccessDeniedException("Kein Zugriff");
+        }
+        $files = Request::getArray("files");
+        //check folders
+        $db = DBManager::get();
+        $folder_id = md5("Blubber_".$_SESSION['SessionSeminar']."_".$GLOBALS['user']->id);
+        $folder = $db->query(
+            "SELECT * " .
+            "FROM folder " .
+            "WHERE folder_id = ".$db->quote($folder_id)." " .
+        "")->fetch(PDO::FETCH_COLUMN, 0);
+        if (!$folder) {
+            $parent_folder_id = md5("Blubber_".$_SESSION['SessionSeminar']);
+            $folder = $db->query(
+                "SELECT * " .
+                "FROM folder " .
+                "WHERE folder_id = ".$db->quote($folder_id)." " .
+            "")->fetch(PDO::FETCH_COLUMN, 0);
+            if (!$folder) {
+                $db->exec(
+                    "INSERT INTO folder " .
+                    "SET folder_id = ".$db->quote($parent_folder_id).", " .
+                        "range_id = ".$db->quote($_SESSION['SessionSeminar']).", " .
+                        "user_id = ".$db->quote($GLOBALS['user']->id).", " .
+                        "name = ".$db->quote("BlubberBilder").", " .
+                        "permission = '7', " .
+                        "mkdate = ".$db->quote(time()).", " .
+                        "chdate = ".$db->quote(time())." " .
+                "");
+            }
+            $db->exec(
+                "INSERT INTO folder " .
+                "SET folder_id = ".$db->quote($folder_id).", " .
+                    "range_id = ".$db->quote($parent_folder_id).", " .
+                    "user_id = ".$db->quote($GLOBALS['user']->id).", " .
+                    "name = ".$db->quote(get_fullname()).", " .
+                    "permission = '7', " .
+                    "mkdate = ".$db->quote(time()).", " .
+                    "chdate = ".$db->quote(time())." " .
+            "");
+        }
+        
+
+        $output = array();
+        foreach ($files as $file) {
+            $document = new StudipDocument();
+            $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['filename']));
+            $document['user_id'] = $GLOBALS['user']->id;
+            $document['author_name'] = get_fullname();
+            $document['seminar_id'] = $_SESSION['SessionSeminar'];
+            $document['range_id'] = $folder_id;
+            $document->store();
+            $path = get_upload_file_path($document->getId());
+            file_put_contents($path, studip_utf8decode($file['content']));
+            $document['size'] = filesize($path);
+            $document->store();
+            $image = false;
+            foreach (array(".jpg",".png",".bmp",".gif",".svg") as $type) {
+                if (strpos($document['filename'], $type)) {
+                    $image = true;
+                }
+            }
+            if ($image) {
+                $output['inserts'][] = "[img]".GetDownloadLink($document->getId(), $document['filename']);
+            } else {
+                $output['inserts'][] = "[".$document['filename']."]".GetDownloadLink($document->getId(), $document['filename']);
+            }
+        }
+        $this->render_json($output);
     }
     
 }

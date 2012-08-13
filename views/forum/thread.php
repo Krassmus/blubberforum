@@ -35,7 +35,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
         <div class="content">
             <? 
             $content = forum_kill_edit($thread['description']);
-            if (strpos($thread['description'], $thread['name']) === false) {
+            if ($thread['name'] && strpos($thread['description'], $thread['name']) === false) {
                 $content = $thread['name']."\n".$content;
             }
             ?>
