@@ -150,7 +150,23 @@ STUDIP.FF = {
             animateDuration: 300,
             // More extra space:
             extraSpace: 0
-        }).addClass("autoresize");
+        }).addClass("autoresize")
+            .bind('dragover dragleave', function (event) {
+            jQuery(this).toggleClass('hovered', event.type === 'dragover');
+            return false;
+        }).each(function (index, textarea) {
+            textarea.addEventListener("drop", function (event) {
+                event.preventDefault();
+                var files = event.dataTransfer.files;
+                jQuery.each(files, function (index, file) {
+                    var reader = new FileReader();
+                    var filename = file.name;
+                    var content = reader.readAsBinaryString(file);
+                    console.log(content);
+                });
+            }, false);
+            jQuery(textarea).removeClass("hovered");
+        });
     }
 };
 

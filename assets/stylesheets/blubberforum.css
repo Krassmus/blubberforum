@@ -52,6 +52,10 @@
     width: 97%;
     height: 20px;
 }
+#forum_threads .writer textarea.hovered, #new_posting.hovered, #forum_threads textarea.corrector {
+    background-color: #f5f5ff;
+    opacity: 1.0;
+}
 #forum_threads .writer textarea {
     opacity: 0.5;
 }
