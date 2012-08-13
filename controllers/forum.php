@@ -189,11 +189,11 @@ class ForumController extends ApplicationController {
             $folder = $db->query(
                 "SELECT * " .
                 "FROM folder " .
-                "WHERE folder_id = ".$db->quote($folder_id)." " .
+                "WHERE folder_id = ".$db->quote($parent_folder_id)." " .
             "")->fetch(PDO::FETCH_COLUMN, 0);
             if (!$folder) {
                 $db->exec(
-                    "INSERT INTO folder " .
+                    "INSERT IGNORE INTO folder " .
                     "SET folder_id = ".$db->quote($parent_folder_id).", " .
                         "range_id = ".$db->quote($_SESSION['SessionSeminar']).", " .
                         "user_id = ".$db->quote($GLOBALS['user']->id).", " .
@@ -204,7 +204,7 @@ class ForumController extends ApplicationController {
                 "");
             }
             $db->exec(
-                "INSERT INTO folder " .
+                "INSERT IGNORE INTO folder " .
                 "SET folder_id = ".$db->quote($folder_id).", " .
                     "range_id = ".$db->quote($parent_folder_id).", " .
                     "user_id = ".$db->quote($GLOBALS['user']->id).", " .
@@ -226,7 +226,9 @@ class ForumController extends ApplicationController {
             $document['range_id'] = $folder_id;
             $document->store();
             $path = get_upload_file_path($document->getId());
-            file_put_contents($path, studip_utf8decode($file['content']));
+            $output['path'] = $path;
+            $output['length'] = strlen(base64_decode($file['content']));
+            file_put_contents($path, base64_decode($file['content']));
             $document['size'] = filesize($path);
             $document->store();
             $image = false;

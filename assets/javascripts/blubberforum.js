@@ -166,14 +166,14 @@ STUDIP.FF = {
                     var content = "";
                     reader.onload = (function (f) {
                         return function(event) {
+                            var base64 = event.target.result.substr(event.target.result.lastIndexOf(",") + 1);
                             files.push({
                                 'filename': filename,
-                                'content': event.target.result
+                                'content': base64
                             });
                         };
                     }(file));
                     reader.onloadend = (function () {
-                        console.log(files);
                         jQuery.ajax({
                             'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
                             'data': {
@@ -190,7 +190,7 @@ STUDIP.FF = {
                             }
                         });
                     });
-                    reader.readAsBinaryString(file);
+                    reader.readAsDataURL(file);
                 });
             }, false);
             jQuery("textarea").removeClass("hovered");
