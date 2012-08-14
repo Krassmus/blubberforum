@@ -129,10 +129,36 @@ class ForumController extends ApplicationController {
                 && ($posting['user_id'] !== $GLOBALS['user']->id)) {
             throw new AccessDeniedException("Kein Zugriff");
         }
+        $old_content = $posting['description'];
+        $messaging = new messaging();
         if (Request::get("content")) {
             $posting['description'] = studip_utf8decode(Request::get("content"));
             $posting->store();
+            if ($posting['user_id'] !== $GLOBALS['user']->id) {
+                $messaging->insert_message(
+                    sprintf(
+                        _("%s hat als Moderator gerade Ihren Beitrag im Blubberforum editiert.\n\nDie alte Version des Beitrags lautete:\n\n%s\n\nDie neue lautet:\n\n%s\n"),
+                        get_fullname(), $old_content, $posting['description']
+                    ),
+                    get_username($posting['user_id']),
+                    $GLOBALS['user']->id,
+                    null, null, null, null,
+                    _("Änderungen an Ihrem Posting.")
+                );
+            }
         } else {
+            if ($posting['user_id'] !== $GLOBALS['user']->id) {
+                $messaging->insert_message(
+                    sprintf(
+                        _("%s hat als Moderator gerade Ihren Beitrag im Blubberforum GELÖSCHT.\n\nDer alte Beitrag lautete:\n\n%s\n"),
+                        get_fullname(), $old_content
+                    ),
+                    get_username($posting['user_id']),
+                    $GLOBALS['user']->id,
+                    null, null, null, null,
+                    _("Ihr Posting wurde gelöscht.")
+                );
+            }
             $posting->delete();
         }
         $this->render_text(studip_utf8encode(formatReady($posting['description'])));
