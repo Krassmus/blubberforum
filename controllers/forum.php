@@ -163,6 +163,14 @@ class ForumController extends ApplicationController {
         }
         $this->render_text(studip_utf8encode(formatReady($posting['description'])));
     }
+
+    public function refresh_posting_action() {
+        $posting = new ForumPosting(Request::get("topic_id"));
+        if (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) {
+            throw new AccessDeniedException("Kein Zugriff");
+        }
+        $this->render_text(studip_utf8encode(formatReady($posting['description'])));
+    }
     
     public function post_action() {
         if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {

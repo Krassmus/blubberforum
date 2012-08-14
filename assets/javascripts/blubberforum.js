@@ -76,9 +76,9 @@ STUDIP.FF = {
     },
     insertThread: function (posting_id, mkdate, comment) {
         if (jQuery("#" + posting_id).length) {
-            if (jQuery("#" + posting_id + " textarea.corrector").length === 0) {
+            if (jQuery("#" + posting_id + " > .content_column textarea.corrector").length === 0) {
                 var new_version = jQuery(comment);
-                jQuery("#" + posting_id + " .content").html(new_version.find(".content").html());
+                jQuery("#" + posting_id + " > .content_column .content").html(new_version.find(".content").html());
                 new_version.remove();
             }
         } else {
@@ -120,22 +120,36 @@ STUDIP.FF = {
     },
     submitEditedPosting: function (textarea) {
         var id = jQuery(textarea).closest("li").attr("id");
-        jQuery.ajax({
-            'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/edit_posting",
-            'data': {
-                'topic_id': id,
-                'content': jQuery(textarea).val(),
-                'cid': jQuery("#seminar_id").val()
-            },
-            'type': "post",
-            'success': function (new_content) {
-                if (new_content) {
-                    jQuery("#" + id).find(".content_column .content").html(new_content);
-                } else {
-                    jQuery("#" + id).fadeOut(function () { jQuery("#" + id).remove(); });
+        if (jQuery("#" + id).attr("data-autor") === jQuery("#user_id").val()
+                || window.confirm(jQuery("#editing_question").text())) {
+            jQuery.ajax({
+                'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/edit_posting",
+                'data': {
+                    'topic_id': id,
+                    'content': jQuery(textarea).val(),
+                    'cid': jQuery("#seminar_id").val()
+                },
+                'type': "post",
+                'success': function (new_content) {
+                    if (new_content) {
+                        jQuery("#" + id).find(".content_column .content").html(new_content);
+                    } else {
+                        jQuery("#" + id).fadeOut(function () { jQuery("#" + id).remove(); });
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            jQuery.ajax({
+                'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/refresh_posting",
+                'data': {
+                    'topic_id': id,
+                    'cid': jQuery("#seminar_id").val()
+                },
+                'success': function (new_content) {
+                    jQuery("#" + id).find(".content_column .content").html(new_content);
+                }
+            });
+        }
     },
     makeTextareasAutoresizable: function () {
         jQuery(".writer textarea:not(.autoresize), #new_posting:not(.autoresize), #forum_threads textarea.corrector").autoResize({

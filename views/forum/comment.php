@@ -12,7 +12,7 @@ if (!$last_visit) {
     $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 }
 ?>
-<li class="comment posting<?= $posting['mkdate'] > $last_visit ? " new" : "" ?>" id="<?= $posting->getId() ?>" mkdate="<?= htmlReady($posting['mkdate']) ?>">
+<li class="comment posting<?= $posting['mkdate'] > $last_visit ? " new" : "" ?>" id="<?= $posting->getId() ?>" mkdate="<?= htmlReady($posting['mkdate']) ?>" data-autor="<?= htmlReady($posting['user_id']) ?>">
     <div class="avatar_column">
         <div class="avatar">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($posting['user_id']))) ?>">

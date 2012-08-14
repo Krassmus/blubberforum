@@ -12,6 +12,8 @@
 <input type="hidden" id="last_check" value="<?= time() ?>">
 <input type="hidden" id="seminar_id" value="<?= $_SESSION['SessionSeminar'] ?>">
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
+<input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
+<div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 
 <div id="threadwriter">
     <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
