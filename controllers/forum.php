@@ -1,7 +1,7 @@
 <?php
 /*
  *  Copyright (c) 2012  Rasmus Fuhse <fuhse@data-quest.de>
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation; either version 2 of
@@ -11,16 +11,17 @@
 require_once dirname(__file__)."/application.php";
 
 class ForumController extends ApplicationController {
-    
+
     protected $max_threads = 20;
-    
+
     public function forum_action() {
         object_set_visit($_SESSION['SessionSeminar'], "forum");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
-        
+
         ForumPosting::expireThreads($_SESSION['SessionSeminar']);
         $this->threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], false, $this->max_threads + 1);
         $this->more_threads = count($this->threads) > $this->max_threads;
@@ -29,7 +30,7 @@ class ForumController extends ApplicationController {
             $this->threads = array_slice($this->threads, 0, $this->max_threads);
         }
     }
-    
+
     public function more_comments_action() {
         if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException("Kein Zugriff");
@@ -50,7 +51,7 @@ class ForumController extends ApplicationController {
         }
         $this->render_json($output);
     }
-    
+
     public function more_postings_action() {
         if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException("Kein Zugriff");
@@ -75,7 +76,7 @@ class ForumController extends ApplicationController {
         }
         $this->render_json($output);
     }
-    
+
     public function new_posting_action() {
         if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException("Kein Zugriff");
@@ -113,7 +114,7 @@ class ForumController extends ApplicationController {
         }
         $this->render_json($output);
     }
-    
+
     public function get_source_action() {
         $posting = new ForumPosting(Request::get("topic_id"));
         if (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) {
@@ -122,10 +123,10 @@ class ForumController extends ApplicationController {
         echo studip_utf8encode(forum_kill_edit($posting['description']));
         $this->render_nothing();
     }
-    
+
     public function edit_posting_action () {
         $posting = new ForumPosting(Request::get("topic_id"));
-        if (!$GLOBALS['perm']->have_studip_perm("tutor", $posting['Seminar_id']) 
+        if (!$GLOBALS['perm']->have_studip_perm("tutor", $posting['Seminar_id'])
                 && ($posting['user_id'] !== $GLOBALS['user']->id)) {
             throw new AccessDeniedException("Kein Zugriff");
         }
@@ -171,7 +172,7 @@ class ForumController extends ApplicationController {
         }
         $this->render_text(studip_utf8encode(formatReady($posting['description'])));
     }
-    
+
     public function post_action() {
         if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException("Kein Zugriff");
@@ -206,10 +207,9 @@ class ForumController extends ApplicationController {
     }
 
     public function post_files_action() {
-        if (count($_POST) === 0 || !$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+        if (!Request::isPost()|| !$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        $files = Request::getArray("files");
         //check folders
         $db = DBManager::get();
         $folder_id = md5("Blubber_".$_SESSION['SessionSeminar']."_".$GLOBALS['user']->id);
@@ -248,38 +248,35 @@ class ForumController extends ApplicationController {
                     "chdate = ".$db->quote(time())." " .
             "");
         }
-        
+
 
         $output = array();
-        
-        foreach ($files as $file) {
-            if ($file['content']) {
-                $document = new StudipDocument();
-                $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['filename']));
+
+        foreach ($_FILES as $file) {
+            $GLOBALS['msg'] = '';
+            validate_upload($file);
+            if ($GLOBALS['msg']) {
+                $output['errors'][] = $file['name'] . ': ' . studip_utf8encode(html_entity_decode(trim(substr($GLOBALS['msg'],6), '§')));
+                continue;
+            }
+            if ($file['size']) {
+                $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['name']));
                 $document['user_id'] = $GLOBALS['user']->id;
                 $document['author_name'] = get_fullname();
                 $document['seminar_id'] = $_SESSION['SessionSeminar'];
                 $document['range_id'] = $folder_id;
-                $document->store();
-                $path = get_upload_file_path($document->getId());
-                $pure_file = base64_decode($file['content']);
-                file_put_contents($path, $pure_file);
-                $document['filesize'] = strlen($pure_file);
-                $document->store();
-                $image = false;
-                foreach (array(".jpg",".png",".bmp",".gif",".svg") as $type) {
-                    if (strpos($document['filename'], $type)) {
-                        $image = true;
+                $document['filesize'] = $file['size'];
+                if ($newfile = StudipDocument::createWithFile($file['tmp_name'], $document)) {
+                    $image = strpos($file['type'], 'image') !== false;
+                    if ($image) {
+                        $output['inserts'][] = "[img]".GetDownloadLink($newfile->getId(), $newfile['filename']);
+                    } else {
+                        $output['inserts'][] = "[".$newfile['filename']."]".GetDownloadLink($newfile->getId(), $newfile['filename']);
                     }
-                }
-                if ($image) {
-                    $output['inserts'][] = "[img]".GetDownloadLink($document->getId(), $document['filename']);
-                } else {
-                    $output['inserts'][] = "[".$document['filename']."]".GetDownloadLink($document->getId(), $document['filename']);
                 }
             }
         }
         $this->render_json($output);
     }
-    
+
 }

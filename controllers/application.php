@@ -15,11 +15,11 @@ class ApplicationController extends Trails_Controller{
 
         $this->assets_url = $this->plugin->getPluginUrl(). '/assets/';
         PageLayout::addScript('jquery.tablesorter.min.js');
-        PageLayout::addHeadElement("link", 
+        PageLayout::addHeadElement("link",
             array("href" => $this->assets_url.'stylesheets/blubberforum.css',
-                  "rel" => "stylesheet"), 
+                  "rel" => "stylesheet"),
             "");
-        
+
     }
 
     function rescue($exception) {
