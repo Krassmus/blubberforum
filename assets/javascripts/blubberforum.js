@@ -103,7 +103,7 @@ STUDIP.FF = {
         var id = jQuery(this).closest("li").attr("id");
         jQuery.ajax({
             'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/get_source",
-            'data': { 
+            'data': {
                 'topic_id': id,
                 'cid': jQuery("#seminar_id").val()
             },
@@ -116,7 +116,7 @@ STUDIP.FF = {
                 jQuery("#" + id).find(".corrector").trigger("keydown");
             }
         });
-        
+
     },
     submitEditedPosting: function (textarea) {
         var id = jQuery(textarea).closest("li").attr("id");
@@ -172,46 +172,51 @@ STUDIP.FF = {
         }).each(function (index, textarea) {
             textarea.addEventListener("drop", function (event) {
                 event.preventDefault();
-                var files = [];
+                var files = 0;
                 var file_info = event.dataTransfer.files;
+                var data = new FormData();
                 jQuery.each(file_info, function (index, file) {
-                    var reader = new FileReader();
-                    var filename = file.name;
-                    var content = "";
-                    reader.onload = (function (f) {
-                        return function(event) {
-                            var base64 = event.target.result.substr(event.target.result.lastIndexOf(",") + 1);
-                            files.push({
-                                'filename': filename,
-                                'content': base64
-                            });
-                        };
-                    }(file));
-                    reader.onloadend = (function () {
-                        jQuery(textarea).addClass("uploading");
-                        jQuery.ajax({
-                            'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
-                            'data': {
-                                'cid': jQuery("#seminar_id").val(),
-                                'files': files
+                        if (file.size > 0) {
+                            data.append(index, file);
+                            files += 1;
+                        }
+                });
+                if (files > 0) {
+                    jQuery(textarea).addClass("uploading");
+                    $.ajax({
+                            url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
+                            data: data,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            type: 'POST',
+                            xhr: function () {
+                                var xhr = jQuery.ajaxSettings.xhr();
+                                //workaround for FF<4 https://github.com/francois2metz/html5-formdata
+                                if (data.fake) {
+                                    xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + data.boundary);
+                                    xhr.send = xhr.sendAsBinary;
+                                }
+                                return xhr;
                             },
-                            'type': "post",
-                            'dataType': "json",
-                            'success': function (json) {
+                            success: function (json) {
                                 if (typeof json.inserts === "object") {
                                     jQuery.each(json.inserts, function (index, text) {
                                         jQuery(textarea).val(jQuery(textarea).val() + " " + text);
                                     });
-                                } else {
-                                    alert("Bild zu groß zum Hochladen per AJAX.");
+                                }
+                                if (typeof json.errors === "object") {
+                                    alert(json.errors.join("\n"));
+                                } else if (typeof json.inserts !== "object") {
+                                    alert("Fehler beim Dateiupload.");
                                 }
                                 jQuery(textarea).trigger("keydown");
+                            },
+                            complete: function () {
                                 jQuery(textarea).removeClass("hovered").removeClass("uploading");
                             }
-                        });
                     });
-                    reader.readAsDataURL(file);
-                });
+                }
             }, false);
         });
     }

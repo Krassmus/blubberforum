@@ -1,7 +1,7 @@
 <?php
 /*
  *  Copyright (c) 2012  Rasmus Fuhse <fuhse@data-quest.de>
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation; either version 2 of
@@ -9,12 +9,13 @@
  */
 
 require_once "lib/classes/UpdateInformation.class.php";
+require_once 'lib/datei.inc.php';
 require_once dirname(__file__)."/models/ForumPosting.class.php";
 
 class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
     public $config = array();
-    
+
     public function __construct() {
         global $perm;
         parent::__construct();
@@ -45,7 +46,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             }
         }
     }
-    
+
     public function getTabNavigation($course_id) {
         $tab = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getLink($this, array(), "forum/forum"));
         $tab->setImage($this->getPluginURL()."/assets/images/blubber_white.png");
@@ -97,7 +98,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     public function getInfoTemplate($course_id)  {
         return null;
     }
-    
+
     public function getDisplayTitle() {
         return "Blubbern";
     }
