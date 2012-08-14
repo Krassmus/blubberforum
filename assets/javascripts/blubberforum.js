@@ -183,10 +183,10 @@ STUDIP.FF = {
                 var file_info = event.dataTransfer.files;
                 var data = new FormData();
                 jQuery.each(file_info, function (index, file) {
-                        if (file.size > 0) {
-                            data.append(index, file);
-                            files += 1;
-                        }
+                    if (file.size > 0) {
+                        data.append(index, file);
+                        files += 1;
+                    }
                 });
                 if (files > 0) {
                     jQuery(textarea).addClass("uploading");

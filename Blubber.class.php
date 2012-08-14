@@ -19,7 +19,6 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     public function __construct() {
         global $perm;
         parent::__construct();
-        $this->restoreConfig();
         if (UpdateInformation::isCollecting()) {
             $data = Request::getArray("page_info");
             if ($data['FF']['seminar_id']) {
@@ -45,29 +44,17 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                 UpdateInformation::setInformation("FF.getNewPosts", $output);
             }
         }
+        if (Navigation::hasItem("/course") && $this->isActivated() && version_compare($GLOBALS['SOFTWARE_VERSION'], "2.2") <= 0) {
+            $tab = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getLink($this, array(), "forum/forum"));
+            $tab->setImage($this->getPluginURL()."/assets/images/blubber_white.png");
+            Navigation::addItem("/course/blubberforum", $tab);
+        }
     }
 
     public function getTabNavigation($course_id) {
         $tab = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getLink($this, array(), "forum/forum"));
         $tab->setImage($this->getPluginURL()."/assets/images/blubber_white.png");
         return array('blubberforum' => $tab);
-    }
-
-    public function restoreConfig() {
-        $config = DBManager::get()
-                ->query("SELECT comment FROM config WHERE field = 'CONFIG_" . $this->getPluginName() . "' AND is_default=1")
-                ->fetchColumn();
-        $this->config = unserialize($config);
-        return $this->config != false;
-    }
-
-    public function storeConfig() {
-        $config = serialize($this->config);
-        $field = "CONFIG_" . $this->getPluginName();
-        $st = DBManager::get()
-        ->prepare("REPLACE INTO config (config_id, field, value, is_default, type, range, chdate, comment)
-            VALUES (?,?,'do not edit',1,'string','global',UNIX_TIMESTAMP(),?)");
-        return $st->execute(array(md5($field), $field, $config));
     }
 
     public function getIconNavigation($course_id, $last_visit) {
