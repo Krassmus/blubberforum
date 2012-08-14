@@ -118,10 +118,16 @@ STUDIP.FF = {
         });
 
     },
+    submittingEditedPostingStarted: false,
     submitEditedPosting: function (textarea) {
         var id = jQuery(textarea).closest("li").attr("id");
+        if (STUDIP.FF.submittingEditedPostingStarted) {
+            return;
+        }
+        STUDIP.FF.submittingEditedPostingStarted = true;
         if (jQuery("#" + id).attr("data-autor") === jQuery("#user_id").val()
                 || window.confirm(jQuery("#editing_question").text())) {
+            STUDIP.FF.submittingEditedPostingStarted = false;
             jQuery.ajax({
                 'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/edit_posting",
                 'data': {
@@ -139,6 +145,7 @@ STUDIP.FF = {
                 }
             });
         } else {
+            STUDIP.FF.submittingEditedPostingStarted = false;
             jQuery.ajax({
                 'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/refresh_posting",
                 'data': {
