@@ -183,38 +183,38 @@ STUDIP.FF = {
                 });
                 if (files > 0) {
                     jQuery(textarea).addClass("uploading");
-                    $.ajax({
-                            url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
-                            data: data,
-                            cache: false,
-                            contentType: false,
-                            processData: false,
-                            type: 'POST',
-                            xhr: function () {
-                                var xhr = jQuery.ajaxSettings.xhr();
-                                //workaround for FF<4 https://github.com/francois2metz/html5-formdata
-                                if (data.fake) {
-                                    xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + data.boundary);
-                                    xhr.send = xhr.sendAsBinary;
-                                }
-                                return xhr;
-                            },
-                            success: function (json) {
-                                if (typeof json.inserts === "object") {
-                                    jQuery.each(json.inserts, function (index, text) {
-                                        jQuery(textarea).val(jQuery(textarea).val() + " " + text);
-                                    });
-                                }
-                                if (typeof json.errors === "object") {
-                                    alert(json.errors.join("\n"));
-                                } else if (typeof json.inserts !== "object") {
-                                    alert("Fehler beim Dateiupload.");
-                                }
-                                jQuery(textarea).trigger("keydown");
-                            },
-                            complete: function () {
-                                jQuery(textarea).removeClass("hovered").removeClass("uploading");
+                    jQuery.ajax({
+                        'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
+                        'data': data,
+                        'cache': false,
+                        'contentType': false,
+                        'processData': false,
+                        'type': 'POST',
+                        'xhr': function () {
+                            var xhr = jQuery.ajaxSettings.xhr();
+                            //workaround for FF<4 https://github.com/francois2metz/html5-formdata
+                            if (data.fake) {
+                                xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + data.boundary);
+                                xhr.send = xhr.sendAsBinary;
                             }
+                            return xhr;
+                        },
+                        'success': function (json) {
+                            if (typeof json.inserts === "object") {
+                                jQuery.each(json.inserts, function (index, text) {
+                                    jQuery(textarea).val(jQuery(textarea).val() + " " + text);
+                                });
+                            }
+                            if (typeof json.errors === "object") {
+                                alert(json.errors.join("\n"));
+                            } else if (typeof json.inserts !== "object") {
+                                alert("Fehler beim Dateiupload.");
+                            }
+                            jQuery(textarea).trigger("keydown");
+                        },
+                        'complete': function () {
+                            jQuery(textarea).removeClass("hovered").removeClass("uploading");
+                        }
                     });
                 }
             }, false);
