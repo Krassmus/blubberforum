@@ -35,12 +35,16 @@ $infobox = array(
           "eintrag"   =>
         array(
             array(
-                "icon" => "icons/16/black/info.png",
+                "icon" => "icons/16/black/info",
                 "text" => _("Ein Facebook-Style Forum.")
             ),
             array(
-                "icon" => "icons/16/black/date.png",
+                "icon" => "icons/16/black/date",
                 "text" => _("Kein Seitenneuladen nötig. Du siehst sofort, wenn sich was getan hat.")
+            ),
+            array(
+                "icon" => "icons/16/black/upload",
+                "text" => _("Ziehen Sie Dateien per Drag & Drop in ein Textfeld, um sie hochzuladen zugleich zu verlinken.")
             )
         )
     )
