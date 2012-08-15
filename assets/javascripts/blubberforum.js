@@ -16,8 +16,13 @@ STUDIP.FF = {
             });
         }
     },
+    alreadyThreadWriting: false,
     newPosting: function () {
+        if (STUDIP.FF.alreadyThreadWriting) {
+            return;
+        }
         if (jQuery.trim(jQuery("#new_posting").val())) {
+            STUDIP.FF.alreadyThreadWriting = true;
             var content = jQuery("#new_posting").val();
             jQuery.ajax({
                 url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/new_posting",
@@ -30,11 +35,19 @@ STUDIP.FF = {
                 success: function (reply) {
                     jQuery("#new_posting").val("").trigger("keydown");
                     STUDIP.FF.insertThread(reply.posting_id, reply.mkdate, reply.content);
+                },
+                complete: function () {
+                    STUDIP.FF.alreadyThreadWriting = false;
                 }
             });
         }
     },
+    alreadyWriting: false,
     write: function (textarea) {
+        if (STUDIP.FF.alreadyWriting) {
+            return;
+        }
+        STUDIP.FF.alreadyWriting = true;
         var content = jQuery(textarea).val();
         var thread = jQuery(textarea).closest("li").attr("id");
         jQuery.ajax({
@@ -49,6 +62,9 @@ STUDIP.FF = {
             success: function (reply) {
                 jQuery(textarea).val("").trigger("keydown");
                 STUDIP.FF.insertComment(thread, reply.posting_id, reply.mkdate, reply.content);
+            },
+            complete: function () {
+                STUDIP.FF.alreadyWriting = false;
             }
         });
     },
@@ -138,7 +154,7 @@ STUDIP.FF = {
                 'type': "post",
                 'success': function (new_content) {
                     if (new_content) {
-                        jQuery("#" + id).find(".content_column .content").html(new_content);
+                        jQuery("#" + id + " > .content_column .content").html(new_content);
                     } else {
                         jQuery("#" + id).fadeOut(function () { jQuery("#" + id).remove(); });
                     }
@@ -153,13 +169,13 @@ STUDIP.FF = {
                     'cid': jQuery("#seminar_id").val()
                 },
                 'success': function (new_content) {
-                    jQuery("#" + id).find(".content_column .content").html(new_content);
+                    jQuery("#" + id + " > .content_column .content").html(new_content);
                 }
             });
         }
     },
     makeTextareasAutoresizable: function () {
-        jQuery(".writer textarea:not(.autoresize), #new_posting:not(.autoresize), #forum_threads textarea.corrector").autoResize({
+        jQuery("#forum_threads textarea:not(.autoresize), #new_posting:not(.autoresize)").autoResize({
             // On resize:
             onResize : function() {
                 $(this).css({opacity: 0.8});
