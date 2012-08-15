@@ -1,7 +1,7 @@
 STUDIP.jsupdate_enable = true;
 STUDIP.FF = {
     periodicalPushData: function () {
-        return {'seminar_id': jQuery("#seminar_id").val() };
+        return {'seminar_id': jQuery("#seminar_id").val()};
     },
     getNewPosts: function (data) {
         if (data.postings) {
@@ -14,6 +14,7 @@ STUDIP.FF = {
                     STUDIP.FF.insertThread(posting.posting_id, posting.mkdate, posting.content);
                 }
             });
+            STUDIP.FF.updateTimestamps();
         }
     },
     newPosting: function () {
@@ -73,6 +74,7 @@ STUDIP.FF = {
                 }
             }
         }
+        STUDIP.FF.updateTimestamps();
     },
     insertThread: function (posting_id, mkdate, comment) {
         if (jQuery("#" + posting_id).length) {
@@ -89,6 +91,7 @@ STUDIP.FF = {
                 jQuery("#forum_threads > li[id]").each(function (index, li) {
                     if (!already_inserted && jQuery(li).attr("mkdate") < mkdate) {
                         jQuery(comment).insertBefore(li).hide().fadeIn();
+                        STUDIP.FF.updateTimestamps();
                         already_inserted = true;
                     }
                 });
@@ -98,6 +101,7 @@ STUDIP.FF = {
             }
         }
         STUDIP.FF.makeTextareasAutoresizable();
+        STUDIP.FF.updateTimestamps();
     },
     startEditingComment: function () {
         var id = jQuery(this).closest("li").attr("id");
@@ -140,7 +144,7 @@ STUDIP.FF = {
                     if (new_content) {
                         jQuery("#" + id).find(".content_column .content").html(new_content);
                     } else {
-                        jQuery("#" + id).fadeOut(function () { jQuery("#" + id).remove(); });
+                        jQuery("#" + id).fadeOut(function () {jQuery("#" + id).remove();});
                     }
                 }
             });
@@ -226,8 +230,37 @@ STUDIP.FF = {
                 }
             }, false);
         });
+    },
+    updateTimestamps: function () {
+        var date = new Date();
+        var now_seconds = Math.floor(date.getTime() / 1000);
+        jQuery("#forum_threads .posting .time").each(function () {
+            var posting_time = parseInt(jQuery(this).attr("data-timestamp"));
+            var diff = now_seconds - posting_time;
+            if (diff < 86400) {
+                if (diff < 2 * 60 * 60) {
+                    if (Math.floor(diff / 60) === 0) {
+                        jQuery(this).text("Vor wenigen Sekunden");
+                    }
+                    if (Math.floor(diff / 60) === 1) {
+                        jQuery(this).text("Vor einer Minute");
+                    }
+                    if (Math.floor(diff / 60) > 1) {
+                        jQuery(this).text("Vor " + Math.floor(diff / 60) + " Minuten");
+                    }
+                } else {
+                    jQuery(this).text("Vor " + Math.floor(diff / (60 * 60)) + " Stunden");
+                }
+            } else {
+                date = new Date(posting_time * 1000);
+                jQuery(this).text(date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear());
+            }
+            
+        });
     }
 };
+
+jQuery(STUDIP.FF.updateTimestamps);
 
 jQuery("#threadwriter > textarea").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
@@ -275,7 +308,7 @@ jQuery(function () {
         });
     });
     jQuery("#forum_threads a.edit").live("click", STUDIP.FF.startEditingComment);
-    jQuery("#forum_threads textarea.corrector").live("blur", function () { STUDIP.FF.submitEditedPosting(this); });
+    jQuery("#forum_threads textarea.corrector").live("blur", function () {STUDIP.FF.submitEditedPosting(this);});
 });
 
 jQuery(window.document).bind('scroll', function (event) {

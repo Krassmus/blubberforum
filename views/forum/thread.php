@@ -22,7 +22,9 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
     </div>
     <div class="content_column">
         <div class="timer">
-            <?= (date("j.n.Y", $thread['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $thread['mkdate'])) : date("j.n.Y", $thread['mkdate']) ?>
+            <span class="time" data-timestamp="<?= (int) $thread['mkdate'] ?>">
+                <?= (date("j.n.Y", $thread['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $thread['mkdate'])) : date("j.n.Y", $thread['mkdate']) ?>
+            </span>
             <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) or ($thread['user_id'] === $GLOBALS['user']->id)) : ?>
             <a href="#" class="edit" title="<?= _("Bearbeiten") ?>" onClick="return false;" style="vertical-align: middle; opacity: 0.6; width: 14px; height:14px; display: inline-block; background: url('<?= Assets::image_path("icons/16/grey/tools.png") ?>') center center; background-position: center center;"></a>
             <? endif ?>
