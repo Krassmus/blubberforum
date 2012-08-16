@@ -271,9 +271,15 @@ STUDIP.FF = {
                 date = new Date(posting_time * 1000);
                 jQuery(this).text(date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear());
             }
-            
         });
+        if (window.Touch || jQuery.support.touch) {
+            //Touch support for devices with no hover-capability
+            jQuery("#forum_threads .posting .time").css({
+                "visibility": "visible"
+            });
+        }
     }
+
 };
 
 jQuery(STUDIP.FF.updateTimestamps);
