@@ -132,8 +132,9 @@ class ForumController extends ApplicationController {
         }
         $old_content = $posting['description'];
         $messaging = new messaging();
-        if (Request::get("content")) {
-            $posting['description'] = studip_utf8decode(Request::get("content"));
+        $new_content = studip_utf8decode(Request::get("content"));
+        if ($new_content && $old_content !== $new_content) {
+            $posting['description'] = $new_content;
             $posting->store();
             if ($posting['user_id'] !== $GLOBALS['user']->id) {
                 $messaging->insert_message(
@@ -147,7 +148,7 @@ class ForumController extends ApplicationController {
                     _("Änderungen an Ihrem Posting.")
                 );
             }
-        } else {
+        } elseif(!$new_content) {
             if ($posting['user_id'] !== $GLOBALS['user']->id) {
                 $messaging->insert_message(
                     sprintf(
