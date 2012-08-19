@@ -268,8 +268,16 @@ STUDIP.FF = {
                     jQuery(this).text("Vor " + Math.floor(diff / (60 * 60)) + " Stunden");
                 }
             } else {
-                date = new Date(posting_time * 1000);
-                jQuery(this).text(date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear());
+                if (Math.floor(diff / 86400) < 8) {
+                    if (Math.floor(diff / 86400) === 1) {
+                        jQuery(this).text("Vor einem Tag");
+                    } else {
+                        jQuery(this).text("Vor " + Math.floor(diff / 86400) + " Tagen");
+                    }
+                } else {
+                    date = new Date(posting_time * 1000);
+                    jQuery(this).text(date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear());
+                }
             }
         });
         if (window.Touch || jQuery.support.touch) {

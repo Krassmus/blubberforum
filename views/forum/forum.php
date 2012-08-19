@@ -44,7 +44,7 @@ $infobox = array(
             ),
             array(
                 "icon" => "icons/16/black/upload",
-                "text" => _("Ziehen Sie Dateien per Drag & Drop in ein Textfeld, um sie hochzuladen zugleich zu verlinken.")
+                "text" => _("Ziehe Dateien per Drag & Drop in ein Textfeld, um sie hochzuladen und zugleich zu verlinken.")
             )
         )
     )
