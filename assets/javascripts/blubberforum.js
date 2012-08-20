@@ -14,8 +14,8 @@ STUDIP.FF = {
                     STUDIP.FF.insertThread(posting.posting_id, posting.mkdate, posting.content);
                 }
             });
-            STUDIP.FF.updateTimestamps();
         }
+        STUDIP.FF.updateTimestamps();
     },
     alreadyThreadWriting: false,
     newPosting: function () {
@@ -72,7 +72,10 @@ STUDIP.FF = {
     insertComment: function (thread, posting_id, mkdate, comment) {
         if (jQuery("#" + posting_id).length) {
             if (jQuery("#" + posting_id + " textarea.corrector").length === 0) {
-                jQuery("#" + posting_id).replaceWith(comment);
+                if (jQuery("#" + posting_id + " .content").html() !== jQuery(comment).find(".content").html()) {
+                    //nur wenn es Unterschiede gibt
+                    jQuery("#" + posting_id).replaceWith(comment);
+                }
             }
         } else {
             if (jQuery("#" + thread + " ul.comments > li").length === 0) {
@@ -251,33 +254,37 @@ STUDIP.FF = {
         var date = new Date();
         var now_seconds = Math.floor(date.getTime() / 1000);
         jQuery("#forum_threads .posting .time").each(function () {
+            var new_text = "";
             var posting_time = parseInt(jQuery(this).attr("data-timestamp"));
             var diff = now_seconds - posting_time;
             if (diff < 86400) {
                 if (diff < 2 * 60 * 60) {
                     if (Math.floor(diff / 60) === 0) {
-                        jQuery(this).text("Vor wenigen Sekunden");
+                        new_text = "Vor wenigen Sekunden";
                     }
                     if (Math.floor(diff / 60) === 1) {
-                        jQuery(this).text("Vor einer Minute");
+                        new_text = "Vor einer Minute";
                     }
                     if (Math.floor(diff / 60) > 1) {
-                        jQuery(this).text("Vor " + Math.floor(diff / 60) + " Minuten");
+                        new_text = "Vor " + Math.floor(diff / 60) + " Minuten";
                     }
                 } else {
-                    jQuery(this).text("Vor " + Math.floor(diff / (60 * 60)) + " Stunden");
+                    new_text = "Vor " + Math.floor(diff / (60 * 60)) + " Stunden";
                 }
             } else {
                 if (Math.floor(diff / 86400) < 8) {
                     if (Math.floor(diff / 86400) === 1) {
-                        jQuery(this).text("Vor einem Tag");
+                        new_text = "Vor einem Tag";
                     } else {
-                        jQuery(this).text("Vor " + Math.floor(diff / 86400) + " Tagen");
+                        new_text = "Vor " + Math.floor(diff / 86400) + " Tagen";
                     }
                 } else {
                     date = new Date(posting_time * 1000);
-                    jQuery(this).text(date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear());
+                    new_text = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
                 }
+            }
+            if (jQuery(this).text() !== new_text) {
+                jQuery(this).text(new_text);
             }
         });
         if (window.Touch || jQuery.support.touch) {
