@@ -1,7 +1,10 @@
 STUDIP.jsupdate_enable = true;
 STUDIP.FF = {
     periodicalPushData: function () {
-        return {'seminar_id': jQuery("#seminar_id").val()};
+        return {
+            'seminar_id': jQuery("#seminar_id").val(),
+            'last_check': jQuery('#last_check').val()
+        };
     },
     getNewPosts: function (data) {
         if (data.postings) {
@@ -14,6 +17,9 @@ STUDIP.FF = {
                     STUDIP.FF.insertThread(posting.posting_id, posting.mkdate, posting.content);
                 }
             });
+
+            jQuery('#last_check').val(Math.floor(new Date().getTime() / 1000));
+
             STUDIP.FF.updateTimestamps();
         }
     },
