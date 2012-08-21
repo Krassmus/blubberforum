@@ -274,9 +274,14 @@ class ForumController extends ApplicationController {
                 $document['range_id'] = $folder_id;
                 $document['filesize'] = $file['size'];
                 if ($newfile = StudipDocument::createWithFile($file['tmp_name'], $document)) {
-                    $image = strpos($file['type'], 'image') !== false;
-                    if ($image) {
-                        $output['inserts'][] = "[img]".GetDownloadLink($newfile->getId(), $newfile['filename']);
+                    $type = null;
+                    strpos($file['type'], 'image') === false || $type = "img";
+                    strpos($file['type'], 'video') === false || $type = "video";
+                    if (strpos($file['type'], 'audio') !== false || strpos($document['filename'], '.ogg') !== false) {
+                         $type = "audio";
+                    }
+                    if ($type) {
+                        $output['inserts'][] = "[".$type."]".GetDownloadLink($newfile->getId(), $newfile['filename']);
                     } else {
                         $output['inserts'][] = "[".$newfile['filename']."]".GetDownloadLink($newfile->getId(), $newfile['filename']);
                     }

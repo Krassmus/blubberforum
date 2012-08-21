@@ -41,6 +41,21 @@ $infobox = array(
             array(
                 "icon" => "icons/16/black/date",
                 "text" => _("Kein Seitenneuladen nötig. Du siehst sofort, wenn sich was getan hat.")
+            )
+        )
+    ),
+    array("kategorie" => _("Profifunktionen"),
+          "eintrag"   =>
+        array(
+            array(
+                "icon" => "icons/16/black/forum",
+                "text" => _("Drücke Shift-Enter, um einen Absatz einzufügen.")
+            ),
+            array(
+                "icon" => "icons/16/black/smiley",
+                "text" => sprintf(_("Verwende beim Tippen %sTextformatierungen%s und %sSmileys.%s"),
+                        '<a href="http://docs.studip.de/help/2.2/de/Basis/VerschiedenesFormat">', '</a>',
+                        '<a href="'.URLHelper::getLink("dispatch.php/smileys").'">', '</a>')
             ),
             array(
                 "icon" => "icons/16/black/upload",
