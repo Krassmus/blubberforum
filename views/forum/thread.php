@@ -12,6 +12,18 @@
 $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 
 ?>
+<? if (@$single_thread): ?>
+<input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
+<p>
+    <a href="<?= $controller->url_for('forum/forum') ?>">
+        <?= Assets::img('icons/16/blue/arr_1left', array('class' => 'text-top')) ?>
+        <?= _('Zurück zur Übersicht') ?>
+    </a>
+</p>
+
+<ul id="forum_threads">
+<? endif; ?>
+
 <li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>" class="thread posting<?= $last_visit < $thread['mkdate'] ? " new" : "" ?>" data-autor="<?= htmlReady($thread['user_id']) ?>">
     <div class="avatar_column">
         <div class="avatar">
@@ -25,6 +37,9 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
             <span class="time" data-timestamp="<?= (int) $thread['mkdate'] ?>">
                 <?= (date("j.n.Y", $thread['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $thread['mkdate'])) : date("j.n.Y", $thread['mkdate']) ?>
             </span>
+            <a href="<?= $controller->url_for('forum/thread/' . $thread->getId(), array('cid' => $course_id)) ?>">
+                <?= Assets::img('icons/16/grey/group', array('class' => 'text-top')) ?>
+            </a>
             <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) or ($thread['user_id'] === $GLOBALS['user']->id)) : ?>
             <a href="#" class="edit" title="<?= _("Bearbeiten") ?>" onClick="return false;" style="vertical-align: middle; opacity: 0.6; width: 14px; height:14px; display: inline-block; background: url('<?= Assets::image_path("icons/16/grey/tools.png") ?>') center center; background-position: center center;"></a>
             <? endif ?>
@@ -62,3 +77,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
         <textarea placeholder="<?= _("Kommentiere dies") ?>"></textarea>
     </div>
 </li>
+
+<? if (@$single_thread): ?>
+</ul>
+<? endif; ?>

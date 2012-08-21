@@ -14,6 +14,12 @@ class ForumController extends ApplicationController {
 
     protected $max_threads = 20;
 
+    public function before_filter(&$action, &$args)
+    {
+        parent::before_filter($action, $args);
+        Navigation::activateItem('/course/blubberforum');
+    }
+
     public function forum_action() {
         object_set_visit($_SESSION['SessionSeminar'], "forum");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
@@ -283,6 +289,20 @@ class ForumController extends ApplicationController {
             }
         }
         $this->render_json($output);
+    }
+    
+    public function thread_action($thread_id)
+    {
+        object_set_visit($_SESSION['SessionSeminar'], "forum");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
+        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
+        Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
+
+        $this->thread        = new ForumPosting($thread_id);
+        $this->course_id     = $_SESSION['SessionSeminar'];
+        $this->single_thread = true;
     }
 
 }
