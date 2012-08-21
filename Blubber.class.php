@@ -74,10 +74,11 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                 "AND Seminar_id = ".$db->quote($course_id)." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
         if ($new_ones) {
-            $icon->setImage($this->getPluginURL()."/assets/images/blubber_red.png");
-            $icon->setTitle($new_ones > 1 ? sprintf(_("%s neue Blubber"), $new_ones) : _("1 neuer Blubber"));
+            $title = $new_ones > 1 ? sprintf(_("%s neue Blubber"), $new_ones) : _("1 neuer Blubber");
+            $icon->setImage($this->getPluginURL()."/assets/images/blubber_red.png", array('title' => $title));
+            $icon->setTitle($title);
         } else {
-            $icon->setImage($this->getPluginURL()."/assets/images/blubber_grey.png");
+            $icon->setImage($this->getPluginURL()."/assets/images/blubber_grey.png", array('title' => $this->getDisplayTitle()));
         }
         return $icon;
     }
