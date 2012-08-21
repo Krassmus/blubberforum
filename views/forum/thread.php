@@ -38,7 +38,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
                 <?= (date("j.n.Y", $thread['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $thread['mkdate'])) : date("j.n.Y", $thread['mkdate']) ?>
             </span>
             <a href="<?= $controller->url_for('forum/thread/' . $thread->getId(), array('cid' => $course_id)) ?>">
-                <?= Assets::img('icons/16/grey/group', array('class' => 'text-top')) ?>
+                <?= Assets::img('icons/16/grey/group', array('class' => 'text-top', 'title' => _('Permalink'))) ?>
             </a>
             <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) or ($thread['user_id'] === $GLOBALS['user']->id)) : ?>
             <a href="#" class="edit" title="<?= _("Bearbeiten") ?>" onClick="return false;" style="vertical-align: middle; opacity: 0.6; width: 14px; height:14px; display: inline-block; background: url('<?= Assets::image_path("icons/16/grey/tools.png") ?>') center center; background-position: center center;"></a>
