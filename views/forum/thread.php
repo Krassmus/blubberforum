@@ -62,16 +62,15 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 
     <ul class="comments">
         <? $postings = $thread->getChildren() ?>
-        <? if (count($postings) > 3) : ?>
-        <li class="more">...</li>
-        <?= $this->render_partial("forum/comment.php", array('posting' => $postings[count($postings)-3])) ?>
-        <?= $this->render_partial("forum/comment.php", array('posting' => $postings[count($postings)-2])) ?>
-        <?= $this->render_partial("forum/comment.php", array('posting' => $postings[count($postings)-1])) ?>
-        <? else : ?>
-        <? foreach ($postings as $posting) : ?>
+    <? if (count($postings) > 3) : ?>
+        <li class="more">
+            <?= sprintf(ngettext('%u weiterer Kommentar', '%u weitere Kommentare', count($postings) - 3), count($postings) - 3)?>
+            ...
+        </li>
+    <? endif; ?>
+    <? foreach (array_slice($postings, -3) as $posting) : ?>
         <?= $this->render_partial("forum/comment.php", array('posting' => $posting, 'last_visit' => $last_visit)) ?>
-        <? endforeach ?>
-        <? endif ?>
+    <? endforeach ?>
     </ul>
     <div class="writer">
         <textarea placeholder="<?= _("Kommentiere dies") ?>"></textarea>
