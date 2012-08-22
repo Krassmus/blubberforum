@@ -23,7 +23,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             $data = Request::getArray("page_info");
             if ($data['FF']['seminar_id']) {
                 $output = array();
-                $new_postings = ForumPosting::getPostings($data['FF']['seminar_id'], time() - (60 * 5));
+                $new_postings = ForumPosting::getPostings($data['FF']['seminar_id'], $data['FF']['last_check']);
                 $factory = new Flexi_TemplateFactory($this->getPluginPath()."/views");
                 foreach ($new_postings as $new_posting) {
                     if ($new_posting['root_id'] === $new_posting['topic_id']) {
@@ -69,7 +69,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         $new_ones = $db->query(
             "SELECT COUNT(*) " .
             "FROM px_topics " .
-            "WHERE chdate > ".$db->quote($last_visit > $last_own_posting_time ? $last_visit : $last_own_posting_time)." " .
+            "WHERE chdate > ".$db->quote(max($last_visit, $last_own_posting_time))." " .
                 "AND user_id != ".$db->quote($GLOBALS['user']->id)." " .
                 "AND Seminar_id = ".$db->quote($course_id)." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
