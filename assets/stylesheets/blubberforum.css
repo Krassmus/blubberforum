@@ -44,6 +44,26 @@
 #forum_threads .content_column:hover > .timer {
     visibility: visible;
 }
+#forum_threads .content_column .timer a, #forum_threads .content_column .timer a:hover {
+    color: #606060;
+}
+#forum_threads .content_column > .timer .icon {
+    vertical-align: middle; 
+    opacity: 0.6; 
+    width: 14px; 
+    height:14px; 
+    display: inline-block; 
+    background-position: center center;
+}
+#forum_threads .content_column .permalink {
+    background-position: -20px 0px;
+    background-repeat: no-repeat;
+    opacity: 0.6;
+}
+#forum_threads .content_column .permalink:hover {
+    padding-left: 18px;
+    background-position: 0px 0px;
+}
 #forum_threads .writer {
     margin-left: 60px;
     margin-top: 5px;
