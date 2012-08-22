@@ -140,9 +140,11 @@
 
 #forum_threads li.more {
     cursor: pointer;
+    color: #bbbbbb;
 }
 #forum_threads li.more:hover {
     background-color: #e5e5ff;
+    color: #777777;
 }
 #threadwriter {
     margin: 5px;
