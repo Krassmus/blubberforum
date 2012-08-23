@@ -12,6 +12,12 @@ require_once "lib/classes/UpdateInformation.class.php";
 require_once 'lib/datei.inc.php';
 require_once dirname(__file__)."/models/ForumPosting.class.php";
 
+if (!function_exists("transformBeforeSave")) {
+    function transformBeforeSave($text) {
+        return $text;
+    }
+}
+
 class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
     public $config = array();
@@ -41,6 +47,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         'content' => $template->render()
                     );
                 }
+                $output['stuff'] = formatReady("[+1:a8b32daebce4518234b801e188c4d11b]");
                 UpdateInformation::setInformation("FF.getNewPosts", $output);
             }
         }

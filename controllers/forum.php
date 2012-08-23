@@ -91,7 +91,7 @@ class ForumController extends ApplicationController {
         $thread = new ForumPosting(Request::option("thread"));
         $thread['seminar_id'] = $_SESSION['SessionSeminar'];
         $thread['parent_id'] = 0;
-        $content = studip_utf8decode(Request::get("content"));
+        $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         if (strpos($content, "\n") !== false) {
             $thread['name'] = substr($content, 0, strpos($content, "\n"));
             $thread['description'] = $content;
@@ -138,7 +138,7 @@ class ForumController extends ApplicationController {
         }
         $old_content = $posting['description'];
         $messaging = new messaging();
-        $new_content = studip_utf8decode(Request::get("content"));
+        $new_content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         if ($new_content && $old_content !== $new_content) {
             $posting['description'] = $new_content;
             $posting->store();
@@ -189,7 +189,7 @@ class ForumController extends ApplicationController {
             $output = array();
             $thread = new ForumPosting(Request::option("thread"));
             $posting = new ForumPosting();
-            $posting['description'] = studip_utf8decode(Request::get("content"));
+            $posting['description'] = transformBeforeSave(studip_utf8decode(Request::get("content")));
             $posting['seminar_id'] = $_SESSION['SessionSeminar'];
             $posting['root_id'] = $posting['parent_id'] = Request::option("thread");
             $posting['name'] = "Re: ".$thread['name'];
