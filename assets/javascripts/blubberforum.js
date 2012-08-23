@@ -50,12 +50,14 @@ STUDIP.FF = {
     },
     alreadyWriting: false,
     write: function (textarea) {
-        if (STUDIP.FF.alreadyWriting) {
+        var content = jQuery(textarea).val();
+        var thread = jQuery(textarea).closest("li").attr("id");
+
+        if (!content || STUDIP.FF.alreadyWriting) {
             return;
         }
         STUDIP.FF.alreadyWriting = true;
-        var content = jQuery(textarea).val();
-        var thread = jQuery(textarea).closest("li").attr("id");
+
         jQuery.ajax({
             url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post",
             data: {
