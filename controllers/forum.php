@@ -74,6 +74,7 @@ class ForumController extends ApplicationController {
             $template = $factory->open("forum/thread.php");
             $template->set_attribute('thread', $posting);
             $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
+            $template->set_attribute('controller', $this);
             $output['threads'][] = array(
                 'content' => studip_utf8encode($template->render()),
                 'mkdate' => $posting['mkdate'],
@@ -114,6 +115,7 @@ class ForumController extends ApplicationController {
             $template = $factory->open("forum/thread.php");
             $template->set_attribute('thread', $thread);
             $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
+            $template->set_attribute('controller', $this);
             $output['content'] = studip_utf8encode($template->render());
             $output['mkdate'] = time();
             $output['posting_id'] = $thread->getId();
