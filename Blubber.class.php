@@ -47,7 +47,6 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         'content' => $template->render()
                     );
                 }
-                $output['stuff'] = formatReady("[+1:a8b32daebce4518234b801e188c4d11b]");
                 UpdateInformation::setInformation("FF.getNewPosts", $output);
             }
         }
