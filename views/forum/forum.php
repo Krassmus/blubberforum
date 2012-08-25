@@ -36,7 +36,7 @@ $infobox = array(
         array(
             array(
                 "icon" => "icons/16/black/info",
-                "text" => _("Ein Facebook-Style Forum.")
+                "text" => _("Ein Echtzeitkommunikations-Forum.")
             ),
             array(
                 "icon" => "icons/16/black/date",
