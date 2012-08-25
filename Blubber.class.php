@@ -63,7 +63,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         return array('blubberforum' => $tab);
     }
 
-    public function getIconNavigation($course_id, $last_visit) {
+    public function getIconNavigation($course_id, $last_visit, $user_id) {
         $icon = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getLink($this, array(), "forum/forum"));
         $db = DBManager::get();
         $last_own_posting_time = (int) $db->query(
@@ -87,6 +87,11 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             $icon->setImage($this->getPluginURL()."/assets/images/blubber_grey.png", array('title' => $this->getDisplayTitle()));
         }
         return $icon;
+    }
+
+    public function getNotificationObjects($course_id, $since, $user_id)
+    {
+        return array();
     }
 
     public function getInfoTemplate($course_id)  {
