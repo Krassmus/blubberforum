@@ -206,6 +206,27 @@ class ForumController extends ApplicationController {
                 $output['content'] = studip_utf8encode($template->render($template->render()));
                 $output['mkdate'] = time();
                 $output['posting_id'] = $posting->getId();
+                
+                //Notifications:
+                if (class_exists("PersonalNotifications")) {
+                    $user_ids = array();
+                    if ($thread['user_id'] !== $GLOBALS['user']->id) {
+                        $user_ids[] = $thread['user_id'];
+                    }
+                    foreach ($thread->getChildren() as $comments) {
+                        if ($comments['user_id'] !== $GLOBALS['user']->id) {
+                            $user_ids[] = $comments['user_id'];
+                        }
+                    }
+                    $user_ids = array_unique($user_ids);
+                    PersonalNotifications::add(
+                        $user_ids,
+                        PluginEngine::getURL($this->plugin, array(), "forum/thread/".$thread->getId()),
+                        get_fullname()." hat einen Kommentar geschrieben",
+                        "posting_".$posting->getId(),
+                        Avatar::getAvatar($GLOBALS['user']->id)->getURL(Avatar::MEDIUM)
+                    );
+                }
             }
             $this->render_json($output);
         } else {

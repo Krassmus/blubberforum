@@ -86,8 +86,10 @@ STUDIP.FF = {
             }
         } else {
             if (jQuery("#" + thread + " ul.comments > li").length === 0) {
+                console.log("1");
                 jQuery(comment).appendTo("#" + thread + " ul.comments").hide().fadeIn();
             } else {
+                console.log("2");
                 var already_inserted = false;
                 jQuery("#" + thread + " ul.comments > li").each(function (index, li) {
                     if (!already_inserted && jQuery(li).attr("mkdate") > mkdate) {
@@ -355,7 +357,7 @@ jQuery(function () {
     jQuery("#forum_threads textarea.corrector").live("blur", function () {STUDIP.FF.submitEditedPosting(this);});
 });
 
-jQuery(window.document).bind('scroll', function (event) {
+jQuery(window.document).bind('scroll', _.throttle(function (event) {
     if ((jQuery(window).scrollTop() + jQuery(window).height() > jQuery(window.document).height() - 500)
             && (jQuery("#forum_threads > li.more").length > 0)) {
         //nachladen
@@ -378,4 +380,4 @@ jQuery(window.document).bind('scroll', function (event) {
             }
         });
     }
-});
+}, 30));

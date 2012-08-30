@@ -14,6 +14,8 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 ?>
 <? if (@$single_thread): ?>
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
+<input type="hidden" id="seminar_id" value="<?= htmlReady($_SESSION['SessionSeminar']) ?>">
+<input type="hidden" id="last_check" value="<?= time() ?>">
 <p>
     <a href="<?= $controller->url_for('forum/forum') ?>">
         <?= Assets::img('icons/16/blue/arr_1left', array('class' => 'text-top')) ?>
