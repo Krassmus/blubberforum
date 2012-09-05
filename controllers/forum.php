@@ -93,6 +93,9 @@ class ForumController extends ApplicationController {
         $thread['seminar_id'] = $_SESSION['SessionSeminar'];
         $thread['parent_id'] = 0;
         $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
+        if ($thread->isNew() && !$thread->getId()) {
+            $thread->setId($thread->getNewId());
+        }
         
         //mentions einbauen:
         $content = preg_replace("/(@\".*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
@@ -112,10 +115,8 @@ class ForumController extends ApplicationController {
         $thread['user_id'] = $GLOBALS['user']->id;
         $thread['author'] = get_fullname();
         $thread['author_host'] = $_SERVER['REMOTE_ADDR'];
+        $thread['root_id'] = $thread->getId();
         if ($thread->store()) {
-            $thread->restore();
-            $thread['root_id'] = $thread->getId();
-            $thread->store();
             $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
             $template = $factory->open("forum/thread.php");
             $template->set_attribute('thread', $thread);
