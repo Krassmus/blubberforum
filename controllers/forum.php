@@ -93,6 +93,11 @@ class ForumController extends ApplicationController {
         $thread['seminar_id'] = $_SESSION['SessionSeminar'];
         $thread['parent_id'] = 0;
         $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
+        
+        //mentions einbauen:
+        $content = preg_replace("/(@\".*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+        $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+        
         if (strpos($content, "\n") !== false) {
             $thread['name'] = substr($content, 0, strpos($content, "\n"));
             $thread['description'] = $content;
@@ -202,7 +207,14 @@ class ForumController extends ApplicationController {
             $output = array();
             $thread = new ForumPosting(Request::option("thread"));
             $posting = new ForumPosting();
-            $posting['description'] = transformBeforeSave(studip_utf8decode(Request::get("content")));
+            
+            $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
+            
+            //mentions einbauen:
+            $content = preg_replace("/(@\".*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+            $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+            
+            $posting['description'] = $content;
             $posting['seminar_id'] = $_SESSION['SessionSeminar'];
             $posting['root_id'] = $posting['parent_id'] = Request::option("thread");
             $posting['name'] = "Re: ".$thread['name'];
