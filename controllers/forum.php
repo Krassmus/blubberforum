@@ -143,6 +143,17 @@ class ForumController extends ApplicationController {
         $new_content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         if ($new_content && $old_content !== $new_content) {
             $posting['description'] = $new_content;
+            if ($posting['topic_id'] === $posting['root_id']) {
+                if (strpos($new_content, "\n") !== false) {
+                    $posting['name'] = substr($new_content, 0, strpos($new_content, "\n"));
+                } else {
+                    if (strlen($new_content) > 255) {
+                        $thread['name'] = "";
+                    } else {
+                        $thread['name'] = $new_content;
+                    }
+                }
+            }
             $posting->store();
             if ($posting['user_id'] !== $GLOBALS['user']->id) {
                 $messaging->insert_message(
