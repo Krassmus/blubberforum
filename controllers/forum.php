@@ -154,9 +154,9 @@ class ForumController extends ApplicationController {
                     $posting['name'] = substr($new_content, 0, strpos($new_content, "\n"));
                 } else {
                     if (strlen($new_content) > 255) {
-                        $thread['name'] = "";
+                        $posting['name'] = "";
                     } else {
-                        $thread['name'] = $new_content;
+                        $posting['name'] = $new_content;
                     }
                 }
             }
