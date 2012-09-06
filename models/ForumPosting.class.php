@@ -42,7 +42,7 @@ class ForumPosting extends SimpleORMap {
             );
             return '['.$user['Vorname']." ".$user['Nachname'].']'.$GLOBALS['ABSOLUTE_URI_STUDIP']."about.php?username=".$user['username'];
         } else {
-            return $mention;
+            return stripslashes($mention);
         }
     }
 
