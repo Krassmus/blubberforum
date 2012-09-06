@@ -98,7 +98,7 @@ class ForumController extends ApplicationController {
         }
         
         //mentions einbauen:
-        $content = preg_replace("/(@\".*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+        $content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
         $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
         
         if (strpos($content, "\n") !== false) {
@@ -212,7 +212,7 @@ class ForumController extends ApplicationController {
             $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
             
             //mentions einbauen:
-            $content = preg_replace("/(@\".*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+            $content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
             $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
             
             $posting['description'] = $content;
