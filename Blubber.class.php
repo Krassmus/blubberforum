@@ -27,9 +27,11 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         parent::__construct();
         if (UpdateInformation::isCollecting()) {
             $data = Request::getArray("page_info");
-            if ($data['FF']['seminar_id']) {
+            if (strpos(Request::get("page"), "plugins.php/blubber") !== false) {
                 $output = array();
-                $new_postings = ForumPosting::getPostings($data['FF']['seminar_id'], $data['FF']['last_check']);
+                $seminar_id = $data['FF']['seminar_id'] ? $data['FF']['seminar_id'] : $_SESSION['SessionSeminar'];
+                $last_check = $data['FF']['last_check'] ? $data['FF']['last_check'] : (time() - 5 * 60);
+                $new_postings = ForumPosting::getPostings($seminar_id, $last_check);
                 $factory = new Flexi_TemplateFactory($this->getPluginPath()."/views");
                 foreach ($new_postings as $new_posting) {
                     if ($new_posting['root_id'] === $new_posting['topic_id']) {
@@ -47,6 +49,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         'content' => $template->render()
                     );
                 }
+                $output["yeah"] = "true";
                 UpdateInformation::setInformation("FF.getNewPosts", $output);
             }
         }
@@ -63,20 +66,23 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         return array('blubberforum' => $tab);
     }
 
-    public function getIconNavigation($course_id, $last_visit, $user_id) {
+    public function getIconNavigation($course_id, $last_visit, $user_id = null) {
+        if (!$user_id) {
+            $user_id = $GLOBALS['user']->id;
+        }
         $icon = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getLink($this, array(), "forum/forum"));
         $db = DBManager::get();
         $last_own_posting_time = (int) $db->query(
             "SELECT mkdate " .
             "FROM px_topics " .
-            "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
+            "WHERE user_id = ".$db->quote($user_id)." " .
                 "AND Seminar_id = ".$db->quote($course_id)." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
         $new_ones = $db->query(
             "SELECT COUNT(*) " .
             "FROM px_topics " .
             "WHERE chdate > ".$db->quote(max($last_visit, $last_own_posting_time))." " .
-                "AND user_id != ".$db->quote($GLOBALS['user']->id)." " .
+                "AND user_id != ".$db->quote($user_id)." " .
                 "AND Seminar_id = ".$db->quote($course_id)." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
         if ($new_ones) {
