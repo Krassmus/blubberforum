@@ -49,7 +49,6 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         'content' => $template->render()
                     );
                 }
-                $output["yeah"] = "true";
                 UpdateInformation::setInformation("FF.getNewPosts", $output);
             }
         }
