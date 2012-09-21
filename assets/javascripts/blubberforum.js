@@ -59,9 +59,10 @@ STUDIP.FF = {
         STUDIP.FF.alreadyWriting = true;
 
         jQuery.ajax({
-            url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post",
+            url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/comment",
             data: {
-                'cid': jQuery("#seminar_id").val(),
+                'context': jQuery(textarea).closest("li").find(".hiddeninfo > input[name=context]").val(),
+                'context_type': jQuery(textarea).closest("li").find(".hiddeninfo > input[name=context_type]").val(),
                 'thread': thread,
                 'content': content
             },

@@ -17,7 +17,20 @@ class ForumController extends ApplicationController {
     public function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        Navigation::activateItem('/course/blubberforum');
+    }
+
+    public function globalstream_action() {
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
+        PageLayout::setTitle($this->plugin->getDisplayTitle());
+
+        ForumPosting::expireThreads($_SESSION['SessionSeminar']);
+        $this->threads = ForumPosting::getThreads(null, false, $this->max_threads + 1);
+        $this->more_threads = count($this->threads) > $this->max_threads;
+        if ($this->more_threads) {
+            $this->threads = array_slice($this->threads, 0, $this->max_threads);
+        }
     }
 
     public function forum_action() {
@@ -199,14 +212,17 @@ class ForumController extends ApplicationController {
         $this->render_text(studip_utf8encode(formatReady($posting['description'])));
     }
 
-    public function post_action() {
-        if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+    public function comment_action() {
+        $context = Request::option("context") ? Request::get("context") : $_SESSION['SessionSeminar'];
+        $context_type = Request::option("context_type") ? Request::get("context_type") : "course";
+        if (!$context 
+                || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $thread = new ForumPosting(Request::option("thread"));
         if (Request::option("thread")) {
             $output = array();
-            $thread = new ForumPosting(Request::option("thread"));
+            $thread = new ForumPosting(Request::get("thread"));
             $posting = new ForumPosting();
             
             $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
@@ -347,6 +363,10 @@ class ForumController extends ApplicationController {
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
 
+        if (Navigation::hasItem('/course/blubberforum')) {
+            Navigation::activateItem('/course/blubberforum');
+        }
+        
         $this->thread        = new ForumPosting($thread_id);
         $this->course_id     = $_SESSION['SessionSeminar'];
         $this->single_thread = true;

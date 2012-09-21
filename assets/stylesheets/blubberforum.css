@@ -6,6 +6,9 @@
     margin: 5px;
     border-left: thin solid lightblue;
 }
+#forum_threads > li.thread .hiddeninfo {
+    display: none;
+}
 #forum_threads > li > ul {
     border-left: thin solid lightblue;
     background-color: #f5f5ff;
