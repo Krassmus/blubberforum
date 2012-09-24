@@ -30,7 +30,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 
 <li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>" class="thread posting<?= $last_visit < $thread['mkdate'] ? " new" : "" ?>" data-autor="<?= htmlReady($thread['user_id']) ?>">
     <div class="hiddeninfo">
-        <input type="hidden" name="context" value="<?= htmlReady($_SESSION['SessionSeminar']) ?>">
+        <input type="hidden" name="context" value="<?= htmlReady($thread['Seminar_id']) ?>">
         <input type="hidden" name="context_type" value="course">
     </div>
     <div class="avatar_column">

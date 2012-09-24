@@ -52,16 +52,33 @@ class ForumPosting extends SimpleORMap {
 
     static public function getThreads($seminar_id, $after_thread_id = false, $limit = false) {
         $cache = StudipCacheFactory::getCache();
-        $threads = $cache->read("BLUBBERTHREADS_FROM_".$seminar_id);
+        $threads = $cache->read("BLUBBERTHREADS_FROM_".($seminar_id ? $seminar_id : "all"));
         if (!$threads) {
             $db = DBManager::get();
-            $thread_ids = $db->query(
-                "SELECT px_topics.root_id " .
-                "FROM px_topics " .
-                "WHERE px_topics.Seminar_id = ".$db->quote($seminar_id)." " .
-                "GROUP BY px_topics.root_id " .
-                "ORDER BY MAX(mkdate) DESC " .
-            "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            if ($seminar_id) {
+                $thread_ids = $db->query(
+                    "SELECT px_topics.root_id " .
+                    "FROM px_topics " .
+                    "WHERE px_topics.Seminar_id = ".$db->quote($seminar_id)." " .
+                    "GROUP BY px_topics.root_id " .
+                    "ORDER BY MAX(mkdate) DESC " .
+                "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            } else {
+                $seminar_ids = $db->query(
+                    "SELECT Seminar_id " .
+                    "FROM seminar_user " .
+                    "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
+                "")->fetchAll(PDO::FETCH_COLUMN, 0);
+                $thread_ids = $db->query(
+                    "SELECT px_topics.root_id " .
+                    "FROM px_topics " .
+                    "WHERE px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " .
+                        "OR px_topics.Seminar_id IS NULL " .
+                    "GROUP BY px_topics.root_id " .
+                    "ORDER BY MAX(mkdate) DESC " .
+                "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            }
+            
             $threads = array();
             foreach ($thread_ids as $thread_id) {
                 $threads[] = new ForumPosting($thread_id);
