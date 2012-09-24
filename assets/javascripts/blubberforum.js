@@ -332,7 +332,8 @@ jQuery("#forum_threads > li > ul.comments > li.more").live("click", function () 
         url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_comments",
         data: {
             'thread_id': thread_id,
-            'cid': jQuery("#seminar_id").val()
+            'cid': jQuery("#seminar_id").val(),
+            'stream': jQuery("#stream").val()
         },
         dataType: "json",
         success: function (data) {

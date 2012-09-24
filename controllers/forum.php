@@ -25,7 +25,7 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         PageLayout::setTitle($this->plugin->getDisplayTitle());
 
-        ForumPosting::expireThreads($_SESSION['SessionSeminar']);
+        ForumPosting::expireThreads("all_".$GLOBALS['user']->id);
         $this->threads = ForumPosting::getThreads(null, false, $this->max_threads + 1);
         $this->more_threads = count($this->threads) > $this->max_threads;
         if ($this->more_threads) {
@@ -72,11 +72,15 @@ class ForumController extends ApplicationController {
     }
 
     public function more_postings_action() {
-        if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+        if (Request::get("stream") === "course" && (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar']))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $output = array();
-        $threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], Request::option("before"), $this->max_threads + 1);
+        $threads = ForumPosting::getThreads(
+            Request::get("stream") ? null : $_SESSION['SessionSeminar'], 
+            Request::option("before"), 
+            $this->max_threads + 1
+        );
         $output['more'] = count($this->threads) > $this->max_threads;
         if ($output['more']) {
             $threads = array_slice($threads, 0, $this->max_threads);

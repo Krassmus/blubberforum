@@ -9,9 +9,15 @@
  *  the License, or (at your option) any later version.
  */
 ?>
+<style>
+    #forum_threads {
+        margin-left: 100px;
+    }
+</style>
 <input type="hidden" id="last_check" value="<?= time() ?>">
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
+<input type="hidden" id="stream" value="all">
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 
 <!--

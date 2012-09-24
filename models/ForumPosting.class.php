@@ -46,20 +46,20 @@ class ForumPosting extends SimpleORMap {
         }
     }
 
-    static public function expireThreads($seminar_id) {
-        StudipCacheFactory::getCache()->expire("BLUBBERTHREADS_FROM_".$seminar_id);
+    static public function expireThreads($stream) {
+        StudipCacheFactory::getCache()->expire("BLUBBERTHREADS_FROM_".$stream);
     }
 
-    static public function getThreads($seminar_id, $after_thread_id = false, $limit = false) {
+    static public function getThreads($context_id, $after_thread_id = false, $limit = false) {
         $cache = StudipCacheFactory::getCache();
-        $threads = $cache->read("BLUBBERTHREADS_FROM_".($seminar_id ? $seminar_id : "all"));
+        $threads = $cache->read("BLUBBERTHREADS_FROM_".($context_id ? $context_id : "all_".$GLOBALS['user']->id));
         if (!$threads) {
             $db = DBManager::get();
-            if ($seminar_id) {
+            if ($context_id) {
                 $thread_ids = $db->query(
                     "SELECT px_topics.root_id " .
                     "FROM px_topics " .
-                    "WHERE px_topics.Seminar_id = ".$db->quote($seminar_id)." " .
+                    "WHERE px_topics.Seminar_id = ".$db->quote($context_id)." " .
                     "GROUP BY px_topics.root_id " .
                     "ORDER BY MAX(mkdate) DESC " .
                 "")->fetchAll(PDO::FETCH_COLUMN, 0);
@@ -83,7 +83,7 @@ class ForumPosting extends SimpleORMap {
             foreach ($thread_ids as $thread_id) {
                 $threads[] = new ForumPosting($thread_id);
             }
-            $cache->write("BLUBBERTHREADS_FROM_".$seminar_id, serialize($threads));
+            $cache->write("BLUBBERTHREADS_FROM_".($context_id ? $context_id : "all_".$GLOBALS['user']->id), serialize($threads));
         } else {
             $threads = unserialize($threads);
         }
