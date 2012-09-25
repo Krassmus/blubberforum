@@ -20,7 +20,7 @@
     <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
 </div>
 
-<ul id="forum_threads">
+<ul id="forum_threads" class="coursestream">
     <? foreach ($threads as $thread) : ?>
     <?= $this->render_partial("forum/thread.php", array('thread' => $thread)) ?>
     <? endforeach ?>

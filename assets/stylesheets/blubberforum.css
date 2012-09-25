@@ -31,6 +31,9 @@
 #forum_threads > li.thread .contextinfo:hover {
     opacity: 1;
 }
+#forum_threads.coursestream > li.thread .contextinfo {
+    display: none;
+}
 #forum_threads > li > ul {
     border-left: thin solid lightblue;
     background-color: #f5f5ff;

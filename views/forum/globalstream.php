@@ -26,7 +26,7 @@
 </div>
 -->
 
-<ul id="forum_threads">
+<ul id="forum_threads" class="globalstream">
     <? foreach ($threads as $thread) : ?>
     <?= $this->render_partial("forum/thread.php", array('thread' => $thread)) ?>
     <? endforeach ?>
