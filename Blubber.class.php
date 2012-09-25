@@ -58,9 +58,11 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             Navigation::addItem("/course/blubberforum", $tab);
         }
 
-        $nav = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getURL($this, array(), "forum/globalstream"));
-        Navigation::insertItem("/community/blubber", $nav, "online");
-        Navigation::getItem("/community")->setURL(PluginEngine::getURL($this, array(), "forum/globalstream"));
+        if (Navigation::hasItem("/community")) {
+            $nav = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getURL($this, array(), "forum/globalstream"));
+            Navigation::insertItem("/community/blubber", $nav, "online");
+            Navigation::getItem("/community")->setURL(PluginEngine::getURL($this, array(), "forum/globalstream"));
+        }
         
     }
 

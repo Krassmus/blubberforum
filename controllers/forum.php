@@ -51,7 +51,7 @@ class ForumController extends ApplicationController {
     }
 
     public function more_comments_action() {
-        if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+        if (Request::get("stream") === "course" && (!Request::option("context") || !$GLOBALS['perm']->have_studip_perm("autor", Request::get("context")))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $thread = new ForumPosting(Request::option("thread_id"));

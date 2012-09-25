@@ -9,6 +9,28 @@
 #forum_threads > li.thread .hiddeninfo {
     display: none;
 }
+#forum_threads > li.thread .contextinfo {
+    display: block;
+    width: 100px;
+    margin-left: -108px;
+    margin-top: -8px;
+    height: 50px;
+    background-size: 100% 100%;
+    background-position: center center;
+    float: left;
+    opacity: 0.3;
+    -webkit-transition: all 1s;
+    -moz-transition: all 1s;
+    -ms-transition: all 1s;
+    -o-transition: all 1s;
+    transition: all 1s;
+}
+#forum_threads > li.thread:hover .contextinfo {
+    opacity: 1;
+}
+#forum_threads > li.thread .contextinfo:hover {
+    opacity: 1;
+}
 #forum_threads > li > ul {
     border-left: thin solid lightblue;
     background-color: #f5f5ff;

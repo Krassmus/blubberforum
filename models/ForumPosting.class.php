@@ -67,13 +67,17 @@ class ForumPosting extends SimpleORMap {
                 $seminar_ids = $db->query(
                     "SELECT Seminar_id " .
                     "FROM seminar_user " .
+                        "INNER JOIN plugins_activated ON (plugins_activated.poiid = CONCAT('sem', seminar_user.Seminar_id)) " .
+                        "INNER JOIN plugins ON (plugins_activated.pluginid = plugins.pluginid) " .
                     "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
+                        "AND plugins_activated.state = 'on' " .
+                        "AND plugins.pluginclassname = 'Blubber' " .
                 "")->fetchAll(PDO::FETCH_COLUMN, 0);
                 $thread_ids = $db->query(
                     "SELECT px_topics.root_id " .
                     "FROM px_topics " .
-                    "WHERE px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " .
-                        "OR px_topics.Seminar_id IS NULL " .
+                    "WHERE px_topics.Seminar_id IS NULL " .
+                        (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
                     "GROUP BY px_topics.root_id " .
                     "ORDER BY MAX(mkdate) DESC " .
                 "")->fetchAll(PDO::FETCH_COLUMN, 0);

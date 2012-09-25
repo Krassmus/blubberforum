@@ -33,6 +33,12 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
         <input type="hidden" name="context" value="<?= htmlReady($thread['Seminar_id']) ?>">
         <input type="hidden" name="context_type" value="course">
     </div>
+    <a href="<?= URLHelper::getLink("plugins.php/blubber/forum/forum", array('cid' => $thread['Seminar_id'])) ?>"
+       <? $title = get_object_name($thread['Seminar_id'], "sem") ?>
+       title="<?= htmlReady($title['name']) ?>"
+       class="contextinfo"
+       style="background-image: url('<?= CourseAvatar::getAvatar($thread['Seminar_id'])->getURL(Avatar::NORMAL) ?>');">
+    </a>
     <div class="avatar_column">
         <div class="avatar">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">
