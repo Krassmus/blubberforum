@@ -25,8 +25,9 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         PageLayout::setTitle($this->plugin->getDisplayTitle());
 
-        ForumPosting::expireThreads("all_".$GLOBALS['user']->id);
-        $this->threads = ForumPosting::getThreads(null, false, $this->max_threads + 1);
+        $this->threads = ForumPosting::getThreads(array(
+            'limit' => $this->max_threads + 1
+        ));
         $this->more_threads = count($this->threads) > $this->max_threads;
         if ($this->more_threads) {
             $this->threads = array_slice($this->threads, 0, $this->max_threads);
@@ -41,8 +42,10 @@ class ForumController extends ApplicationController {
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
 
-        ForumPosting::expireThreads($_SESSION['SessionSeminar']);
-        $this->threads = ForumPosting::getThreads($_SESSION['SessionSeminar'], false, $this->max_threads + 1);
+        $this->threads = ForumPosting::getThreads(array(
+            'seminar_id' => $_SESSION['SessionSeminar'],
+            'limit' => $this->max_threads + 1
+        ));
         $this->more_threads = count($this->threads) > $this->max_threads;
         $this->course_id = $_SESSION['SessionSeminar'];
         if ($this->more_threads) {
@@ -76,11 +79,14 @@ class ForumController extends ApplicationController {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $output = array();
-        $threads = ForumPosting::getThreads(
-            Request::get("stream") ? null : $_SESSION['SessionSeminar'], 
-            Request::option("before"), 
-            $this->max_threads + 1
+        $parameter = array(
+            'offset' => 20 * Request::int("offset"),
+            'limit' => $this->max_threads + 1
         );
+        if (Request::get("stream") === "course") {
+            $parameter['seminar_id'] = $_SESSION['SessionSeminar'];
+        }
+        $threads = ForumPosting::getThreads($parameter);
         $output['more'] = count($this->threads) > $this->max_threads;
         if ($output['more']) {
             $threads = array_slice($threads, 0, $this->max_threads);

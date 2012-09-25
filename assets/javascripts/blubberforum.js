@@ -369,11 +369,14 @@ jQuery(window.document).bind('scroll', _.throttle(function (event) {
             url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_postings",
             data: {
                 'before': jQuery("#forum_threads > li:nth-last-child(2)").attr("id"),
-                'cid': jQuery("#seminar_id").val()
+                'cid': jQuery("#seminar_id").val(),
+                'stream_time': jQuery("#stream_time").val(),
+                'offset': jQuery("#loaded").val()
             },
             dataType: "json",
             success: function (response) {
                 jQuery("#forum_threads > li.loading").remove();
+                jQuery("#loaded").val(parseInt(jQuery("#loaded").val(), 10) + 1);
                 jQuery.each(response.threads, function (index, thread) {
                     STUDIP.FF.insertThread(thread.posting_id, thread.mkdate, thread.content);
                 });

@@ -50,55 +50,60 @@ class ForumPosting extends SimpleORMap {
         StudipCacheFactory::getCache()->expire("BLUBBERTHREADS_FROM_".$stream);
     }
 
-    static public function getThreads($context_id, $after_thread_id = false, $limit = false) {
-        $cache = StudipCacheFactory::getCache();
-        $threads = $cache->read("BLUBBERTHREADS_FROM_".($context_id ? $context_id : "all_".$GLOBALS['user']->id));
-        if (!$threads) {
-            $db = DBManager::get();
-            if ($context_id) {
-                $thread_ids = $db->query(
-                    "SELECT px_topics.root_id " .
-                    "FROM px_topics " .
-                    "WHERE px_topics.Seminar_id = ".$db->quote($context_id)." " .
-                    "GROUP BY px_topics.root_id " .
-                    "ORDER BY MAX(mkdate) DESC " .
-                "")->fetchAll(PDO::FETCH_COLUMN, 0);
-            } else {
-                $seminar_ids = $db->query(
-                    "SELECT Seminar_id " .
-                    "FROM seminar_user " .
-                        "INNER JOIN plugins_activated ON (plugins_activated.poiid = CONCAT('sem', seminar_user.Seminar_id)) " .
-                        "INNER JOIN plugins ON (plugins_activated.pluginid = plugins.pluginid) " .
-                    "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
-                        "AND plugins_activated.state = 'on' " .
-                        "AND plugins.pluginclassname = 'Blubber' " .
-                "")->fetchAll(PDO::FETCH_COLUMN, 0);
-                $thread_ids = $db->query(
-                    "SELECT px_topics.root_id " .
-                    "FROM px_topics " .
-                    "WHERE px_topics.Seminar_id IS NULL " .
-                        (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
-                    "GROUP BY px_topics.root_id " .
-                    "ORDER BY MAX(mkdate) DESC " .
-                "")->fetchAll(PDO::FETCH_COLUMN, 0);
-            }
-            
-            $threads = array();
-            foreach ($thread_ids as $thread_id) {
-                $threads[] = new ForumPosting($thread_id);
-            }
-            $cache->write("BLUBBERTHREADS_FROM_".($context_id ? $context_id : "all_".$GLOBALS['user']->id), serialize($threads));
-        } else {
-            $threads = unserialize($threads);
+    static public function getThreads($parameter = array()) {
+        $defaults = array(
+            'seminar_id' => null,
+            'user_id' => null,
+            'search' => null,
+            'linear_in_time' => false,
+            'offset' => 0,
+            'limit' => null
+        );
+        $parameter = array_merge($defaults, $parameter);
+        $db = DBManager::get();
+        
+        $joins = $where = array();
+        $limit = "";
+        
+        if ($parameter['seminar_id']) {
+            $where[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['seminar_id']);
         }
-        if ($after_thread_id !== false) {
-            while ($threads[0]->getId() !== $after_thread_id) {
-                array_shift($threads);
-            }
-            array_shift($threads);
+        if ($parameter['user_id']) {
+            $where[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['user_id']);
         }
-        if ($limit) {
-            $threads = array_slice($threads, 0, $limit);
+        if ($parameter['linear_in_time']) {
+            $where[] = "AND mkdate <= ".$db->quote($parameter['linear_in_time']);
+        }
+        if ($parameter['limit'] > 0) {
+            $limit = "LIMIT ".((int) $parameter['offset']).", ".((int) $parameter['limit']);
+        }
+        if (!$parameter['seminar_id'] && !$parameter['user_id']) {
+            $seminar_ids = $db->query(
+                "SELECT Seminar_id " .
+                "FROM seminar_user " .
+                    "INNER JOIN plugins_activated ON (plugins_activated.poiid = CONCAT('sem', seminar_user.Seminar_id)) " .
+                    "INNER JOIN plugins ON (plugins_activated.pluginid = plugins.pluginid) " .
+                "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
+                    "AND plugins_activated.state = 'on' " .
+                    "AND plugins.pluginclassname = 'Blubber' " .
+            "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            $where[] = "AND px_topics.Seminar_id IS NULL " .
+                            (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "");
+        }
+        
+        $thread_ids = $db->query(
+            "SELECT px_topics.root_id " .
+            "FROM px_topics " .
+                implode(" ", $joins) . " " .
+            "WHERE 1=1 " .
+                implode(" ", $where) . " " .
+            "GROUP BY px_topics.root_id " .
+            "ORDER BY MAX(px_topics.mkdate) DESC " .
+            $limit." " .
+        "")->fetchAll(PDO::FETCH_COLUMN, 0);
+        $threads = array();
+        foreach ($thread_ids as $thread_id) {
+            $threads[] = new ForumPosting($thread_id);
         }
         return $threads;
     }

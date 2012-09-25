@@ -14,6 +14,8 @@
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
 <input type="hidden" id="stream" value="course">
+<input type="hidden" id="stream_time" value="<?= time() ?>">
+<input type="hidden" id="loaded" value="1">
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 
 <div id="threadwriter">

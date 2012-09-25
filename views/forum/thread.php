@@ -48,7 +48,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
     </div>
     <div class="content_column">
         <div class="timer">
-            <a href="<?= $controller->url_for('forum/thread/' . $thread->getId(), array('cid' => $course_id)) ?>" class="permalink" title="<?= _("Permalink") ?>" style="background-image: url('<?= Assets::image_path("icons/16/grey/group") ?>');">
+            <a href="<?= $controller->url_for('forum/thread/' . $thread->getId(), array('cid' => $thread['Seminar_id'])) ?>" class="permalink" title="<?= _("Permalink") ?>" style="background-image: url('<?= Assets::image_path("icons/16/grey/group") ?>');">
                 <span class="time" data-timestamp="<?= (int) $thread['mkdate'] ?>">
                     <?= (date("j.n.Y", $thread['mkdate']) == date("j.n.Y")) ? sprintf(_("%s Uhr"), date("G:i", $thread['mkdate'])) : date("j.n.Y", $thread['mkdate']) ?>
                 </span>
