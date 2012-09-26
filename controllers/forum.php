@@ -223,7 +223,7 @@ class ForumController extends ApplicationController {
     }
 
     public function comment_action() {
-        $context = Request::option("context") ? Request::get("context") : $_SESSION['SessionSeminar'];
+        $context = Request::option("context");
         $context_type = Request::option("context_type") ? Request::get("context_type") : "course";
         if (!$context 
                 || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
@@ -286,19 +286,23 @@ class ForumController extends ApplicationController {
     }
 
     public function post_files_action() {
-        if (!Request::isPost()|| !$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+        $context = Request::option("context");
+        $context_type = Request::option("context_type") ? Request::get("context_type") : "course";
+        if (!Request::isPost()
+                || !$context
+                || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         //check folders
         $db = DBManager::get();
-        $folder_id = md5("Blubber_".$_SESSION['SessionSeminar']."_".$GLOBALS['user']->id);
+        $folder_id = md5("Blubber_".$context."_".$GLOBALS['user']->id);
         $folder = $db->query(
             "SELECT * " .
             "FROM folder " .
             "WHERE folder_id = ".$db->quote($folder_id)." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
         if (!$folder) {
-            $parent_folder_id = md5("Blubber_".$_SESSION['SessionSeminar']);
+            $parent_folder_id = md5("Blubber_".$context);
             $folder = $db->query(
                 "SELECT * " .
                 "FROM folder " .
@@ -308,9 +312,9 @@ class ForumController extends ApplicationController {
                 $db->exec(
                     "INSERT IGNORE INTO folder " .
                     "SET folder_id = ".$db->quote($parent_folder_id).", " .
-                        "range_id = ".$db->quote($_SESSION['SessionSeminar']).", " .
+                        "range_id = ".$db->quote($context).", " .
                         "user_id = ".$db->quote($GLOBALS['user']->id).", " .
-                        "name = ".$db->quote("BlubberBilder").", " .
+                        "name = ".$db->quote("BlubberDateien").", " .
                         "permission = '7', " .
                         "mkdate = ".$db->quote(time()).", " .
                         "chdate = ".$db->quote(time())." " .
@@ -328,7 +332,6 @@ class ForumController extends ApplicationController {
             "");
         }
 
-
         $output = array();
 
         foreach ($_FILES as $file) {
@@ -342,7 +345,7 @@ class ForumController extends ApplicationController {
                 $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['name']));
                 $document['user_id'] = $GLOBALS['user']->id;
                 $document['author_name'] = get_fullname();
-                $document['seminar_id'] = $_SESSION['SessionSeminar'];
+                $document['seminar_id'] = $context;
                 $document['range_id'] = $folder_id;
                 $document['filesize'] = $file['size'];
                 if ($newfile = StudipDocument::createWithFile($file['tmp_name'], $document)) {

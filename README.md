@@ -18,5 +18,6 @@ It is a forum, but feels like a chat. And it is 100% compatible with the standar
 * You get a notice for each posting of you that has been edited by another person.
 * Permalinks to threads.
 * Mentioning other users with @username or @"firstname lastname". The mentioned person will get a Stud.IP-message and can join the discussion.
+* You can find an aggregated global stream for all activated blubber-forums in all your courses unter "community".
 
 ![screenshot1](https://raw.github.com/Krassmus/blubberforum/master/assets/images/screenshot1.png)

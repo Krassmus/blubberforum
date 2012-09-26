@@ -9,11 +9,6 @@
  *  the License, or (at your option) any later version.
  */
 ?>
-<style>
-    #forum_threads {
-        margin-left: 100px;
-    }
-</style>
 <input type="hidden" id="last_check" value="<?= time() ?>">
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
@@ -28,6 +23,7 @@
 </div>
 -->
 
+<div id="context_background">
 <ul id="forum_threads" class="globalstream">
     <? foreach ($threads as $thread) : ?>
     <?= $this->render_partial("forum/thread.php", array('thread' => $thread)) ?>
@@ -36,6 +32,7 @@
     <li class="more">...</li>
     <? endif ?>
 </ul>
+</div>
 
 <?
 
@@ -45,7 +42,7 @@ $infobox = array(
         array(
             array(
                 "icon" => "icons/16/black/info",
-                "text" => _("Ein Echtzeitkommunikations-Forum.")
+                "text" => _("Ein Echtzeit-ActivityFeed.")
             ),
             array(
                 "icon" => "icons/16/black/date",

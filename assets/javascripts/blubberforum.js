@@ -213,6 +213,7 @@ STUDIP.Blubber = {
                 var files = 0;
                 var file_info = event.dataTransfer.files;
                 var data = new FormData();
+                var seminar_id = jQuery(textarea).closest("li.thread").find(".hiddeninfo input[name=context]").val();
                 jQuery.each(file_info, function (index, file) {
                     if (file.size > 0) {
                         data.append(index, file);
@@ -222,7 +223,7 @@ STUDIP.Blubber = {
                 if (files > 0) {
                     jQuery(textarea).addClass("uploading");
                     jQuery.ajax({
-                        'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files",
+                        'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files?context=" + seminar_id,
                         'data': data,
                         'cache': false,
                         'contentType': false,
