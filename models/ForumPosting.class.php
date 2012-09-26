@@ -78,6 +78,7 @@ class ForumPosting extends SimpleORMap {
             $limit = "LIMIT ".((int) $parameter['offset']).", ".((int) $parameter['limit']);
         }
         if (!$parameter['seminar_id'] && !$parameter['user_id']) {
+            //Globaler Stream:
             $seminar_ids = $db->query(
                 "SELECT Seminar_id " .
                 "FROM seminar_user " .
@@ -87,8 +88,9 @@ class ForumPosting extends SimpleORMap {
                     "AND plugins_activated.state = 'on' " .
                     "AND plugins.pluginclassname = 'Blubber' " .
             "")->fetchAll(PDO::FETCH_COLUMN, 0);
-            $where[] = "AND px_topics.Seminar_id IS NULL " .
-                            (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "");
+            $where[] = "AND (px_topics.Seminar_id IS NULL " .
+                            (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
+                       ") ";
         }
         
         $thread_ids = $db->query(
@@ -107,9 +109,59 @@ class ForumPosting extends SimpleORMap {
         }
         return $threads;
     }
-    
-    static public function getPostings($seminar_id, $since = 0) {
-        return self::findBySQL(__class__, "Seminar_id = ".DBManager::get()->quote($seminar_id)." ".($since ? "AND chdate > ".DBManager::get()->quote($since) :"")." ORDER BY mkdate ASC ");
+
+    static public function getPostings($parameter = array()) {
+        $defaults = array(
+            'seminar_id' => null,
+            'user_id' => null,
+            'search' => null,
+            'since' => null
+        );
+        $parameter = array_merge($defaults, $parameter);
+        $db = DBManager::get();
+
+        $joins = $where = array();
+        $limit = "";
+
+        if ($parameter['since'] > 0) {
+            $where[] = "AND px_topics.chdate >= ".$db->quote($parameter['since']);
+        }
+        if ($parameter['seminar_id']) {
+            $where[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['seminar_id']);
+        }
+        if ($parameter['user_id']) {
+            $joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
+            $where[] = "AND thread.Seminar_id = ".$db->quote($parameter['user_id']);
+        }
+        if (!$parameter['seminar_id'] && !$parameter['user_id']) {
+            //Globaler Stream:
+            $seminar_ids = $db->query(
+                "SELECT Seminar_id " .
+                "FROM seminar_user " .
+                    "INNER JOIN plugins_activated ON (plugins_activated.poiid = CONCAT('sem', seminar_user.Seminar_id)) " .
+                    "INNER JOIN plugins ON (plugins_activated.pluginid = plugins.pluginid) " .
+                "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
+                    "AND plugins_activated.state = 'on' " .
+                    "AND plugins.pluginclassname = 'Blubber' " .
+            "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            $where[] = "AND (px_topics.Seminar_id IS NULL " .
+                            (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
+                       ") ";
+        }
+
+        $thread_ids = $db->query(
+            "SELECT px_topics.topic_id " .
+            "FROM px_topics " .
+                implode(" ", $joins) . " " .
+            "WHERE 1=1 " .
+                implode(" ", $where) . " " .
+            "ORDER BY px_topics.mkdate ASC " .
+        "")->fetchAll(PDO::FETCH_COLUMN, 0);
+        $threads = array();
+        foreach ($thread_ids as $thread_id) {
+            $threads[] = new ForumPosting($thread_id);
+        }
+        return $threads;
     }
     
     public function restore() {

@@ -1,5 +1,5 @@
 STUDIP.jsupdate_enable = true;
-STUDIP.FF = {
+STUDIP.Blubber = {
     periodicalPushData: function () {
         return {
             'context': jQuery("#seminar_id").val(),
@@ -12,24 +12,24 @@ STUDIP.FF = {
             jQuery.each(data.postings, function (index, posting) {
                 if (posting.root_id !== posting.posting_id) {
                     //comment
-                    STUDIP.FF.insertComment(posting.root_id, posting.posting_id, posting.mkdate, posting.content);
+                    STUDIP.Blubber.insertComment(posting.root_id, posting.posting_id, posting.mkdate, posting.content);
                 } else {
                     //thread
-                    STUDIP.FF.insertThread(posting.posting_id, posting.mkdate, posting.content);
+                    STUDIP.Blubber.insertThread(posting.posting_id, posting.mkdate, posting.content);
                 }
             });
 
             jQuery('#last_check').val(Math.floor(new Date().getTime() / 1000));
         }
-        STUDIP.FF.updateTimestamps();
+        STUDIP.Blubber.updateTimestamps();
     },
     alreadyThreadWriting: false,
     newPosting: function () {
-        if (STUDIP.FF.alreadyThreadWriting) {
+        if (STUDIP.Blubber.alreadyThreadWriting) {
             return;
         }
         if (jQuery.trim(jQuery("#new_posting").val())) {
-            STUDIP.FF.alreadyThreadWriting = true;
+            STUDIP.Blubber.alreadyThreadWriting = true;
             var content = jQuery("#new_posting").val();
             jQuery.ajax({
                 url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/new_posting",
@@ -41,10 +41,10 @@ STUDIP.FF = {
                 type: "POST",
                 success: function (reply) {
                     jQuery("#new_posting").val("").trigger("keydown");
-                    STUDIP.FF.insertThread(reply.posting_id, reply.mkdate, reply.content);
+                    STUDIP.Blubber.insertThread(reply.posting_id, reply.mkdate, reply.content);
                 },
                 complete: function () {
-                    STUDIP.FF.alreadyThreadWriting = false;
+                    STUDIP.Blubber.alreadyThreadWriting = false;
                 }
             });
         }
@@ -54,10 +54,10 @@ STUDIP.FF = {
         var content = jQuery(textarea).val();
         var thread = jQuery(textarea).closest("li").attr("id");
 
-        if (!content || STUDIP.FF.alreadyWriting) {
+        if (!content || STUDIP.Blubber.alreadyWriting) {
             return;
         }
-        STUDIP.FF.alreadyWriting = true;
+        STUDIP.Blubber.alreadyWriting = true;
         jQuery.ajax({
             url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/comment",
             data: {
@@ -70,10 +70,10 @@ STUDIP.FF = {
             type: "POST",
             success: function (reply) {
                 jQuery(textarea).val("").trigger("keydown");
-                STUDIP.FF.insertComment(thread, reply.posting_id, reply.mkdate, reply.content);
+                STUDIP.Blubber.insertComment(thread, reply.posting_id, reply.mkdate, reply.content);
             },
             complete: function () {
-                STUDIP.FF.alreadyWriting = false;
+                STUDIP.Blubber.alreadyWriting = false;
             }
         });
     },
@@ -101,7 +101,7 @@ STUDIP.FF = {
                 }
             }
         }
-        STUDIP.FF.updateTimestamps();
+        STUDIP.Blubber.updateTimestamps();
     },
     insertThread: function (posting_id, mkdate, comment) {
         if (jQuery("#" + posting_id).length) {
@@ -118,7 +118,7 @@ STUDIP.FF = {
                 jQuery("#forum_threads > li[id]").each(function (index, li) {
                     if (!already_inserted && jQuery(li).attr("mkdate") < mkdate) {
                         jQuery(comment).insertBefore(li).hide().fadeIn();
-                        STUDIP.FF.updateTimestamps();
+                        STUDIP.Blubber.updateTimestamps();
                         already_inserted = true;
                     }
                 });
@@ -127,8 +127,8 @@ STUDIP.FF = {
                 }
             }
         }
-        STUDIP.FF.makeTextareasAutoresizable();
-        STUDIP.FF.updateTimestamps();
+        STUDIP.Blubber.makeTextareasAutoresizable();
+        STUDIP.Blubber.updateTimestamps();
     },
     startEditingComment: function () {
         var id = jQuery(this).closest("li").attr("id");
@@ -143,7 +143,7 @@ STUDIP.FF = {
                     jQuery('<textarea class="corrector"/>').val(source).focus()
                 );
                 jQuery("#" + id).find(".corrector").focus();
-                STUDIP.FF.makeTextareasAutoresizable();
+                STUDIP.Blubber.makeTextareasAutoresizable();
                 jQuery("#" + id).find(".corrector").trigger("keydown");
             }
         });
@@ -152,13 +152,13 @@ STUDIP.FF = {
     submittingEditedPostingStarted: false,
     submitEditedPosting: function (textarea) {
         var id = jQuery(textarea).closest("li").attr("id");
-        if (STUDIP.FF.submittingEditedPostingStarted) {
+        if (STUDIP.Blubber.submittingEditedPostingStarted) {
             return;
         }
-        STUDIP.FF.submittingEditedPostingStarted = true;
+        STUDIP.Blubber.submittingEditedPostingStarted = true;
         if (jQuery("#" + id).attr("data-autor") === jQuery("#user_id").val()
                 || window.confirm(jQuery("#editing_question").text())) {
-            STUDIP.FF.submittingEditedPostingStarted = false;
+            STUDIP.Blubber.submittingEditedPostingStarted = false;
             jQuery.ajax({
                 'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/edit_posting",
                 'data': {
@@ -176,7 +176,7 @@ STUDIP.FF = {
                 }
             });
         } else {
-            STUDIP.FF.submittingEditedPostingStarted = false;
+            STUDIP.Blubber.submittingEditedPostingStarted = false;
             jQuery.ajax({
                 'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/refresh_posting",
                 'data': {
@@ -305,23 +305,23 @@ STUDIP.FF = {
 
 };
 
-jQuery(STUDIP.FF.updateTimestamps);
+jQuery(STUDIP.Blubber.updateTimestamps);
 
 jQuery("#threadwriter > textarea").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
-        STUDIP.FF.newPosting();
+        STUDIP.Blubber.newPosting();
         event.preventDefault();
     }
 });
 jQuery("#forum_threads textarea.corrector").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
-        STUDIP.FF.submitEditedPosting(this);
+        STUDIP.Blubber.submitEditedPosting(this);
         event.preventDefault();
     }
 });
 jQuery(".writer > textarea").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
-        STUDIP.FF.write(this);
+        STUDIP.Blubber.write(this);
         event.preventDefault();
     }
 });
@@ -343,21 +343,21 @@ jQuery("#forum_threads > li > ul.comments > li.more").live("click", function () 
             if (data.comments) {
                 jQuery(li_more).remove();
                 jQuery.each(data.comments, function (index, comment) {
-                    STUDIP.FF.insertComment(thread_id, comment.posting_id, comment.mkdate, comment.content);
+                    STUDIP.Blubber.insertComment(thread_id, comment.posting_id, comment.mkdate, comment.content);
                 });
             }
         }
     });
 });
 jQuery(function () {
-    STUDIP.FF.makeTextareasAutoresizable();
+    STUDIP.Blubber.makeTextareasAutoresizable();
     jQuery("#new_title").focus(function () {
         jQuery("#new_posting").fadeIn(function () {
-            STUDIP.FF.makeTextareasAutoresizable();
+            STUDIP.Blubber.makeTextareasAutoresizable();
         });
     });
-    jQuery("#forum_threads a.edit").live("click", STUDIP.FF.startEditingComment);
-    jQuery("#forum_threads textarea.corrector").live("blur", function () {STUDIP.FF.submitEditedPosting(this);});
+    jQuery("#forum_threads a.edit").live("click", STUDIP.Blubber.startEditingComment);
+    jQuery("#forum_threads textarea.corrector").live("blur", function () {STUDIP.Blubber.submitEditedPosting(this);});
 });
 
 jQuery(window.document).bind('scroll', _.throttle(function (event) {
@@ -378,7 +378,7 @@ jQuery(window.document).bind('scroll', _.throttle(function (event) {
                 jQuery("#forum_threads > li.loading").remove();
                 jQuery("#loaded").val(parseInt(jQuery("#loaded").val(), 10) + 1);
                 jQuery.each(response.threads, function (index, thread) {
-                    STUDIP.FF.insertThread(thread.posting_id, thread.mkdate, thread.content);
+                    STUDIP.Blubber.insertThread(thread.posting_id, thread.mkdate, thread.content);
                 });
                 if (response.more) {
                     jQuery("#forum_threads").append(jQuery('<li class="more">...</li>'));

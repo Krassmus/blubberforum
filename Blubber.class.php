@@ -29,9 +29,12 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             $data = Request::getArray("page_info");
             if (strpos(Request::get("page"), "plugins.php/blubber") !== false) {
                 $output = array();
-                $seminar_id = $data['FF']['context_id'];
-                $last_check = $data['FF']['last_check'] ? $data['FF']['last_check'] : (time() - 5 * 60);
-                $new_postings = ForumPosting::getPostings($seminar_id, $last_check);
+                $seminar_id = $data['Blubber']['context_id'];
+                $last_check = $data['Blubber']['last_check'] ? $data['Blubber']['last_check'] : (time() - 5 * 60);
+                $new_postings = ForumPosting::getPostings(array(
+                    'seminar_id' => $seminar_id,
+                    'since' => $last_check
+                ));
                 $factory = new Flexi_TemplateFactory($this->getPluginPath()."/views");
                 foreach ($new_postings as $new_posting) {
                     if ($new_posting['root_id'] === $new_posting['topic_id']) {
@@ -41,7 +44,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $template = $factory->open("forum/comment.php");
                         $template->set_attribute('posting', $new_posting);
                     }
-                    $template->set_attribute("course_id", $data['FF']['seminar_id']);
+                    $template->set_attribute("course_id", $data['Blubber']['seminar_id']);
                     $output['postings'][] = array(
                         'posting_id' => $new_posting['topic_id'],
                         'mkdate' => $new_posting['mkdate'],
@@ -49,7 +52,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         'content' => $template->render()
                     );
                 }
-                UpdateInformation::setInformation("FF.getNewPosts", $output);
+                UpdateInformation::setInformation("Blubber.getNewPosts", $output);
             }
         }
         if (Navigation::hasItem("/course") && $this->isActivated() && version_compare($GLOBALS['SOFTWARE_VERSION'], "2.2") <= 0) {
