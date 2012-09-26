@@ -29,7 +29,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             $data = Request::getArray("page_info");
             if (strpos(Request::get("page"), "plugins.php/blubber") !== false) {
                 $output = array();
-                $seminar_id = $data['FF']['seminar_id'] ? $data['FF']['seminar_id'] : $_SESSION['SessionSeminar'];
+                $seminar_id = $data['FF']['context_id'];
                 $last_check = $data['FF']['last_check'] ? $data['FF']['last_check'] : (time() - 5 * 60);
                 $new_postings = ForumPosting::getPostings($seminar_id, $last_check);
                 $factory = new Flexi_TemplateFactory($this->getPluginPath()."/views");

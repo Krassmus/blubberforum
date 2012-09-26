@@ -2,7 +2,8 @@ STUDIP.jsupdate_enable = true;
 STUDIP.FF = {
     periodicalPushData: function () {
         return {
-            'seminar_id': jQuery("#seminar_id").val(),
+            'context': jQuery("#seminar_id").val(),
+            'stream': jQuery("#stream").val(),
             'last_check': jQuery('#last_check').val()
         };
     },
@@ -57,7 +58,6 @@ STUDIP.FF = {
             return;
         }
         STUDIP.FF.alreadyWriting = true;
-
         jQuery.ajax({
             url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/comment",
             data: {

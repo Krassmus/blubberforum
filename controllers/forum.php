@@ -230,9 +230,8 @@ class ForumController extends ApplicationController {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $thread = new ForumPosting(Request::option("thread"));
-        if (Request::option("thread")) {
+        if (Request::option("thread") && $thread['Seminar_id'] === $context) {
             $output = array();
-            $thread = new ForumPosting(Request::get("thread"));
             $posting = new ForumPosting();
             
             $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
@@ -242,7 +241,7 @@ class ForumController extends ApplicationController {
             $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
             
             $posting['description'] = $content;
-            $posting['seminar_id'] = $_SESSION['SessionSeminar'];
+            $posting['seminar_id'] = $thread['Seminar_id'];
             $posting['root_id'] = $posting['parent_id'] = Request::option("thread");
             $posting['name'] = "Re: ".$thread['name'];
             $posting['user_id'] = $GLOBALS['user']->id;
@@ -252,7 +251,7 @@ class ForumController extends ApplicationController {
                 $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views/forum");
                 $template = $factory->open("comment.php");
                 $template->set_attribute('posting', $posting);
-                $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
+                $template->set_attribute('course_id', $thread['Seminar_id']);
                 $output['content'] = studip_utf8encode($template->render($template->render()));
                 $output['mkdate'] = time();
                 $output['posting_id'] = $posting->getId();
