@@ -370,6 +370,7 @@ jQuery(".writer > textarea").live("keydown", function (event) {
 jQuery("#forum_threads > li > ul.comments > li.more").live("click", function () {
     var thread_id = jQuery(this).closest("li[id]").attr("id");
     var li_more = this;
+    jQuery(this).wrapInner('<span/>').find('span').showAjaxNotification()
     jQuery.ajax({
         url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_comments",
         data: {
