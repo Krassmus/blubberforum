@@ -65,6 +65,18 @@ class ForumPosting extends SimpleORMap {
         "")->fetchAll(PDO::FETCH_COLUMN, 0);
     }
 
+    static public function getMyBlubberBuddys() {
+        $db = DBManager::get();
+        $contact_ids = $db->query(
+            "SELECT contact.user_id " .
+            "FROM contact " .
+            "WHERE owner_id = ".$db->quote($GLOBALS['user']->id)." " .
+                "AND buddy = '1' " .
+        "")->fetchAll(PDO::FETCH_COLUMN, 0);
+        $contact_ids[] = $GLOBALS['user']->id;
+        return $contact_ids;
+    }
+
     static public function getThreads($parameter = array()) {
         $defaults = array(
             'seminar_id' => null,
@@ -98,8 +110,9 @@ class ForumPosting extends SimpleORMap {
             $where[] = "AND (px_topics.Seminar_id IS NULL " .
                             (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
                        ") ";
+            $user_ids = self::getMyBlubberBuddys();
+            $where[] = "OR (px_topics.Seminar_id = px_topics.user_id AND px_topics.user_id IN (".$db->quote($user_ids).") ) ";
         }
-        
         $thread_ids = $db->query(
             "SELECT px_topics.root_id " .
             "FROM px_topics " .
@@ -121,31 +134,40 @@ class ForumPosting extends SimpleORMap {
         $defaults = array(
             'seminar_id' => null,
             'user_id' => null,
+            'thread' => null,
             'search' => null,
             'since' => null
         );
         $parameter = array_merge($defaults, $parameter);
         $db = DBManager::get();
 
-        $joins = $where = array();
+        $joins = $where = $where_filter = array();
         $limit = "";
 
         if ($parameter['since'] > 0) {
-            $where[] = "AND px_topics.chdate >= ".$db->quote($parameter['since']);
+            $where_and[] = "AND px_topics.chdate >= ".$db->quote($parameter['since']);
         }
         if ($parameter['seminar_id']) {
-            $where[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['seminar_id']);
+            $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['seminar_id']);
         }
         if ($parameter['user_id']) {
             $joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
-            $where[] = "AND thread.Seminar_id = ".$db->quote($parameter['user_id']);
+            $where_and[] = "AND thread.Seminar_id = ".$db->quote($parameter['user_id']);
         }
-        if (!$parameter['seminar_id'] && !$parameter['user_id']) {
+        if ($parameter['thread']) {
+            $where_and[] = "AND px_topics.root_id = ".$db->quote($parameter['thread']);
+        }
+        if (!$parameter['seminar_id'] && !$parameter['user_id'] && !$parameter['thread']) {
             //Globaler Stream:
             $seminar_ids = self::getMyBlubberCourses();
-            $where[] = "AND (px_topics.Seminar_id IS NULL " .
-                            (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
-                       ") ";
+            if (count($seminar_ids)) {
+                $where_or[] = "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") ";
+            }
+            $user_ids = self::getMyBlubberBuddys();
+            if (count($user_ids)) {
+                $joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
+                $where_or[] = "OR (px_topics.Seminar_id = thread.user_id AND thread.user_id IN (".$db->quote($user_ids).") ) ";
+            }
         }
 
         $thread_ids = $db->query(
@@ -153,7 +175,8 @@ class ForumPosting extends SimpleORMap {
             "FROM px_topics " .
                 implode(" ", $joins) . " " .
             "WHERE 1=1 " .
-                implode(" ", $where) . " " .
+                implode(" ", $where_and) . " " .
+                (count($where_or) ? "AND ( 1=2 " . implode(" ", $where_or) . " ) " : "") .
             "ORDER BY px_topics.mkdate ASC " .
         "")->fetchAll(PDO::FETCH_COLUMN, 0);
         $threads = array();

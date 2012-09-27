@@ -226,12 +226,12 @@ class ForumController extends ApplicationController {
 
     public function comment_action() {
         $context = Request::option("context");
-        $context_type = Request::option("context_type") ? Request::get("context_type") : "course";
-        if (!$context 
-                || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
+        $context_type = Request::option("context_type");
+        $thread = new ForumPosting(Request::option("thread"));
+        if (!$context
+                || ($thread['Seminar_id'] !== $thread['user_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        $thread = new ForumPosting(Request::option("thread"));
         if (Request::option("thread") && $thread['Seminar_id'] === $context) {
             $output = array();
             $posting = new ForumPosting();
@@ -370,15 +370,17 @@ class ForumController extends ApplicationController {
     
     public function thread_action($thread_id)
     {
-        object_set_visit($_SESSION['SessionSeminar'], "forum");
+        //object_set_visit($_SESSION['SessionSeminar'], "forum");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
-        Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
 
         if (Navigation::hasItem('/course/blubberforum')) {
+            Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
             Navigation::activateItem('/course/blubberforum');
+        } else {
+            Navigation::activateItem('/community/blubber');
         }
         
         $this->thread        = new ForumPosting($thread_id);

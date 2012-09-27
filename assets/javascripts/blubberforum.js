@@ -2,7 +2,7 @@ STUDIP.jsupdate_enable = true;
 STUDIP.Blubber = {
     periodicalPushData: function () {
         return {
-            'context': jQuery("#seminar_id").val(),
+            'context_id': jQuery("#context_id").val(),
             'stream': jQuery("#stream").val(),
             'last_check': jQuery('#last_check').val()
         };

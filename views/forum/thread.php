@@ -14,12 +14,13 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 ?>
 <? if (@$single_thread): ?>
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
-<input type="hidden" id="seminar_id" value="<?= htmlReady($_SESSION['SessionSeminar']) ?>">
+<input type="hidden" id="context_id" value="<?= htmlReady($thread->getId()) ?>">
+<input type="hidden" id="stream" value="thread">
 <input type="hidden" id="last_check" value="<?= time() ?>">
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 <p>
-    <a href="<?= URLHelper::getLink("plugins.php/blubber/forum/forum") ?>">
+    <a href="<?= $thread['Seminar_id'] !== $thread['user_id'] ? URLHelper::getLink("plugins.php/blubber/forum/forum") : URLHelper::getLink("plugins.php/blubber/forum/globalstream") ?>">
         <?= Assets::img('icons/16/blue/arr_1left', array('class' => 'text-top')) ?>
         <?= _('Zurück zur Übersicht') ?>
     </a>
@@ -31,14 +32,16 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 <li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>" class="thread posting<?= $last_visit < $thread['mkdate'] ? " new" : "" ?>" data-autor="<?= htmlReady($thread['user_id']) ?>">
     <div class="hiddeninfo">
         <input type="hidden" name="context" value="<?= htmlReady($thread['Seminar_id']) ?>">
-        <input type="hidden" name="context_type" value="course">
+        <input type="hidden" name="context_type" value="<?= $thread['Seminar_id'] === $thread['user_id'] ? "public" : "course" ?>">
     </div>
+    <? if ($thread['user_id'] !== $thread['Seminar_id']) : ?>
     <a href="<?= URLHelper::getLink("plugins.php/blubber/forum/forum", array('cid' => $thread['Seminar_id'])) ?>"
        <? $title = get_object_name($thread['Seminar_id'], "sem") ?>
        title="<?= _("Veranstaltung")." ".htmlReady($title['name']) ?>"
        class="contextinfo"
        style="background-image: url('<?= CourseAvatar::getAvatar($thread['Seminar_id'])->getURL(Avatar::NORMAL) ?>');">
     </a>
+    <? endif ?>
     <div class="avatar_column">
         <div class="avatar">
             <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">
