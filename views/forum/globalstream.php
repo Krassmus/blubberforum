@@ -81,7 +81,7 @@ $infobox = array(
         array(
             array(
                 "icon" => "icons/16/black/info",
-                "text" => _("Ein Echtzeit-ActivityFeed.")
+                "text" => _("Ein Echtzeit-ActivityFeed Deiner Freunde und Veranstaltungen.")
             ),
             array(
                 "icon" => "icons/16/black/date",

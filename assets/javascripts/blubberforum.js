@@ -215,7 +215,22 @@ STUDIP.Blubber = {
                 var files = 0;
                 var file_info = event.dataTransfer.files;
                 var data = new FormData();
-                var seminar_id = jQuery(textarea).closest("li.thread").find(".hiddeninfo input[name=context]").val();
+
+                var thread = jQuery(textarea).closest("li.thread");
+                if (thread && thread.find(".hiddeninfo input[name=context_type]").val() === "course") {
+                    var context_id = thread.find(".hiddeninfo input[name=context]").val();
+                    var context_type = "course";
+                } else {
+                    var context_type = jQuery("#context_selector input[name=context_type]:checked").val();
+                    if ((jQuery("#stream").val() === "course") || jQuery("#context_selector input[name=context_type]:checked").val()) {
+                        var context_id = jQuery("#context_selector input[name=context]").val();
+                        context_type = context_type ? context_type : "course";
+                    }
+                    if (!context_id) {
+                        var context_id = jQuery("#user_id").val();
+                        context_type = "public";
+                    }
+                }
                 jQuery.each(file_info, function (index, file) {
                     if (file.size > 0) {
                         data.append(index, file);
@@ -225,7 +240,7 @@ STUDIP.Blubber = {
                 if (files > 0) {
                     jQuery(textarea).addClass("uploading");
                     jQuery.ajax({
-                        'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files?context=" + seminar_id,
+                        'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/post_files?context=" + context_id + "&context_type=" + context_type,
                         'data': data,
                         'cache': false,
                         'contentType': false,

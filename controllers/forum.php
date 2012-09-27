@@ -156,7 +156,8 @@ class ForumController extends ApplicationController {
 
     public function get_source_action() {
         $posting = new ForumPosting(Request::get("topic_id"));
-        if (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) {
+        if (($posting['user_id'] !== $GLOBALS['user']->id)
+                && (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id']))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         echo studip_utf8encode(forum_kill_edit($posting['description']));
@@ -165,8 +166,8 @@ class ForumController extends ApplicationController {
 
     public function edit_posting_action () {
         $posting = new ForumPosting(Request::get("topic_id"));
-        if (!$GLOBALS['perm']->have_studip_perm("tutor", $posting['Seminar_id'])
-                && ($posting['user_id'] !== $GLOBALS['user']->id)) {
+        if (($posting['user_id'] !== $GLOBALS['user']->id) 
+                && (!$GLOBALS['perm']->have_studip_perm("tutor", $posting['Seminar_id']))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $old_content = $posting['description'];
@@ -289,7 +290,7 @@ class ForumController extends ApplicationController {
 
     public function post_files_action() {
         $context = Request::option("context");
-        $context_type = Request::option("context_type") ? Request::get("context_type") : "course";
+        $context_type = Request::option("context_type");
         if (!Request::isPost()
                 || !$context
                 || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
@@ -298,13 +299,13 @@ class ForumController extends ApplicationController {
         //check folders
         $db = DBManager::get();
         $folder_id = md5("Blubber_".$context."_".$GLOBALS['user']->id);
+        $parent_folder_id = md5("Blubber_".$context);
         $folder = $db->query(
             "SELECT * " .
             "FROM folder " .
-            "WHERE folder_id = ".$db->quote($folder_id)." " .
+            "WHERE folder_id = ".$db->quote($context_type === "course" ? $folder_id : $parent_folder_id)." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
         if (!$folder) {
-            $parent_folder_id = md5("Blubber_".$context);
             $folder = $db->query(
                 "SELECT * " .
                 "FROM folder " .
@@ -322,16 +323,18 @@ class ForumController extends ApplicationController {
                         "chdate = ".$db->quote(time())." " .
                 "");
             }
-            $db->exec(
-                "INSERT IGNORE INTO folder " .
-                "SET folder_id = ".$db->quote($folder_id).", " .
-                    "range_id = ".$db->quote($parent_folder_id).", " .
-                    "user_id = ".$db->quote($GLOBALS['user']->id).", " .
-                    "name = ".$db->quote(get_fullname()).", " .
-                    "permission = '7', " .
-                    "mkdate = ".$db->quote(time()).", " .
-                    "chdate = ".$db->quote(time())." " .
-            "");
+            if ($context_type === "course") {
+                $db->exec(
+                    "INSERT IGNORE INTO folder " .
+                    "SET folder_id = ".$db->quote($folder_id).", " .
+                        "range_id = ".$db->quote($parent_folder_id).", " .
+                        "user_id = ".$db->quote($GLOBALS['user']->id).", " .
+                        "name = ".$db->quote(get_fullname()).", " .
+                        "permission = '7', " .
+                        "mkdate = ".$db->quote(time()).", " .
+                        "chdate = ".$db->quote(time())." " .
+                "");
+            }
         }
 
         $output = array();
@@ -348,7 +351,7 @@ class ForumController extends ApplicationController {
                 $document['user_id'] = $GLOBALS['user']->id;
                 $document['author_name'] = get_fullname();
                 $document['seminar_id'] = $context;
-                $document['range_id'] = $folder_id;
+                $document['range_id'] = $context_type === "course" ? $folder_id : $parent_folder_id;
                 $document['filesize'] = $file['size'];
                 if ($newfile = StudipDocument::createWithFile($file['tmp_name'], $document)) {
                     $type = null;
