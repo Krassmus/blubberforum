@@ -167,9 +167,14 @@
     word-break: break-all;
 }
 #forum_threads .posting img {
-    max-width: 600px;
+    max-width: 500px;
 }
-
+#forum_threads.globalstream .posting img {
+    max-width: 400px;
+}
+#forum_threads.singlethread .posting img {
+    max-width: 700px;
+}
 #forum_threads li.more {
     cursor: pointer;
     color: #bbbbbb;

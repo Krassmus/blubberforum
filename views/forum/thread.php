@@ -26,7 +26,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
     </a>
 </p>
 
-<ul id="forum_threads" class="coursestream">
+<ul id="forum_threads" class="coursestream singlethread">
 <? endif; ?>
 
 <li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>" class="thread posting<?= $last_visit < $thread['mkdate'] ? " new" : "" ?>" data-autor="<?= htmlReady($thread['user_id']) ?>">
