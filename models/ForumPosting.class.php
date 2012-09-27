@@ -49,6 +49,21 @@ class ForumPosting extends SimpleORMap {
     static public function expireThreads($stream) {
         StudipCacheFactory::getCache()->expire("BLUBBERTHREADS_FROM_".$stream);
     }
+    
+    static public function getMyBlubberCourses() {
+        $db = DBManager::get();
+        return $db->query(
+            "SELECT seminar_user.Seminar_id " .
+            "FROM seminar_user " .
+                "INNER JOIN seminare ON (seminare.Seminar_id = seminar_user.Seminar_id) " .
+                "INNER JOIN plugins_activated ON (plugins_activated.poiid = CONCAT('sem', seminar_user.Seminar_id)) " .
+                "INNER JOIN plugins ON (plugins_activated.pluginid = plugins.pluginid) " .
+            "WHERE seminar_user.user_id = ".$db->quote($GLOBALS['user']->id)." " .
+                "AND plugins_activated.state = 'on' " .
+                "AND plugins.pluginclassname = 'Blubber' " .
+            "ORDER BY seminare.start_time ASC, seminare.name ASC " .
+        "")->fetchAll(PDO::FETCH_COLUMN, 0);
+    }
 
     static public function getThreads($parameter = array()) {
         $defaults = array(
@@ -79,15 +94,7 @@ class ForumPosting extends SimpleORMap {
         }
         if (!$parameter['seminar_id'] && !$parameter['user_id']) {
             //Globaler Stream:
-            $seminar_ids = $db->query(
-                "SELECT Seminar_id " .
-                "FROM seminar_user " .
-                    "INNER JOIN plugins_activated ON (plugins_activated.poiid = CONCAT('sem', seminar_user.Seminar_id)) " .
-                    "INNER JOIN plugins ON (plugins_activated.pluginid = plugins.pluginid) " .
-                "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
-                    "AND plugins_activated.state = 'on' " .
-                    "AND plugins.pluginclassname = 'Blubber' " .
-            "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            $seminar_ids = self::getMyBlubberCourses();
             $where[] = "AND (px_topics.Seminar_id IS NULL " .
                             (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
                        ") ";
@@ -135,15 +142,7 @@ class ForumPosting extends SimpleORMap {
         }
         if (!$parameter['seminar_id'] && !$parameter['user_id']) {
             //Globaler Stream:
-            $seminar_ids = $db->query(
-                "SELECT Seminar_id " .
-                "FROM seminar_user " .
-                    "INNER JOIN plugins_activated ON (plugins_activated.poiid = CONCAT('sem', seminar_user.Seminar_id)) " .
-                    "INNER JOIN plugins ON (plugins_activated.pluginid = plugins.pluginid) " .
-                "WHERE user_id = ".$db->quote($GLOBALS['user']->id)." " .
-                    "AND plugins_activated.state = 'on' " .
-                    "AND plugins.pluginclassname = 'Blubber' " .
-            "")->fetchAll(PDO::FETCH_COLUMN, 0);
+            $seminar_ids = self::getMyBlubberCourses();
             $where[] = "AND (px_topics.Seminar_id IS NULL " .
                             (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
                        ") ";

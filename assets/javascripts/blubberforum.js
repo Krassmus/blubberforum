@@ -34,7 +34,8 @@ STUDIP.Blubber = {
             jQuery.ajax({
                 url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/new_posting",
                 data: {
-                    'cid': jQuery("#seminar_id").val(),
+                    'context_type': jQuery("#context_selector input[name=context_type]:checked").val(),
+                    'context': jQuery("#context_selector [name=context]").val(),
                     'content': content
                 },
                 dataType: "json",
@@ -42,6 +43,7 @@ STUDIP.Blubber = {
                 success: function (reply) {
                     jQuery("#new_posting").val("").trigger("keydown");
                     STUDIP.Blubber.insertThread(reply.posting_id, reply.mkdate, reply.content);
+                    jQuery("#submit_button").hide();
                 },
                 complete: function () {
                     STUDIP.Blubber.alreadyThreadWriting = false;
@@ -302,8 +304,26 @@ STUDIP.Blubber = {
                 "visibility": "visible"
             });
         }
+    },
+    showContextWindow: function () {
+        jQuery("#context_selector").dialog({
+            'title': "",
+            'modal': true,
+            'hide': "fade",
+            'show': "fade",
+            'width': "60%"
+        });
+    },
+    prepareSubmitGlobalPosting: function () {
+        if (jQuery("#context_selector input[name=context_type]:checked").length > 0) {
+            STUDIP.Blubber.newPosting();
+            jQuery("#context_selector input[name=context_type]").removeAttr("checked");
+            jQuery("#context_selector").dialog("close");
+        } else {
+            jQuery("#submit_button").show();
+            STUDIP.Blubber.showContextWindow();
+        }
     }
-
 };
 
 jQuery(STUDIP.Blubber.updateTimestamps);
@@ -311,6 +331,12 @@ jQuery(STUDIP.Blubber.updateTimestamps);
 jQuery("#threadwriter > textarea").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
         STUDIP.Blubber.newPosting();
+        event.preventDefault();
+    }
+});
+jQuery("#threadwriter.globalstream textarea").live("keydown", function (event) {
+    if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
+        STUDIP.Blubber.prepareSubmitGlobalPosting();
         event.preventDefault();
     }
 });
@@ -359,6 +385,7 @@ jQuery(function () {
     });
     jQuery("#forum_threads a.edit").live("click", STUDIP.Blubber.startEditingComment);
     jQuery("#forum_threads textarea.corrector").live("blur", function () {STUDIP.Blubber.submitEditedPosting(this);});
+    jQuery("#threadwriter .context_selector img").bind("click", STUDIP.Blubber.showContextWindow);
 });
 
 jQuery(window.document).bind('scroll', _.throttle(function (event) {

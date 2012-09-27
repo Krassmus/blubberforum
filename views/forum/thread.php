@@ -19,7 +19,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 <p>
-    <a href="<?= $controller->url_for('forum/forum') ?>">
+    <a href="<?= URLHelper::getLink("plugins.php/blubber/forum/forum") ?>">
         <?= Assets::img('icons/16/blue/arr_1left', array('class' => 'text-top')) ?>
         <?= _('Zurück zur Übersicht') ?>
     </a>

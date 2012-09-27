@@ -108,12 +108,15 @@ class ForumController extends ApplicationController {
     }
 
     public function new_posting_action() {
-        if (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+        $context = Request::option("context");
+        $context_type = Request::option("context_type");
+        if (!$context 
+                || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $output = array();
         $thread = new ForumPosting(Request::option("thread"));
-        $thread['seminar_id'] = $_SESSION['SessionSeminar'];
+        $thread['seminar_id'] = $context_type === "course" ? $context : $GLOBALS['user']->id;
         $thread['parent_id'] = 0;
         $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         if ($thread->isNew() && !$thread->getId()) {
@@ -143,7 +146,6 @@ class ForumController extends ApplicationController {
             $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
             $template = $factory->open("forum/thread.php");
             $template->set_attribute('thread', $thread);
-            $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
             $template->set_attribute('controller', $this);
             $output['content'] = studip_utf8encode($template->render());
             $output['mkdate'] = time();

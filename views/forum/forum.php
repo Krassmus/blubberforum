@@ -10,7 +10,6 @@
  */
 ?>
 <input type="hidden" id="last_check" value="<?= time() ?>">
-<input type="hidden" id="seminar_id" value="<?= $_SESSION['SessionSeminar'] ?>">
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
 <input type="hidden" id="stream" value="course">
@@ -19,6 +18,10 @@
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 
 <div id="threadwriter">
+    <div id="context_selector" style="display: none;">
+        <input type="hidden" name="context_type" value="course" checked="checked">
+        <input type="hidden" name="context" value="<?= $_SESSION['SessionSeminar'] ?>">
+    </div>
     <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
 </div>
 

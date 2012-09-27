@@ -100,7 +100,7 @@
     margin-left: 60px;
     margin-top: 5px;
 }
-#forum_threads .writer textarea, #threadwriter input {
+#forum_threads .writer textarea {
     width: 97%;
     height: 20px;
 }
@@ -178,14 +178,6 @@
     background-color: #e5e5ff;
     color: #777777;
 }
-#threadwriter {
-    margin: 5px;
-    padding: 5px;
-}
-#threadwriter textarea {
-    width: 97%;
-    height: 20px;
-}
 #forum_threads textarea.corrector {
     width: 100%;
     height: 20px;
@@ -199,4 +191,42 @@
     background-image: -ms-linear-gradient(left, white 50%, rgb(245,245,255) 100%);
     background-size: 100px 100%;
     background-repeat: no-repeat;
+}
+#threadwriter {
+    margin: 5px;
+    width: 97%;
+    display: table;
+    padding: 5px;
+    margin-bottom: 15px;
+}
+#threadwriter > .row {
+    display: table-row;
+}
+#threadwriter textarea {
+    display: table-cell;
+    width: 100%;
+    height: 20px;
+    vertical-align: middle;
+}
+#threadwriter .context_selector {
+    padding: 5px;
+    display: table-cell;
+    width: 100px;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-transition: all 1s;
+    -moz-transition: all 1s;
+    -ms-transition: all 1s;
+    -o-transition: all 1s;
+    transition: all 1s;
+    opacity: 0.2;
+}
+#threadwriter:hover .context_selector {
+    opacity: 1;
+}
+#threadwriter .context_selector img {
+    cursor: pointer;
+}
+#threadwriter .context_selector .seminar {
+    display: none;
 }

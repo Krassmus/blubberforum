@@ -17,11 +17,50 @@
 <input type="hidden" id="loaded" value="1">
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 
-<!--
-<div id="threadwriter">
-    <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
+<div id="threadwriter" class="globalstream">
+    <div class="row">
+        <div class="context_selector" title="<?= _("Kontext der Nachricht auswählen") ?>">
+            <?= Assets::img("icons/16/blue/seminar", array('class' => "seminar")) ?>
+            <?= Assets::img("icons/16/blue/community", array('class' => "community")) ?>
+        </div>
+        <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
+    </div>
+    <div id="context_selector" style="display: none;">
+        <table>
+            <tbody>
+                <tr>
+                    <td><input type="radio" name="context_type" value="public"></td>
+                    <td>
+                        <?= _("Öffentlich") ?>
+                    <div style="font-size: 0.8em"><?= _("Dein Beitrag wird allen angezeigt, die Dich als Buddy hinzugefügt haben.") ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="radio" name="context_type" value="course"></td>
+                    <td>
+                        <?= _("Veranstaltungsbezogen") ?>
+                        <div style="font-size: 0.8em">
+                            <?= _("Im Kurs") ?>
+                            <select name="context">
+                                <? foreach (ForumPosting::getMyBlubberCourses() as $course_id) : ?>
+                                <? $seminar = new Seminar($course_id) ?>
+                                <option value="<?= htmlReady($course_id) ?>"><?= htmlReady($seminar->getName()) ?></option>
+                                <? endforeach ?>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div>
+            <button class="button" id="submit_button" style="display: none;" onClick="STUDIP.Blubber.prepareSubmitGlobalPosting();">
+                <?= _("abschicken") ?>
+            </button>
+        </div>
+    </div>
 </div>
--->
+
+
 
 <div id="context_background">
 <ul id="forum_threads" class="globalstream">
