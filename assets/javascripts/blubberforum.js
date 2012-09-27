@@ -369,16 +369,11 @@ jQuery(".writer > textarea").live("keydown", function (event) {
 });
 jQuery("#forum_threads > li > ul.comments > li.more").live("click", function () {
     var thread_id = jQuery(this).closest("li[id]").attr("id");
-    var context = jQuery(this).closest().find(".contextinfo input[name=context]").val();
-    var context_type = jQuery(this).closest().find(".contextinfo input[name=context_type]").val();
     var li_more = this;
     jQuery.ajax({
         url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_comments",
         data: {
             'thread_id': thread_id,
-            'context': context,
-            'context_type': context_type,
-            'stream': jQuery("#stream").val()
         },
         dataType: "json",
         success: function (data) {

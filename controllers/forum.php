@@ -54,17 +54,17 @@ class ForumController extends ApplicationController {
     }
 
     public function more_comments_action() {
-        if (Request::get("stream") === "course" && (!Request::option("context") || !$GLOBALS['perm']->have_studip_perm("autor", Request::get("context")))) {
+        $thread = new ForumPosting(Request::option("thread_id"));
+        if ($thread['user_id'] !== $thread['Seminar_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $thread['Seminar_id'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        $thread = new ForumPosting(Request::option("thread_id"));
         $output = array();
         $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
         $comments = $thread->getChildren();
         foreach ($comments as $posting) {
             $template = $factory->open("forum/comment.php");
             $template->set_attribute('posting', $posting);
-            $template->set_attribute('course_id', $_SESSION['SessionSeminar']);
+            $template->set_attribute('course_id', $thread['Seminar_id']);
             $output['comments'][] = array(
                 'content' => studip_utf8encode($template->render()),
                 'mkdate' => $posting['mkdate'],
