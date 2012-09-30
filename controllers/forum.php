@@ -53,6 +53,31 @@ class ForumController extends ApplicationController {
         }
     }
 
+    public function profile_action() {
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
+        PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
+        PageLayout::setTitle("Blubber");
+
+        $this->user_id = get_userid(Request::get("username"));
+        PageLayout::addHeadElement("link", array(
+            'rel' => "alternate",
+            'type' => "application/atom+xml",
+            'href' => "",
+            'title' => "Blubber von ".get_fullname($user_id)
+        ));
+        
+        $this->threads = ForumPosting::getThreads(array(
+            'user_id' => $this->user_id,
+            'limit' => $this->max_threads + 1
+        ));
+        $this->more_threads = count($this->threads) > $this->max_threads;
+        $this->course_id = $_SESSION['SessionSeminar'];
+        if ($this->more_threads) {
+            $this->threads = array_slice($this->threads, 0, $this->max_threads);
+        }
+    }
+
     public function more_comments_action() {
         $thread = new ForumPosting(Request::option("thread_id"));
         if ($thread['user_id'] !== $thread['Seminar_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $thread['Seminar_id'])) {

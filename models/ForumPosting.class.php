@@ -46,10 +46,6 @@ class ForumPosting extends SimpleORMap {
         }
     }
 
-    static public function expireThreads($stream) {
-        StudipCacheFactory::getCache()->expire("BLUBBERTHREADS_FROM_".$stream);
-    }
-    
     static public function getMyBlubberCourses() {
         $db = DBManager::get();
         return $db->query(

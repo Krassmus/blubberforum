@@ -42,6 +42,9 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                 if ($stream === "course") {
                     $parameter['seminar_id'] = $context_id;
                 }
+                if ($stream === "profile") {
+                    $parameter['user_id'] = $context_id;
+                }
                 $new_postings = ForumPosting::getPostings($parameter);
 
                 $factory = new Flexi_TemplateFactory($this->getPluginPath()."/views");
@@ -76,6 +79,10 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             Navigation::getItem("/community")->setURL(PluginEngine::getURL($this, array(), "forum/globalstream"));
         }
         
+        if (Navigation::hasItem("/profile")) {
+            $nav = new AutoNavigation(_("Blubber"), PluginEngine::getURL($this, array('username' => Request::get("username")), "forum/profile"));
+            Navigation::addItem("/profile/blubber", $nav);
+        }
     }
 
     public function getTabNavigation($course_id) {
