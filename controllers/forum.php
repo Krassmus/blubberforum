@@ -12,7 +12,7 @@ require_once dirname(__file__)."/application.php";
 
 class ForumController extends ApplicationController {
 
-    protected $max_threads = 20;
+    protected $max_threads = 10;
 
     public function before_filter(&$action, &$args)
     {
