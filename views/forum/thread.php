@@ -41,6 +41,9 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
        class="contextinfo"
        style="background-image: url('<?= CourseAvatar::getAvatar($thread['Seminar_id'])->getURL(Avatar::NORMAL) ?>');">
     </a>
+    <? else : ?>
+    <div class="contextinfo" title="<?= _("Öffentlich") ?>" style="background-image: url('<?= $GLOBALS['ABSOLUTE_URI_STUDIP'] ?>/plugins_packages/data-quest/Blubber/assets/images/public.png');">
+    </div>
     <? endif ?>
     <div class="avatar_column">
         <div class="avatar">
