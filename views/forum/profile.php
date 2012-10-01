@@ -21,8 +21,8 @@
 <? if ($user_id === $GLOBALS['user']->id) : ?>
 <div id="threadwriter">
     <div id="context_selector" style="display: none;">
-        <input type="hidden" name="context_type" value="course" checked="checked">
-        <input type="hidden" name="context" value="<?= $_SESSION['SessionSeminar'] ?>">
+        <input type="hidden" name="context_type" value="public" checked="checked">
+        <input type="hidden" name="context" value="<?= htmlReady($user_id) ?>">
     </div>
     <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
 </div>
