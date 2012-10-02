@@ -130,7 +130,14 @@ STUDIP.Blubber = {
                 var already_inserted = false;
                 jQuery("#forum_threads > li[id]").each(function (index, li) {
                     if (!already_inserted && jQuery(li).attr("mkdate") < mkdate) {
+                        var top = jQuery(document).scrollTop();
                         jQuery(comment).insertBefore(li).hide().fadeIn();
+                        var comment_top = jQuery("#" + posting_id).offset().top;
+                        var height = jQuery("#" + posting_id).height() +
+                            + 15; //2 * padding + 1 für Border
+                        if (comment_top < top) {
+                            jQuery(document).scrollTop(top + height);
+                        }
                         STUDIP.Blubber.updateTimestamps();
                         already_inserted = true;
                     }
