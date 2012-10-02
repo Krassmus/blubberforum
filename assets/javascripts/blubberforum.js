@@ -31,10 +31,14 @@ STUDIP.Blubber = {
         if (jQuery.trim(jQuery("#new_posting").val())) {
             STUDIP.Blubber.alreadyThreadWriting = true;
             var content = jQuery("#new_posting").val();
+            var context_type = jQuery("#context_selector input[name=context_type]:checked").val();
+            if (!context_type) {
+                context_type = jQuery("#context_selector input[name=context_type]").val();
+            }
             jQuery.ajax({
                 url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/new_posting",
                 data: {
-                    'context_type': jQuery("#context_selector input[name=context_type]:checked").val(),
+                    'context_type': context_type,
                     'context': jQuery("#context_selector [name=context]").val(),
                     'content': content
                 },
