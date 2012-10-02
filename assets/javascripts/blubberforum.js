@@ -295,8 +295,9 @@ STUDIP.Blubber = {
         });
     },
     updateTimestamps: function () {
-        var date = new Date();
-        var now_seconds = Math.floor(date.getTime() / 1000);
+        var now_seconds = Math.floor(new Date().getTime() / 1000);
+        now_seconds = now_seconds - parseInt(jQuery("#browser_start_time").val(), 10) 
+            + parseInt(jQuery("#stream_time").val(), 10);
         jQuery("#forum_threads .posting .time").each(function () {
             var new_text = "";
             var posting_time = parseInt(jQuery(this).attr("data-timestamp"));
