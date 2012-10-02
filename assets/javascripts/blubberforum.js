@@ -103,7 +103,14 @@ STUDIP.Blubber = {
                     }
                 });
                 if (!already_inserted) {
+                    var top = jQuery(document).scrollTop();
                     jQuery(comment).appendTo("#" + thread + " ul.comments").hide().fadeIn();
+                    var comment_top = jQuery("#" + posting_id).offset().top;
+                    var height = jQuery("#" + posting_id).height() + 
+                        + 15; //2 * padding + 1 wegen des Border
+                    if (comment_top < top) {
+                        jQuery(document).scrollTop(top + height);
+                    }
                 }
             }
         }
