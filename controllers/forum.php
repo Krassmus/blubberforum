@@ -63,7 +63,7 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("link", array(
             'rel' => "alternate",
             'type' => "application/atom+xml",
-            'href' => "",
+            'href' => PluginEngine::getLink($this->plugin, array(), "forum/feed/".$this->user_id),
             'title' => "Blubber von ".get_fullname($user_id)
         ));
         
@@ -414,6 +414,12 @@ class ForumController extends ApplicationController {
         $this->thread        = new ForumPosting($thread_id);
         $this->course_id     = $_SESSION['SessionSeminar'];
         $this->single_thread = true;
+    }
+    
+    public function feed_action($user_id) {
+        $this->layout = null;
+        $this->set_content_type("application/xml+atom");
+        $this->postings = ForumPosting::getThreads(array('user_id' => $user_id));
     }
 
 }
