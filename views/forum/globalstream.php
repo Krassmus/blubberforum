@@ -30,7 +30,7 @@
             <?= Assets::img("icons/16/blue/seminar", array('class' => "seminar")) ?>
             <?= Assets::img("icons/16/blue/community", array('class' => "community")) ?>
         </div>
-        <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
+        <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"><?= $search ? htmlReady($search) : "" ?></textarea>
     </div>
     <div id="context_selector" style="display: none;">
         <table>

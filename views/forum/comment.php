@@ -35,7 +35,7 @@ if (!$last_visit) {
             </a>
         </div>
         <div class="content">
-            <?= formatReady(forum_kill_edit($posting['description'])) ?>
+            <?= ForumPosting::format($posting['description']) ?>
         </div>
     </div>
 </li>

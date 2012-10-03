@@ -24,10 +24,18 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         PageLayout::setTitle($this->plugin->getDisplayTitle());
+        Navigation::activateItem("/community/blubber");
 
-        $this->threads = ForumPosting::getThreads(array(
+        $parameter = array(
             'limit' => $this->max_threads + 1
-        ));
+        );
+        if (Request::get("hash")) {
+            $this->search = "#".Request::get("hash");
+        }
+        if ($this->search) {
+            $parameter['search'] = array($this->search);
+        }
+        $this->threads = ForumPosting::getThreads($parameter);
         $this->more_threads = count($this->threads) > $this->max_threads;
         if ($this->more_threads) {
             $this->threads = array_slice($this->threads, 0, $this->max_threads);

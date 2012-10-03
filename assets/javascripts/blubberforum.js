@@ -103,7 +103,6 @@ STUDIP.Blubber = {
                         already_inserted = true;
                     }
                 });
-                console.log(thread + " " + posting_id);
                 if (!already_inserted) {
                     var top = jQuery(document).scrollTop();
                     jQuery(comment).appendTo("#posting_" + thread + " ul.comments").hide().fadeIn();
@@ -392,6 +391,7 @@ jQuery(".writer > textarea").live("keydown", function (event) {
 });
 jQuery("#forum_threads > li > ul.comments > li.more").live("click", function () {
     var thread_id = jQuery(this).closest("li[id]").attr("id");
+    thread_id = thread_id.substr(thread_id.lastIndexOf("_") + 1);
     var li_more = this;
     jQuery(this).wrapInner('<span/>').find('span').showAjaxNotification()
     jQuery.ajax({

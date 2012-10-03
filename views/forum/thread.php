@@ -71,12 +71,12 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
         </div>
         <div class="content">
             <? 
-            $content = forum_kill_edit($thread['description']);
+            $content = $thread['description'];
             if ($thread['name'] && strpos($thread['description'], $thread['name']) === false) {
                 $content = $thread['name']."\n".$content;
             }
             ?>
-            <?= formatReady($content) ?>
+            <?= ForumPosting::format($content) ?>
         </div>
     </div>
 
