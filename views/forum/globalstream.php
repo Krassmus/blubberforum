@@ -9,6 +9,11 @@
  *  the License, or (at your option) any later version.
  */
 ?>
+<style>
+    #layout_container {
+        min-width: 900px;
+    }
+</style>
 <input type="hidden" id="last_check" value="<?= time() ?>">
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">

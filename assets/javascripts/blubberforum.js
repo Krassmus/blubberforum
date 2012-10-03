@@ -59,6 +59,7 @@ STUDIP.Blubber = {
     write: function (textarea) {
         var content = jQuery(textarea).val();
         var thread = jQuery(textarea).closest("li").attr("id");
+        thread = thread.substr(thread.lastIndexOf("_") + 1);
 
         if (!content || STUDIP.Blubber.alreadyWriting) {
             return;
@@ -84,29 +85,30 @@ STUDIP.Blubber = {
         });
     },
     insertComment: function (thread, posting_id, mkdate, comment) {
-        if (jQuery("#" + posting_id).length) {
-            if (jQuery("#" + posting_id + " textarea.corrector").length === 0) {
-                if (jQuery("#" + posting_id + " .content").html() !== jQuery(comment).find(".content").html()) {
+        if (jQuery("#posting_" + posting_id).length) {
+            if (jQuery("#posting_" + posting_id + " textarea.corrector").length === 0) {
+                if (jQuery("#posting_" + posting_id + " .content").html() !== jQuery(comment).find(".content").html()) {
                     //nur wenn es Unterschiede gibt
-                    jQuery("#" + posting_id).replaceWith(comment);
+                    jQuery("#posting_" + posting_id).replaceWith(comment);
                 }
             }
         } else {
-            if (jQuery("#" + thread + " ul.comments > li").length === 0) {
-                jQuery(comment).appendTo("#" + thread + " ul.comments").hide().fadeIn();
+            if (jQuery("#posting_" + thread + " ul.comments > li").length === 0) {
+                jQuery(comment).appendTo("#posting_" + thread + " ul.comments").hide().fadeIn();
             } else {
                 var already_inserted = false;
-                jQuery("#" + thread + " ul.comments > li").each(function (index, li) {
+                jQuery("#posting_" + thread + " ul.comments > li").each(function (index, li) {
                     if (!already_inserted && jQuery(li).attr("mkdate") > mkdate) {
                         jQuery(comment).insertBefore(li).hide().fadeIn();
                         already_inserted = true;
                     }
                 });
+                console.log(thread + " " + posting_id);
                 if (!already_inserted) {
                     var top = jQuery(document).scrollTop();
-                    jQuery(comment).appendTo("#" + thread + " ul.comments").hide().fadeIn();
-                    var comment_top = jQuery("#" + posting_id).offset().top;
-                    var height = jQuery("#" + posting_id).height() + 
+                    jQuery(comment).appendTo("#posting_" + thread + " ul.comments").hide().fadeIn();
+                    var comment_top = jQuery("#posting_" + posting_id).offset().top;
+                    var height = jQuery("#posting_" + posting_id).height() + 
                         + 15; //2 * padding + 1 wegen des Border
                     if (comment_top < top) {
                         jQuery(document).scrollTop(top + height);
@@ -117,10 +119,10 @@ STUDIP.Blubber = {
         STUDIP.Blubber.updateTimestamps();
     },
     insertThread: function (posting_id, mkdate, comment) {
-        if (jQuery("#" + posting_id).length) {
-            if (jQuery("#" + posting_id + " > .content_column textarea.corrector").length === 0) {
+        if (jQuery("#posting_" + posting_id).length) {
+            if (jQuery("#posting_" + posting_id + " > .content_column textarea.corrector").length === 0) {
                 var new_version = jQuery(comment);
-                jQuery("#" + posting_id + " > .content_column .content").html(new_version.find(".content").html());
+                jQuery("#posting_" + posting_id + " > .content_column .content").html(new_version.find(".content").html());
                 new_version.remove();
             }
         } else {
@@ -132,8 +134,8 @@ STUDIP.Blubber = {
                     if (!already_inserted && jQuery(li).attr("mkdate") < mkdate) {
                         var top = jQuery(document).scrollTop();
                         jQuery(comment).insertBefore(li).hide().fadeIn();
-                        var comment_top = jQuery("#" + posting_id).offset().top;
-                        var height = jQuery("#" + posting_id).height() +
+                        var comment_top = jQuery("#posting_" + posting_id).offset().top;
+                        var height = jQuery("#posting_" + posting_id).height() +
                             + 15; //2 * padding + 1 für Border
                         if (comment_top < top) {
                             jQuery(document).scrollTop(top + height);
@@ -152,6 +154,7 @@ STUDIP.Blubber = {
     },
     startEditingComment: function () {
         var id = jQuery(this).closest("li").attr("id");
+        id = id.substr(id.lastIndexOf("_") + 1);
         jQuery.ajax({
             'url': STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/get_source",
             'data': {
@@ -159,12 +162,12 @@ STUDIP.Blubber = {
                 'cid': jQuery("#seminar_id").val()
             },
             'success': function (source) {
-                jQuery("#" + id).find(".content_column .content").first().html(
+                jQuery("#posting_" + id).find(".content_column .content").first().html(
                     jQuery('<textarea class="corrector"/>').val(source).focus()
                 );
-                jQuery("#" + id).find(".corrector").focus();
+                jQuery("#posting_" + id).find(".corrector").focus();
                 STUDIP.Blubber.makeTextareasAutoresizable();
-                jQuery("#" + id).find(".corrector").trigger("keydown");
+                jQuery("#posting_" + id).find(".corrector").trigger("keydown");
             }
         });
 
@@ -172,11 +175,12 @@ STUDIP.Blubber = {
     submittingEditedPostingStarted: false,
     submitEditedPosting: function (textarea) {
         var id = jQuery(textarea).closest("li").attr("id");
+        id = id.substr(id.lastIndexOf("_") + 1);
         if (STUDIP.Blubber.submittingEditedPostingStarted) {
             return;
         }
         STUDIP.Blubber.submittingEditedPostingStarted = true;
-        if (jQuery("#" + id).attr("data-autor") === jQuery("#user_id").val()
+        if (jQuery("#posting_" + id).attr("data-autor") === jQuery("#user_id").val()
                 || window.confirm(jQuery("#editing_question").text())) {
             STUDIP.Blubber.submittingEditedPostingStarted = false;
             jQuery.ajax({
@@ -189,9 +193,9 @@ STUDIP.Blubber = {
                 'type': "post",
                 'success': function (new_content) {
                     if (new_content) {
-                        jQuery("#" + id + " > .content_column .content").html(new_content);
+                        jQuery("#posting_" + id + " > .content_column .content").html(new_content);
                     } else {
-                        jQuery("#" + id).fadeOut(function () {jQuery("#" + id).remove();});
+                        jQuery("#posting_" + id).fadeOut(function () {jQuery("#posting_" + id).remove();});
                     }
                 }
             });
@@ -204,7 +208,7 @@ STUDIP.Blubber = {
                     'cid': jQuery("#seminar_id").val()
                 },
                 'success': function (new_content) {
-                    jQuery("#" + id + " > .content_column .content").html(new_content);
+                    jQuery("#posting_" + id + " > .content_column .content").html(new_content);
                 }
             });
         }

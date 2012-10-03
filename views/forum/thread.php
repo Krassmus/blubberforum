@@ -29,7 +29,7 @@ $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 <ul id="forum_threads" class="coursestream singlethread">
 <? endif; ?>
 
-<li id="<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>" class="thread posting<?= $last_visit < $thread['mkdate'] ? " new" : "" ?>" data-autor="<?= htmlReady($thread['user_id']) ?>">
+<li id="posting_<?= htmlReady($thread->getId()) ?>" mkdate="<?= htmlReady($thread['discussion_time']) ?>" class="thread posting<?= $last_visit < $thread['mkdate'] ? " new" : "" ?>" data-autor="<?= htmlReady($thread['user_id']) ?>">
     <div class="hiddeninfo">
         <input type="hidden" name="context" value="<?= htmlReady($thread['Seminar_id']) ?>">
         <input type="hidden" name="context_type" value="<?= $thread['Seminar_id'] === $thread['user_id'] ? "public" : "course" ?>">
