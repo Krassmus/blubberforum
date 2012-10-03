@@ -19,6 +19,7 @@
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
 <input type="hidden" id="stream" value="all">
 <input type="hidden" id="stream_time" value="<?= time() ?>">
+<input type="hidden" id="search" value="<?= htmlReady($search) ?>">
 <input type="hidden" id="browser_start_time" value="">
 <script>jQuery(function () { jQuery("#browser_start_time").val(Math.floor(new Date().getTime() / 1000)); });</script>
 <input type="hidden" id="loaded" value="1">

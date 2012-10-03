@@ -4,7 +4,8 @@ STUDIP.Blubber = {
         return {
             'context_id': jQuery("#context_id").val(),
             'stream': jQuery("#stream").val(),
-            'last_check': jQuery('#last_check').val()
+            'last_check': jQuery('#last_check').val(),
+            'search': jQuery("#search").val()
         };
     },
     getNewPosts: function (data) {

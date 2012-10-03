@@ -27,7 +27,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         parent::__construct();
         if (UpdateInformation::isCollecting()) {
             $data = Request::getArray("page_info");
-            if (strpos(Request::get("page"), "plugins.php/blubber") !== false) {
+            if (stripos(Request::get("page"), "plugins.php/blubber") !== false) {
                 $output = array();
                 $context_id = $data['Blubber']['context_id'];
                 $stream = $data['Blubber']['stream'];
@@ -44,6 +44,9 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                 }
                 if ($stream === "profile") {
                     $parameter['user_id'] = $context_id;
+                }
+                if ($data['Blubber']['search']) {
+                    $parameter['search'] = array($data['Blubber']['search']);
                 }
                 $new_postings = ForumPosting::getPostings($parameter);
 

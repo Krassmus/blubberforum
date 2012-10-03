@@ -147,7 +147,7 @@ class ForumPosting extends SimpleORMap {
             'seminar_id' => null,
             'user_id' => null,
             'thread' => null,
-            'search' => null,
+            'search' => array(),
             'since' => null
         );
         $parameter = array_merge($defaults, $parameter);
