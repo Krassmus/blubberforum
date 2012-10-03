@@ -33,7 +33,7 @@ class ForumController extends ApplicationController {
             $this->search = "#".Request::get("hash");
         }
         if ($this->search) {
-            $parameter['search'] = array($this->search);
+            $parameter['search'] = $this->search;
         }
         $this->threads = ForumPosting::getThreads($parameter);
         $this->more_threads = count($this->threads) > $this->max_threads;

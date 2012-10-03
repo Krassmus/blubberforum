@@ -46,7 +46,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                     $parameter['user_id'] = $context_id;
                 }
                 if ($data['Blubber']['search']) {
-                    $parameter['search'] = array($data['Blubber']['search']);
+                    $parameter['search'] = $data['Blubber']['search'];
                 }
                 $new_postings = ForumPosting::getPostings($parameter);
 

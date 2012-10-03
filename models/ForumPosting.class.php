@@ -87,7 +87,7 @@ class ForumPosting extends SimpleORMap {
         $defaults = array(
             'seminar_id' => null,
             'user_id' => null,
-            'search' => array(),
+            'search' => null,
             'linear_in_time' => false,
             'offset' => 0,
             'limit' => null
@@ -100,6 +100,9 @@ class ForumPosting extends SimpleORMap {
         
         if ($parameter['seminar_id']) {
             $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['seminar_id']);
+            if ($parameter['search']) {
+                $where_and[] = "AND MATCH (px_topics.description) AGAINST (".$db->quote($parameter['search'])." IN BOOLEAN MODE) ";
+            }
         }
         if ($parameter['user_id']) {
             $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['user_id']);
@@ -110,11 +113,7 @@ class ForumPosting extends SimpleORMap {
         if ($parameter['limit'] > 0) {
             $limit = "LIMIT ".((int) $parameter['offset']).", ".((int) $parameter['limit']);
         }
-        if (count($parameter['search'])) {
-            foreach((array) $parameter['search'] as $searchword) {
-                $where_and[] = "AND MATCH (px_topics.description) AGAINST (".$db->quote($searchword)." IN BOOLEAN MODE) ";
-            }
-        }
+        
         if (!$parameter['seminar_id'] && !$parameter['user_id']) {
             //Globaler Stream:
             $seminar_ids = self::getMyBlubberCourses();
@@ -123,6 +122,12 @@ class ForumPosting extends SimpleORMap {
                        ") ";
             $user_ids = self::getMyBlubberBuddys();
             $where_or[] = "OR (px_topics.Seminar_id = px_topics.user_id AND px_topics.user_id IN (".$db->quote($user_ids).") ) ";
+            
+            if ($parameter['search']) {
+                foreach ((array) $parameter['search'] as $searchword) {
+                    $where_or[] = "OR (px_topics.Seminar_id = px_topics.user_id AND MATCH (px_topics.description) AGAINST (".$db->quote($searchword)." IN BOOLEAN MODE) ) ";
+                }
+            }
         }
         $thread_ids = $db->query(
             "SELECT px_topics.root_id " .
@@ -161,6 +166,9 @@ class ForumPosting extends SimpleORMap {
         }
         if ($parameter['seminar_id']) {
             $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['seminar_id']);
+            if ($parameter['search']) {
+                $where_and[] = "AND MATCH (px_topics.description) AGAINST (".$db->quote($parameter['search'])." IN BOOLEAN MODE) ";
+            }
         }
         if ($parameter['user_id']) {
             $joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
@@ -168,11 +176,6 @@ class ForumPosting extends SimpleORMap {
         }
         if ($parameter['thread']) {
             $where_and[] = "AND px_topics.root_id = ".$db->quote($parameter['thread']);
-        }
-        if (count($parameter['search'])) {
-            foreach((array) $parameter['search'] as $searchword) {
-                $where_and[] = "AND MATCH (px_topics.description) AGAINST (".$db->quote($searchword)." IN BOOLEAN MODE) ";
-            }
         }
         if (!$parameter['seminar_id'] && !$parameter['user_id'] && !$parameter['thread']) {
             //Globaler Stream:
@@ -184,6 +187,12 @@ class ForumPosting extends SimpleORMap {
             if (count($user_ids)) {
                 $joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
                 $where_or[] = "OR (px_topics.Seminar_id = thread.user_id AND thread.user_id IN (".$db->quote($user_ids).") ) ";
+            }
+            
+            if ($parameter['search']) {
+                foreach ((array) $parameter['search'] as $searchword) {
+                    $where_or[] = "OR (px_topics.Seminar_id = px_topics.user_id AND MATCH (px_topics.description) AGAINST (".$db->quote($searchword)." IN BOOLEAN MODE) ) ";
+                }
             }
         }
 
