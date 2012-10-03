@@ -56,15 +56,7 @@
 #forum_threads > li:first-child, #forum_threads > li > ul > li:first-child {
     border: none;
 }
-/*#forum_threads li.thread.new, #forum_threads li.comment.new {
-    border-left: 1px red solid;
-}*/
-#forum_threads h2 {
-    margin-top: 0px;
-    margin-bottom: 5px;
-    color: #dddddd;
-    text-shadow: 0px -1px 0px #bbbbbb;
-}
+
 #forum_threads .content {
     margin-bottom: 5px;
 }
@@ -122,6 +114,10 @@
 #forum_threads .avatar, #forum_threads .content {
     vertical-align: middle;
     display: inline-block;
+}
+#forum_threads .content h1, #forum_threads .content h2, #forum_threads .content h3, #forum_threads .content h4, #forum_threads .content h5, #forum_threads .content h6 {
+    display: block;
+    margin-top: 4px;
 }
 #forum_threads .avatar_column {
     vertical-align: top;

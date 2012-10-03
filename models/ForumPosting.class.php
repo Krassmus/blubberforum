@@ -113,7 +113,6 @@ class ForumPosting extends SimpleORMap {
         if (count($parameter['search'])) {
             foreach((array) $parameter['search'] as $searchword) {
                 $where_and[] = "AND MATCH (px_topics.description) AGAINST (".$db->quote($searchword)." IN BOOLEAN MODE) ";
-                //$where_and[] = "AND px_topics.description LIKE ".$db->quote("%".$searchword."%")." ";
             }
         }
         if (!$parameter['seminar_id'] && !$parameter['user_id']) {
