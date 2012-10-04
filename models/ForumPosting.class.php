@@ -19,7 +19,7 @@ class ForumPosting extends SimpleORMap {
     static public function format($text) {
         $markup = new StudipFormat();
         $what = forum_kill_edit($text);
-        $markup->addMarkup("hashtag", "#([\w_\.\-]+)", "", "ForumPosting::markupHashtags");
+        $markup->addMarkup("hashtag", "(^|\s)#([\w_\.\-]+)", "", "ForumPosting::markupHashtags");
         $what = preg_replace("/\r\n?/", "\n", $what);
         $what = htmlReady($what, $trim);
 
@@ -30,11 +30,11 @@ class ForumPosting extends SimpleORMap {
     
     static public function markupHashtags($markup, $matches) {
         if (self::$course_hashes) {
-            $url = URLHelper::getLink("plugins.php/Blubber/forum/forum", array('hash' => $matches[1], 'cid' => self::$course_hashes));
+            $url = URLHelper::getLink("plugins.php/Blubber/forum/forum", array('hash' => $matches[2], 'cid' => self::$course_hashes));
         } else {
-            $url = URLHelper::getLink("plugins.php/Blubber/forum/globalstream", array('hash' => $matches[1]));
+            $url = URLHelper::getLink("plugins.php/Blubber/forum/globalstream", array('hash' => $matches[2]));
         }
-        return '<a href="'.$url.'" class="hashtag">#'.$markup->quote($matches[1]).'</a>';
+        return $matches[1].'<a href="'.$url.'" class="hashtag">#'.$markup->quote($matches[2]).'</a>';
     }
     
     static public function mention($mention, $thread_id) {
