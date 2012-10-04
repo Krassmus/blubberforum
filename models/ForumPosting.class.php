@@ -14,6 +14,7 @@ require_once 'lib/forum.inc.php';
 class ForumPosting extends SimpleORMap {
 
     protected $db_table = "px_topics";
+    static public $course_hashes = false;
 
     static public function format($text) {
         $markup = new StudipFormat();
@@ -28,7 +29,12 @@ class ForumPosting extends SimpleORMap {
     }
     
     static public function markupHashtags($markup, $matches) {
-        return '<a href="'.URLHelper::getLink("plugins.php/Blubber/forum/globalstream", array('hash' => $matches[1])).'" class="hashtag">#'.$markup->quote($matches[1]).'</a>';
+        if (self::$course_hashes) {
+            $url = URLHelper::getLink("plugins.php/Blubber/forum/forum", array('hash' => $matches[1], 'cid' => self::$course_hashes));
+        } else {
+            $url = URLHelper::getLink("plugins.php/Blubber/forum/globalstream", array('hash' => $matches[1]));
+        }
+        return '<a href="'.$url.'" class="hashtag">#'.$markup->quote($matches[1]).'</a>';
     }
     
     static public function mention($mention, $thread_id) {

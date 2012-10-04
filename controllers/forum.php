@@ -49,11 +49,19 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
-
-        $this->threads = ForumPosting::getThreads(array(
+        Navigation::activateItem("/course/blubberforum");
+        
+        $parameter = array(
             'seminar_id' => $_SESSION['SessionSeminar'],
             'limit' => $this->max_threads + 1
-        ));
+        );
+        if (Request::get("hash")) {
+            $this->search = "#".Request::get("hash");
+        }
+        if ($this->search) {
+            $parameter['search'] = $this->search;
+        }
+        $this->threads = ForumPosting::getThreads($parameter);
         $this->more_threads = count($this->threads) > $this->max_threads;
         $this->course_id = $_SESSION['SessionSeminar'];
         if ($this->more_threads) {
@@ -94,6 +102,7 @@ class ForumController extends ApplicationController {
         $output = array();
         $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
         $comments = $thread->getChildren();
+        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
         foreach ($comments as $posting) {
             $template = $factory->open("forum/comment.php");
             $template->set_attribute('posting', $posting);
@@ -147,6 +156,7 @@ class ForumController extends ApplicationController {
                 || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
+        ForumPosting::$course_hashes = ($context_type === "course" ? $context : false);
         $output = array();
         $thread = new ForumPosting(Request::option("thread"));
         $thread['seminar_id'] = $context_type === "course" ? $context : $GLOBALS['user']->id;
@@ -199,6 +209,7 @@ class ForumController extends ApplicationController {
 
     public function edit_posting_action () {
         $posting = new ForumPosting(Request::get("topic_id"));
+        $thread = new ForumPosting($posting['root_id']);
         if (($posting['user_id'] !== $GLOBALS['user']->id) 
                 && (!$GLOBALS['perm']->have_studip_perm("tutor", $posting['Seminar_id']))) {
             throw new AccessDeniedException("Kein Zugriff");
@@ -247,15 +258,18 @@ class ForumController extends ApplicationController {
             }
             $posting->delete();
         }
-        $this->render_text(studip_utf8encode(formatReady($posting['description'])));
+        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        $this->render_text(studip_utf8encode(ForumPosting::format($posting['description'])));
     }
 
     public function refresh_posting_action() {
         $posting = new ForumPosting(Request::get("topic_id"));
+        $thread = new ForumPosting($posting['root_id']);
         if (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        $this->render_text(studip_utf8encode(formatReady($posting['description'])));
+        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        $this->render_text(studip_utf8encode(ForumPosting::format($posting['description'])));
     }
 
     public function comment_action() {
@@ -266,6 +280,7 @@ class ForumController extends ApplicationController {
                 || ($thread['Seminar_id'] !== $thread['user_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
+        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
         if (Request::option("thread") && $thread['Seminar_id'] === $context) {
             $output = array();
             $posting = new ForumPosting();
@@ -422,6 +437,7 @@ class ForumController extends ApplicationController {
         $this->thread        = new ForumPosting($thread_id);
         $this->course_id     = $_SESSION['SessionSeminar'];
         $this->single_thread = true;
+        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
     }
     
     public function feed_action($user_id) {

@@ -10,6 +10,7 @@
  */
 
 $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
+ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
 
 ?>
 <? if (@$single_thread): ?>
