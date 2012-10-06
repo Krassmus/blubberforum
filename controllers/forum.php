@@ -99,10 +99,26 @@ class ForumController extends ApplicationController {
         if ($thread['user_id'] !== $thread['Seminar_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $thread['Seminar_id'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        $output = array();
-        $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
-        $comments = $thread->getChildren();
         ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+
+        $output = array(
+            'more' => false,
+            'comments' => array()
+        );
+        $comments = $thread->getChildren();
+
+        if ($last_id = Request::option("last_id") && Request::option('count') !== 'all') {
+            $count = Request::int("count", 20);
+            $ids   = array_map(function ($item) { return $item->getId(); }, $comments);
+            $pos   = max(0, array_search($last_id, $ids) - $count);
+
+            if ($pos > 0) {
+                $comments = array_slice($comments, $pos);
+                $output['more'] = sprintf(ngettext('%u weiterer Kommentar', '%u weitere Kommentare', $pos), $pos);
+            }
+        }
+
+        $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
         foreach ($comments as $posting) {
             $template = $factory->open("forum/comment.php");
             $template->set_attribute('posting', $posting);

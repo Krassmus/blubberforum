@@ -391,23 +391,24 @@ jQuery(".writer > textarea").live("keydown", function (event) {
     }
 });
 jQuery("#forum_threads > li > ul.comments > li.more").live("click", function () {
-    var thread_id = jQuery(this).closest("li[id]").attr("id");
-    thread_id = thread_id.substr(thread_id.lastIndexOf("_") + 1);
-    var li_more = this;
+    var thread_id = jQuery(this).closest("li[id]").attr("id").split("_").pop(),
+        last    = jQuery(this).next("li"),
+        last_id = last.attr("id").split("_").pop(),
+        li_more = this;
     jQuery(this).wrapInner('<span/>').find('span').showAjaxNotification()
-    jQuery.ajax({
-        url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_comments",
-        data: {
-            'thread_id': thread_id,
-        },
-        dataType: "json",
-        success: function (data) {
-            if (data.comments) {
-                jQuery(li_more).remove();
-                jQuery.each(data.comments, function (index, comment) {
-                    STUDIP.Blubber.insertComment(thread_id, comment.posting_id, comment.mkdate, comment.content);
-                });
-            }
+    jQuery.getJSON(STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_comments", {
+        thread_id: thread_id,
+        last_id: last_id
+    }, function (json) {
+        if (!json.more) {
+            jQuery(li_more).remove();
+        } else {
+            jQuery(li_more).text(json.more);
+        }
+        if (json.comments) {
+            jQuery.each(json.comments, function () {
+                STUDIP.Blubber.insertComment(thread_id, this.posting_id, this.mkdate, this.content);
+            });
         }
     });
 });
