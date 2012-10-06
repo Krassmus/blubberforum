@@ -107,7 +107,7 @@ class ForumController extends ApplicationController {
         );
         $comments = $thread->getChildren();
 
-        if ($last_id = Request::option("last_id") && Request::option('count') !== 'all') {
+        if (($last_id = Request::option("last_id")) && (Request::option('count') !== 'all')) {
             $count = Request::int("count", 20);
             $ids   = array_map(function ($item) { return $item->getId(); }, $comments);
             $pos   = max(0, array_search($last_id, $ids) - $count);
