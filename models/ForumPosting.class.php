@@ -17,15 +17,10 @@ class ForumPosting extends SimpleORMap {
     static public $course_hashes = false;
 
     static public function format($text) {
-        $markup = new StudipFormat();
-        $what = forum_kill_edit($text);
-        $markup->addMarkup("hashtag", "(^|\s)#([\w_\.\-]+)", "", "ForumPosting::markupHashtags");
-        $what = preg_replace("/\r\n?/", "\n", $what);
-        $what = htmlReady($what, $trim);
-
-        $what = $markup->format($what);
-        $what = symbol(smile($what, false));
-        return str_replace("\n", '<br>', $what);
+        StudipFormat::addStudipMarkup("blubberhashtag", "(^|\s)#([\w_\.\-]+)", "", "ForumPosting::markupHashtags");
+        $output = formatReady($text);
+        StudipFormat::removeStudipMarkup("blubberhashtag");
+        return $output;
     }
     
     static public function markupHashtags($markup, $matches) {
