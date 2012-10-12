@@ -113,6 +113,7 @@ class ForumPosting extends SimpleORMap {
         }
         if ($parameter['user_id']) {
             $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['user_id']);
+            $where_and[] = "AND px_topics.context_type = 'public' ";
         }
         if ($parameter['linear_in_time']) {
             $where_and[] = "AND mkdate <= ".$db->quote($parameter['linear_in_time']);
@@ -130,7 +131,7 @@ class ForumPosting extends SimpleORMap {
                             (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
                        ") ";
             $user_ids = self::getMyBlubberBuddys();
-            $where_or[] = "OR (px_topics.Seminar_id = px_topics.user_id AND px_topics.user_id IN (".$db->quote($user_ids).") ) ";
+            $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") ) ";
             
             if ($parameter['search'] && is_array($parameter['search'])) {
                 foreach ((array) $parameter['search'] as $searchword) {
@@ -180,8 +181,9 @@ class ForumPosting extends SimpleORMap {
             }
         }
         if ($parameter['user_id']) {
-            $joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
-            $where_and[] = "AND thread.Seminar_id = ".$db->quote($parameter['user_id']);
+            //$joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
+            $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['user_id']);
+            $where_and[] = "AND px_topics.context_type = 'public' ";
         }
         if ($parameter['thread']) {
             $where_and[] = "AND px_topics.root_id = ".$db->quote($parameter['thread']);
@@ -197,8 +199,8 @@ class ForumPosting extends SimpleORMap {
             }
             $user_ids = self::getMyBlubberBuddys();
             if (count($user_ids)) {
-                $joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
-                $where_or[] = "OR (px_topics.Seminar_id = thread.user_id AND thread.user_id IN (".$db->quote($user_ids).") ) ";
+                //$joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
+                $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") ) ";
             }
             
             if ($parameter['search'] && is_array($parameter['search'])) {

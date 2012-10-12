@@ -176,6 +176,7 @@ class ForumController extends ApplicationController {
         $output = array();
         $thread = new ForumPosting(Request::option("thread"));
         $thread['seminar_id'] = $context_type === "course" ? $context : $GLOBALS['user']->id;
+        $thread['context_type'] = $context_type;
         $thread['parent_id'] = 0;
         $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         if ($thread->isNew() && !$thread->getId()) {
@@ -308,6 +309,7 @@ class ForumController extends ApplicationController {
             $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
             
             $posting['description'] = $content;
+            $posting['context_type'] = $thread['context_type'];
             $posting['seminar_id'] = $thread['Seminar_id'];
             $posting['root_id'] = $posting['parent_id'] = Request::option("thread");
             $posting['name'] = "Re: ".$thread['name'];
