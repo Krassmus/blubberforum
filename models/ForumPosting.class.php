@@ -17,7 +17,7 @@ class ForumPosting extends SimpleORMap {
     static public $course_hashes = false;
 
     static public function format($text) {
-        StudipFormat::addStudipMarkup("blubberhashtag", "(^|\s)#([\w_\.\-]+)", "", "ForumPosting::markupHashtags");
+        StudipFormat::addStudipMarkup("blubberhashtag", "(^|\s)#([\w\d_\.\-]*[\w\d])", "", "ForumPosting::markupHashtags");
         $output = formatReady($text);
         StudipFormat::removeStudipMarkup("blubberhashtag");
         return $output;
@@ -57,6 +57,12 @@ class ForumPosting extends SimpleORMap {
                 null, null, null, null,
                 _("Sie wurden erwähnt.")
             );
+            DBManager::get()->exec(
+                "INSERT IGNORE INTO blubber_private_relation " .
+                "SET user_id = ".DBManager::get()->quote($user_id).", " .
+                    "topic_id = ".DBManager::get()->quote($thread_id).", " .
+                    "mkdate = UNIX_TIMESTAMP() " .
+            "");
             return '['.$user['Vorname']." ".$user['Nachname'].']'.$GLOBALS['ABSOLUTE_URI_STUDIP']."about.php?username=".$user['username'];
         } else {
             return stripslashes($mention);
@@ -133,6 +139,10 @@ class ForumPosting extends SimpleORMap {
             $user_ids = self::getMyBlubberBuddys();
             $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") ) ";
             
+            //private Blubber
+            $where_or[] = "OR (px_topics.context_type = 'private' AND blubber_private_relation.user_id = ".$db->quote($GLOBALS['user']->id).") ";
+            $joins[] = "LEFT JOIN blubber_private_relation ON (blubber_private_relation.topic_id = px_topics.root_id) ";
+            
             if ($parameter['search'] && is_array($parameter['search'])) {
                 foreach ((array) $parameter['search'] as $searchword) {
                     $where_or[] = "OR (px_topics.Seminar_id = px_topics.user_id AND MATCH (px_topics.description) AGAINST (".$db->quote($searchword)." IN BOOLEAN MODE) ) ";
@@ -202,6 +212,10 @@ class ForumPosting extends SimpleORMap {
                 //$joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
                 $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") ) ";
             }
+            
+            //private Blubber
+            $where_or[] = "OR (px_topics.context_type = 'private' AND blubber_private_relation.user_id = ".$db->quote($GLOBALS['user']->id).") ";
+            $joins[] = "LEFT JOIN blubber_private_relation ON (blubber_private_relation.topic_id = px_topics.root_id) ";
             
             if ($parameter['search'] && is_array($parameter['search'])) {
                 foreach ($parameter['search'] as $searchword) {

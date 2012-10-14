@@ -40,7 +40,27 @@
                     <td><input type="radio" name="context_type" value="public"></td>
                     <td>
                         <?= _("Öffentlich") ?>
-                    <div style="font-size: 0.8em"><?= _("Dein Beitrag wird allen angezeigt, die Dich als Buddy hinzugefügt haben.") ?></div>
+                        <div style="font-size: 0.8em"><?= _("Dein Beitrag wird allen angezeigt, die Dich als Buddy hinzugefügt haben.") ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="radio" name="context_type" value="private"></td>
+                    <td>
+                        <?= _("Privat") ?>
+                        <div style="font-size: 0.8em">
+                        <? if (count($contact_groups)) : ?>
+                        <?= _("An Kontaktgruppe(n)") ?>
+                        <select multiple name="contact_group[]" id="contact_groups" style="width: 50%" size="<?= count($contact_groups) <= 5 ? count($contact_groups) : "5"  ?>">
+                            <? foreach ($contact_groups as $group) : ?>
+                            <option value="<?= htmlReady($group['statusgruppe_id']) ?>"><?= htmlReady($group['name']) ?></option>
+                            <? endforeach ?>
+                        </select>
+                        <? else : ?>
+                        <a href="<?= URLHelper::getLink("contact_statusgruppen.php") ?>"><?= _("Legen Sie eine Kontaktgruppe an, um an mehrere Kontakte zugleich zu blubbern.") ?></a>
+                        <? endif ?>
+                        <br>
+                        <?= _("Fügen Sie einzelne Personen mittels @Nutzernamen im Text der Nachricht oder der Kommentare hinzu.") ?>
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -65,6 +85,7 @@
                 <?= _("abschicken") ?>
             </button>
         </div>
+        <br>
     </div>
 </div>
 

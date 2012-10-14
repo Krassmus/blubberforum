@@ -40,6 +40,12 @@ class ForumController extends ApplicationController {
         if ($this->more_threads) {
             $this->threads = array_slice($this->threads, 0, $this->max_threads);
         }
+        $this->contact_groups = DBManager::get()->query(
+            "SELECT statusgruppen.* " .
+            "FROM statusgruppen " .
+            "WHERE statusgruppen.range_id = ".DBManager::get()->quote($GLOBALS['user']->id)." " .
+            "ORDER BY name ASC " .
+        "")->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function forum_action() {
@@ -203,6 +209,14 @@ class ForumController extends ApplicationController {
         $thread['author_host'] = $_SERVER['REMOTE_ADDR'];
         $thread['root_id'] = $thread->getId();
         if ($thread->store()) {
+            if ($context_type === "private") {
+                DBManager::get()->exec(
+                    "INSERT IGNORE INTO blubber_private_relation " .
+                    "SET user_id = ".DBManager::get()->quote($GLOBALS['user']->id).", " .
+                        "topic_id = ".DBManager::get()->quote($thread->getId()).", " .
+                        "mkdate = UNIX_TIMESTAMP() " .
+                "");
+            }
             $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
             $template = $factory->open("forum/thread.php");
             $template->set_attribute('thread', $thread);

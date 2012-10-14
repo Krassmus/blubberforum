@@ -38,13 +38,16 @@ ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $
         <input type="hidden" name="context" value="<?= htmlReady($thread['Seminar_id']) ?>">
         <input type="hidden" name="context_type" value="<?= $thread['Seminar_id'] === $thread['user_id'] ? "public" : "course" ?>">
     </div>
-    <? if ($thread['user_id'] !== $thread['Seminar_id']) : ?>
+    <? if ($thread['context_type'] === "course") : ?>
     <a href="<?= URLHelper::getLink("plugins.php/blubber/forum/forum", array('cid' => $thread['Seminar_id'])) ?>"
        <? $title = get_object_name($thread['Seminar_id'], "sem") ?>
        title="<?= _("Veranstaltung")." ".htmlReady($title['name']) ?>"
        class="contextinfo"
        style="background-image: url('<?= CourseAvatar::getAvatar($thread['Seminar_id'])->getURL(Avatar::NORMAL) ?>');">
     </a>
+    <? elseif($thread['context_type'] === "private") : ?>
+    <div class="contextinfo" title="<?= _("Privat") ?>" style="background-image: url('<?= $GLOBALS['ABSOLUTE_URI_STUDIP'] ?>/plugins_packages/data-quest/Blubber/assets/images/private.png');">
+    </div>
     <? else : ?>
     <div class="contextinfo" title="<?= _("Öffentlich") ?>" style="background-image: url('<?= $GLOBALS['ABSOLUTE_URI_STUDIP'] ?>/plugins_packages/data-quest/Blubber/assets/images/public.png');">
     </div>

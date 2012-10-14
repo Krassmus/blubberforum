@@ -24,5 +24,12 @@ class PrivateBlubberPostings extends DBMigration
                 "WHERE topic_id = ".$db->quote($comment)." " .
             "");
         }
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS `blubber_private_relation` (
+            `topic_id` varchar(32) NOT NULL,
+            `user_id` varchar(32) NOT NULL,
+            `mkdate` int(11) NOT NULL
+            ) ENGINE=MyISAM
+        ");
     }
 }
