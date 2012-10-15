@@ -19,7 +19,6 @@ STUDIP.Blubber = {
                     STUDIP.Blubber.insertThread(posting.posting_id, posting.mkdate, posting.content);
                 }
             });
-
             jQuery('#last_check').val(Math.floor(new Date().getTime() / 1000));
         }
         STUDIP.Blubber.updateTimestamps();
@@ -41,7 +40,8 @@ STUDIP.Blubber = {
                 data: {
                     'context_type': context_type,
                     'context': jQuery("#context_selector [name=context]").val(),
-                    'content': content
+                    'content': content,
+                    'contact_groups': jQuery("#contact_groups").val()
                 },
                 dataType: "json",
                 type: "POST",

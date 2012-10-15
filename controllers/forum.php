@@ -210,12 +210,32 @@ class ForumController extends ApplicationController {
         $thread['root_id'] = $thread->getId();
         if ($thread->store()) {
             if ($context_type === "private") {
-                DBManager::get()->exec(
+                $statement = DBManager::get()->prepare(
                     "INSERT IGNORE INTO blubber_private_relation " .
-                    "SET user_id = ".DBManager::get()->quote($GLOBALS['user']->id).", " .
-                        "topic_id = ".DBManager::get()->quote($thread->getId()).", " .
+                    "SET user_id = :user_id, " .
+                        "topic_id = :thread_id, " .
                         "mkdate = UNIX_TIMESTAMP() " .
                 "");
+                $statement->execute(array(
+                    'user_id' => $GLOBALS['user']->id,
+                    'thread_id' => $thread->getId()
+                ));
+                $contact_groups = Request::getArray("contact_groups");
+                foreach ($contact_groups as $gruppe_id) {
+                    $users = DBManager::get()->query(
+                        "SELECT user_id " .
+                        "FROM statusgruppe_user " .
+                            "INNER JOIN statusgruppen ON (statusgruppe_user.statusgruppe_id = statusgruppen.statusgruppe_id) " .
+                        "WHERE statusgruppen.range_id = ".DBManager::get()->quote($GLOBALS['user']->id)." " .
+                            "AND statusgruppe_user.statusgruppe_id = ".DBManager::get()->quote($gruppe_id)." " .
+                    "")->fetchAll(PDO::FETCH_COLUMN, 0);
+                    foreach ($users as $user_id) {
+                        $statement->execute(array(
+                            'user_id' => $user_id,
+                            'thread_id' => $thread->getId()
+                        ));
+                    }
+                }
             }
             $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views");
             $template = $factory->open("forum/thread.php");
