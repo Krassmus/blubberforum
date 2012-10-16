@@ -234,6 +234,7 @@ class ForumController extends ApplicationController {
                             'user_id' => $user_id,
                             'thread_id' => $thread->getId()
                         ));
+                        //Meldung oder nicht Meldung, das ist hier die Frage.
                     }
                 }
             }
@@ -268,6 +269,9 @@ class ForumController extends ApplicationController {
         $old_content = $posting['description'];
         $messaging = new messaging();
         $new_content = transformBeforeSave(studip_utf8decode(Request::get("content")));
+        $new_content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        $new_content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        
         if ($new_content && $old_content !== $new_content) {
             $posting['description'] = $new_content;
             if ($posting['topic_id'] === $posting['root_id']) {

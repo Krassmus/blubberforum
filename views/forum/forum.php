@@ -70,6 +70,10 @@ $infobox = array(
             array(
                 "icon" => "icons/16/black/upload",
                 "text" => _("Ziehe Dateien per Drag & Drop in ein Textfeld, um sie hochzuladen und zugleich zu verlinken.")
+            ),
+            array(
+                "icon" => "icons/16/black/person",
+                "text" => _("Erwähne jemanden mit @username oder @\"Vorname Nachname\". Diese Person wird dann speziell auf Deinen Blubber hingewiesen.")
             )
         )
     )

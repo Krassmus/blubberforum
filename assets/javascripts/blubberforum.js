@@ -345,7 +345,7 @@ STUDIP.Blubber = {
     },
     showContextWindow: function () {
         jQuery("#context_selector").dialog({
-            'title': "",
+            'title': jQuery("#context_selector_title").text(),
             'modal': true,
             'hide': "fade",
             'show': "fade",

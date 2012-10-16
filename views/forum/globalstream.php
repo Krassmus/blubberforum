@@ -33,20 +33,34 @@
         </div>
         <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"><?= $search ? htmlReady($search) : "" ?></textarea>
     </div>
+    <div id="context_selector_title" style="display: none;"><?= _("Kontext auswählen") ?></div>
     <div id="context_selector" style="display: none;">
         <table>
             <tbody>
                 <tr>
-                    <td><input type="radio" name="context_type" value="public"></td>
+                    <td style="text-align: center;">
+                        <label>
+                            <input type="radio" name="context_type" value="public">
+                            <br>
+                            <?= _("Öffentlich") ?>
+                        </label>
+                    </td>
                     <td>
-                        <?= _("Öffentlich") ?>
                         <div style="font-size: 0.8em"><?= _("Dein Beitrag wird allen angezeigt, die Dich als Buddy hinzugefügt haben.") ?></div>
                     </td>
                 </tr>
                 <tr>
-                    <td><input type="radio" name="context_type" value="private"></td>
+                    <td colspan="2"><hr></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">
+                        <label>
+                            <input type="radio" name="context_type" value="private">
+                            <br>
+                            <?= _("Privat") ?>
+                        </label>
+                    </td>
                     <td>
-                        <?= _("Privat") ?>
                         <div style="font-size: 0.8em">
                         <? if (count($contact_groups)) : ?>
                         <?= _("An Kontaktgruppe(n)") ?>
@@ -64,9 +78,17 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><input type="radio" name="context_type" value="course"></td>
+                    <td colspan="2"><hr></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">
+                        <label>
+                            <input type="radio" name="context_type" value="course">
+                            <br>
+                            <?= _("Veranstaltung") ?>
+                        </label>
+                    </td>
                     <td>
-                        <?= _("Veranstaltungsbezogen") ?>
                         <div style="font-size: 0.8em">
                             <?= _("Im Kurs") ?>
                             <select name="context">
@@ -134,6 +156,10 @@ $infobox = array(
             array(
                 "icon" => "icons/16/black/upload",
                 "text" => _("Ziehe Dateien per Drag & Drop in ein Textfeld, um sie hochzuladen und zugleich zu verlinken.")
+            ),
+            array(
+                "icon" => "icons/16/black/person",
+                "text" => _("Erwähne jemanden mit @username oder @\"Vorname Nachname\". Diese Person wird dann speziell auf Deinen Blubber hingewiesen.")
             )
         )
     )
