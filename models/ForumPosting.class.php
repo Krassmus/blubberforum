@@ -275,5 +275,16 @@ class ForumPosting extends SimpleORMap {
         }
         return parent::delete();
     }
+    
+    public function isRelated($user_id = null) {
+        $user_id or $user_id = $GLOBALS['user']->id;
+        $db = DBManager::get();
+        return (bool) $db->query(
+            "SELECT 1 " .
+            "FROM blubber_private_relation " .
+            "WHERE user_id = ".$db->quote($user_id)." " .
+                "AND topic_id = ".$db->quote($this['root_id'])." " .
+        "")->fetch(PDO::FETCH_COLUMN, 0);
+    }
 
 }

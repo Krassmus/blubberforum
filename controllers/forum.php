@@ -251,8 +251,9 @@ class ForumController extends ApplicationController {
 
     public function get_source_action() {
         $posting = new ForumPosting(Request::get("topic_id"));
-        if (($posting['user_id'] !== $GLOBALS['user']->id)
-                && (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id']))) {
+        $thread = new ForumPosting($posting['root_id']);
+        if (($thread['context_type'] === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) 
+                or ($thread['context_type'] === "private" && !$thread->isRelated())) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         echo studip_utf8encode(forum_kill_edit($posting['description']));
@@ -320,22 +321,22 @@ class ForumController extends ApplicationController {
     public function refresh_posting_action() {
         $posting = new ForumPosting(Request::get("topic_id"));
         $thread = new ForumPosting($posting['root_id']);
-        if (!$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) {
+        if (($thread['context_type'] === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) 
+                or ($thread['context_type'] === "private" && !$thread->isRelated())) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        ForumPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
         $this->render_text(studip_utf8encode(ForumPosting::format($posting['description'])));
     }
 
     public function comment_action() {
         $context = Request::option("context");
-        $context_type = Request::option("context_type");
         $thread = new ForumPosting(Request::option("thread"));
         if (!$context
-                || ($thread['Seminar_id'] !== $thread['user_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
+                || ($thread['context_type'] === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $thread['Seminar_id']))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        ForumPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
         if (Request::option("thread") && $thread['Seminar_id'] === $context) {
             $output = array();
             $posting = new ForumPosting();
@@ -477,7 +478,6 @@ class ForumController extends ApplicationController {
     
     public function thread_action($thread_id)
     {
-        //object_set_visit($_SESSION['SessionSeminar'], "forum");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
