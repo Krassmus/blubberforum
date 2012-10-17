@@ -139,19 +139,24 @@ class ForumController extends ApplicationController {
     }
 
     public function more_postings_action() {
-        if (Request::get("stream") === "course" && (!$_SESSION['SessionSeminar'] || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar']))) {
+        $context_id = Request::option("context_id");
+        if (Request::get("stream") === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context_id)) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $output = array();
         $parameter = array(
-            'offset' => 20 * Request::int("offset"),
+            'offset' => $this->max_threads * Request::int("offset"),
+            'stream_time' => Request::int("stream_time"),
             'limit' => $this->max_threads + 1
         );
         if (Request::get("stream") === "course") {
-            $parameter['seminar_id'] = $_SESSION['SessionSeminar'];
+            $parameter['seminar_id'] = $context_id;
+        }
+        if (Request::get("stream") === "profile") {
+            $parameter['user_id'] = $context_id;
         }
         $threads = ForumPosting::getThreads($parameter);
-        $output['more'] = count($this->threads) > $this->max_threads;
+        $output['more'] = count($threads) > $this->max_threads;
         if ($output['more']) {
             $threads = array_slice($threads, 0, $this->max_threads);
         }
