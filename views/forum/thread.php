@@ -11,6 +11,7 @@
 
 $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+$related_users = $thread['context_type'] === "private" ? $thread->getRelatedUsers() : array();
 
 ?>
 <? if (@$single_thread): ?>
@@ -46,8 +47,22 @@ ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $
        style="background-image: url('<?= CourseAvatar::getAvatar($thread['Seminar_id'])->getURL(Avatar::NORMAL) ?>');">
     </a>
     <? elseif($thread['context_type'] === "private") : ?>
-    <div class="contextinfo" title="<?= _("Privat") ?>" style="background-image: url('<?= $GLOBALS['ABSOLUTE_URI_STUDIP'] ?>/plugins_packages/data-quest/Blubber/assets/images/private.png');">
+    <? 
+        if (count($related_users) > 20) {
+            $title = _("Privat: ").sprintf(_("%s Personen"), count($related_users));
+        } else {
+            $title = _("Privat: ");
+            foreach ($related_users as $key => $user_id) {
+                if ($key > 0) {
+                    $title .= ", ";
+                }
+                $title .= get_fullname($user_id);
+            }
+        }
+    ?>
+    <div class="contextinfo" title="<?= htmlReady($title) ?>" style="background-image: url('<?= $GLOBALS['ABSOLUTE_URI_STUDIP'] ?>/plugins_packages/data-quest/Blubber/assets/images/private.png');">
     </div>
+    <div class="related_users"></div>
     <? else : ?>
     <div class="contextinfo" title="<?= _("Öffentlich") ?>" style="background-image: url('<?= $GLOBALS['ABSOLUTE_URI_STUDIP'] ?>/plugins_packages/data-quest/Blubber/assets/images/public.png');">
     </div>

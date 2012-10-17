@@ -185,6 +185,10 @@
     height: 20px;
     background-color: white;
 }
+#forum_threads .related_users {
+    display: none;
+}
+
 #context_background {
     background-image: linear-gradient(left, white 50%, rgb(245,245,255) 100%);
     background-image: -moz-linear-gradient(left, white 50%, rgb(245,245,255) 100%);

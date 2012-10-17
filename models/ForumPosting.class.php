@@ -287,4 +287,15 @@ class ForumPosting extends SimpleORMap {
         "")->fetch(PDO::FETCH_COLUMN, 0);
     }
 
+    public function getRelatedUsers() {
+        $db = DBManager::get();
+        return (array) $db->query(
+            "SELECT blubber_private_relation.user_id " .
+            "FROM blubber_private_relation " .
+                "INNER JOIN auth_user_md5 ON (blubber_private_relation.user_id = auth_user_md5.user_id) " .
+            "WHERE topic_id = ".$db->quote($this['root_id'])." " .
+            "ORDER BY auth_user_md5.Nachname ASC, auth_user_md5.Vorname ASC " .
+        "")->fetchAll(PDO::FETCH_COLUMN, 0);
+    }
+
 }
