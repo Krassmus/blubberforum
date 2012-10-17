@@ -19,5 +19,7 @@ It is a forum, but feels like a chat. And it is 100% compatible with the standar
 * Permalinks to threads.
 * Mentioning other users with @username or @"firstname lastname". The mentioned person will get a Stud.IP-message and can join the discussion.
 * You can find an aggregated global stream for all activated blubber-forums in all your courses unter "community".
+* Public postings that everyone can read who has added you as a buddy.
+* Private postings to a restricted but expandable group of persons that work like persistent group-chats.
 
 ![screenshot1](https://raw.github.com/Krassmus/blubberforum/master/assets/images/screenshot1.png)
