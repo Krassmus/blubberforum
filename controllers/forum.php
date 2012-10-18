@@ -383,7 +383,11 @@ class ForumController extends ApplicationController {
                     $user_ids = array_unique($user_ids);
                     PersonalNotifications::add(
                         $user_ids,
-                        PluginEngine::getURL($this->plugin, array(), "forum/thread/".$thread->getId()),
+                        PluginEngine::getURL(
+                            $this->plugin,
+                            array('cid' => $thread['context_type'] === "course" ? $thread['Seminar_id'] : null), 
+                            "forum/thread/".$thread->getId()
+                        ),
                         get_fullname()." hat einen Kommentar geschrieben",
                         "posting_".$posting->getId(),
                         Avatar::getAvatar($GLOBALS['user']->id)->getURL(Avatar::MEDIUM)

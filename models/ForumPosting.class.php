@@ -43,10 +43,12 @@ class ForumPosting extends SimpleORMap {
                 "SELECT user_id FROM auth_user_md5 WHERE CONCAT(Vorname, ' ', Nachname) = ".$db->quote($name)." " .
             "")->fetch(PDO::FETCH_COLUMN, 0);
         }
-        if ($user_id && $user_id !== $GLOBALS['user']->id) {
+        $thread = new ForumPosting($thread_id);
+        if (!$thread->isNew() && $user_id && $user_id !== $GLOBALS['user']->id) {
             $user = new User($user_id);
             $messaging = new messaging();
-            $url = $GLOBALS['ABSOLUTE_URI_STUDIP']."plugins.php/blubber/forum/thread/".$thread_id.'?cid='.$_SESSION['SessionSeminar'];
+            $url = $GLOBALS['ABSOLUTE_URI_STUDIP']."plugins.php/blubber/forum/thread/"
+                . $thread_id.($thread['context_type'] === "course" ? '?cid='.$thread['Seminar_id'] : "");
             $messaging->insert_message(
                 sprintf(
                     _("%s hat Sie in einem Blubber erwähnt. Zum Beantworten klicken auf Sie auf folgenen Link:\n\n%s\n"),
