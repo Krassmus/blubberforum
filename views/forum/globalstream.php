@@ -35,18 +35,18 @@
     </div>
     <div id="context_selector_title" style="display: none;"><?= _("Kontext auswählen") ?></div>
     <div id="context_selector" style="display: none;">
-        <table>
+        <table style="width: 100%">
             <tbody>
                 <tr>
-                    <td style="text-align: center;">
+                    <td style="text-align: center; width: 25%">
                         <label>
                             <input type="radio" name="context_type" value="public">
                             <br>
                             <?= _("Öffentlich") ?>
                         </label>
                     </td>
-                    <td>
-                        <div style="font-size: 0.8em"><?= _("Dein Beitrag wird allen angezeigt, die Dich als Buddy hinzugefügt haben.") ?></div>
+                    <td style="width: 75%">
+                        <?= _("Dein Beitrag wird allen angezeigt, die Dich als Buddy hinzugefügt haben.") ?>
                     </td>
                 </tr>
                 <tr>
@@ -61,10 +61,9 @@
                         </label>
                     </td>
                     <td>
-                        <div style="font-size: 0.8em">
                         <? if (count($contact_groups)) : ?>
-                        <?= _("An Kontaktgruppe(n)") ?>
-                        <select multiple name="contact_group[]" id="contact_groups" style="width: 50%" size="<?= count($contact_groups) <= 5 ? count($contact_groups) : "5"  ?>">
+                        <?= _("An Kontaktgruppe(n)") ?><br>
+                        <select multiple name="contact_group[]" id="contact_groups" style="width: 100%" size="<?= count($contact_groups) <= 4 ? count($contact_groups) : "4"  ?>">
                             <? foreach ($contact_groups as $group) : ?>
                             <option value="<?= htmlReady($group['statusgruppe_id']) ?>"><?= htmlReady($group['name']) ?></option>
                             <? endforeach ?>
@@ -74,7 +73,6 @@
                         <? endif ?>
                         <br>
                         <?= _("Fügen Sie einzelne Personen mittels @Nutzernamen im Text der Nachricht oder der Kommentare hinzu.") ?>
-                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -89,15 +87,13 @@
                         </label>
                     </td>
                     <td>
-                        <div style="font-size: 0.8em">
-                            <?= _("Im Kurs") ?>
-                            <select name="context">
-                                <? foreach (ForumPosting::getMyBlubberCourses() as $course_id) : ?>
-                                <? $seminar = new Seminar($course_id) ?>
-                                <option value="<?= htmlReady($course_id) ?>"><?= htmlReady($seminar->getName()) ?></option>
-                                <? endforeach ?>
-                            </select>
-                        </div>
+                        <?= _("Im Kurs") ?>
+                        <select name="context">
+                            <? foreach (ForumPosting::getMyBlubberCourses() as $course_id) : ?>
+                            <? $seminar = new Seminar($course_id) ?>
+                            <option value="<?= htmlReady($course_id) ?>"><?= htmlReady($seminar->getName()) ?></option>
+                            <? endforeach ?>
+                        </select>
                     </td>
                 </tr>
             </tbody>

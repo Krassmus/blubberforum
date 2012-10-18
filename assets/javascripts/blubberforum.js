@@ -432,9 +432,9 @@ jQuery(window.document).bind('scroll', _.throttle(function (event) {
         jQuery.ajax({
             url: STUDIP.ABSOLUTE_URI_STUDIP + jQuery("#base_url").val() + "/more_postings",
             data: {
-                'before': jQuery("#forum_threads > li:nth-last-child(2)").attr("id"),
-                'cid': jQuery("#seminar_id").val(),
+                'context_id': jQuery("#context_id").val(),
                 'stream_time': jQuery("#stream_time").val(),
+                'stream': jQuery("#stream").val(),
                 'offset': jQuery("#loaded").val()
             },
             dataType: "json",

@@ -101,7 +101,7 @@ class ForumPosting extends SimpleORMap {
             'seminar_id' => null,
             'user_id' => null,
             'search' => null,
-            'linear_in_time' => false,
+            'stream_time' => false,
             'offset' => 0,
             'limit' => null
         );
@@ -121,8 +121,8 @@ class ForumPosting extends SimpleORMap {
             $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['user_id']);
             $where_and[] = "AND px_topics.context_type = 'public' ";
         }
-        if ($parameter['linear_in_time']) {
-            $where_and[] = "AND mkdate <= ".$db->quote($parameter['linear_in_time']);
+        if ($parameter['stream_time']) {
+            $where_and[] = "AND px_topics.mkdate <= ".$db->quote($parameter['stream_time']);
         }
         if ($parameter['limit'] > 0) {
             $limit = "LIMIT ".((int) $parameter['offset']).", ".((int) $parameter['limit']);
