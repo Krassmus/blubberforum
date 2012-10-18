@@ -28,7 +28,8 @@ class PrivateBlubberPostings extends DBMigration
             CREATE TABLE IF NOT EXISTS `blubber_private_relation` (
             `topic_id` varchar(32) NOT NULL,
             `user_id` varchar(32) NOT NULL,
-            `mkdate` int(11) NOT NULL
+            `mkdate` int(11) NOT NULL,
+            UNIQUE KEY `unique_users_per_topic` (`topic_id`,`user_id`)
             ) ENGINE=MyISAM
         ");
     }
