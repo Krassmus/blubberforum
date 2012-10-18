@@ -25,7 +25,7 @@ $related_users = $thread['context_type'] === "private" ? $thread->getRelatedUser
 <script>jQuery(function () { jQuery("#browser_start_time").val(Math.floor(new Date().getTime() / 1000)); });</script>
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 <p>
-    <a href="<?= $thread['Seminar_id'] !== $thread['user_id'] ? URLHelper::getLink("plugins.php/blubber/forum/forum") : URLHelper::getLink("plugins.php/blubber/forum/globalstream") ?>">
+    <a href="<?= $thread['context_type'] === "course" ? URLHelper::getLink("plugins.php/blubber/forum/forum", array('cid' => $thread['Seminar_id'])) : URLHelper::getLink("plugins.php/blubber/forum/globalstream") ?>">
         <?= Assets::img('icons/16/blue/arr_1left', array('class' => 'text-top')) ?>
         <?= _('Zurück zur Übersicht') ?>
     </a>
