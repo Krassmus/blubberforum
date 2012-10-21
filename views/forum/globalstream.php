@@ -35,12 +35,13 @@
     </div>
     <div id="context_selector_title" style="display: none;"><?= _("Kontext auswählen") ?></div>
     <div id="context_selector" style="display: none;">
+        <input type="hidden" name="content_type" id="context_type" value="">
         <table style="width: 100%">
             <tbody>
-                <tr>
+                <tr onMousedown="$('#context_type').val('public'); $(this).parent().find('.selected').removeClass('selected'); $(this).addClass('selected'); ">
                     <td style="text-align: center; width: 25%">
                         <label>
-                            <input type="radio" name="context_type" value="public">
+                            <?= Assets::img("icons/16/black/rss", array('class' => "text-bottom")) ?>
                             <br>
                             <?= _("Öffentlich") ?>
                         </label>
@@ -52,10 +53,10 @@
                 <tr>
                     <td colspan="2"><hr></td>
                 </tr>
-                <tr>
+                <tr onMousedown="$('#context_type').val('private'); $(this).parent().find('.selected').removeClass('selected'); $(this).addClass('selected'); ">
                     <td style="text-align: center;">
                         <label>
-                            <input type="radio" name="context_type" value="private">
+                            <?= Assets::img("icons/16/black/mail", array('class' => "text-bottom")) ?>
                             <br>
                             <?= _("Privat") ?>
                         </label>
@@ -78,10 +79,10 @@
                 <tr>
                     <td colspan="2"><hr></td>
                 </tr>
-                <tr>
+                <tr onMousedown="$('#context_type').val('course'); $(this).parent().find('.selected').removeClass('selected'); $(this).addClass('selected'); ">
                     <td style="text-align: center;">
                         <label>
-                            <input type="radio" name="context_type" value="course">
+                            <?= Assets::img("icons/16/black/seminar", array('class' => "text-bottom")) ?>
                             <br>
                             <?= _("Veranstaltung") ?>
                         </label>

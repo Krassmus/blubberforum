@@ -31,7 +31,7 @@ STUDIP.Blubber = {
         if (jQuery.trim(jQuery("#new_posting").val())) {
             STUDIP.Blubber.alreadyThreadWriting = true;
             var content = jQuery("#new_posting").val();
-            var context_type = jQuery("#context_selector input[name=context_type]:checked").val();
+            var context_type = jQuery("#context_type").val();
             if (!context_type) {
                 context_type = jQuery("#context_selector input[name=context_type]").val();
             }
@@ -353,9 +353,10 @@ STUDIP.Blubber = {
         });
     },
     prepareSubmitGlobalPosting: function () {
-        if (jQuery("#context_selector input[name=context_type]:checked").length > 0) {
+        if ($('#context_type').val()) {
             STUDIP.Blubber.newPosting();
-            jQuery("#context_selector input[name=context_type]").removeAttr("checked");
+            jQuery("#context_type").val("");
+            jQuery("#context_selector table > tbody > tr").removeClass("selected");
             jQuery("#context_selector").dialog("close");
         } else {
             jQuery("#submit_button").show();
