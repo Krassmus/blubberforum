@@ -105,7 +105,7 @@ class ForumController extends ApplicationController {
         if ($thread['user_id'] !== $thread['Seminar_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $thread['Seminar_id'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        ForumPosting::$course_hashes = $thread['context_type'] === "course" ? $thread['Seminar_id'] : false;
 
         $output = array(
             'more' => false,
@@ -189,14 +189,14 @@ class ForumController extends ApplicationController {
         $thread['seminar_id'] = $context_type === "course" ? $context : $GLOBALS['user']->id;
         $thread['context_type'] = $context_type;
         $thread['parent_id'] = 0;
-        $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
-        if ($thread->isNew() && !$thread->getId()) {
-            $thread->setId($thread->getNewId());
-        }
         
-        //mentions einbauen:
-        $content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
-        $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+        if ($thread->isNew() && !$thread->getId()) {
+            $thread->store();
+        }
+        ForumPosting::$mention_thread_id = $thread->getId();
+        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
+        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
+        $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         
         if (strpos($content, "\n") !== false) {
             $thread['name'] = substr($content, 0, strpos($content, "\n"));
@@ -274,9 +274,12 @@ class ForumController extends ApplicationController {
         }
         $old_content = $posting['description'];
         $messaging = new messaging();
+        ForumPosting::$mention_thread_id = $thread->getId();
+        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
+        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
         $new_content = transformBeforeSave(studip_utf8decode(Request::get("content")));
-        $new_content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
-        $new_content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        //$new_content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        //$new_content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
         
         if ($new_content && $old_content !== $new_content) {
             $posting['description'] = $new_content;
@@ -346,6 +349,9 @@ class ForumController extends ApplicationController {
             $output = array();
             $posting = new ForumPosting();
             
+            ForumPosting::$mention_thread_id = $thread->getId();
+            StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
+            StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
             $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
             
             //mentions einbauen:

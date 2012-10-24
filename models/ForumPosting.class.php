@@ -15,6 +15,7 @@ class ForumPosting extends SimpleORMap {
 
     protected $db_table = "px_topics";
     static public $course_hashes = false;
+    static public $mention_thread_id = false;
 
     static public function format($text) {
         StudipFormat::addStudipMarkup("blubberhashtag", "(^|\s)#([\w\d_\.\-]*[\w\d])", "", "ForumPosting::markupHashtags");
@@ -32,7 +33,9 @@ class ForumPosting extends SimpleORMap {
         return $matches[1].'<a href="'.$url.'" class="hashtag">#'.$markup->quote($matches[2]).'</a>';
     }
     
-    static public function mention($mention, $thread_id) {
+    static public function mention($markup, $matches) {
+        $mention = $matches[0];
+        $thread_id = self::$mention_thread_id;
         $username = stripslashes(substr($mention, 1));
         if ($username[0] !== '"') {
             $user_id = get_userid($username);
@@ -65,7 +68,7 @@ class ForumPosting extends SimpleORMap {
                     "topic_id = ".DBManager::get()->quote($thread_id).", " .
                     "mkdate = UNIX_TIMESTAMP() " .
             "");
-            return '['.$user['Vorname']." ".$user['Nachname'].']'.$GLOBALS['ABSOLUTE_URI_STUDIP']."about.php?username=".$user['username'];
+            return '['.$user['Vorname']." ".$user['Nachname'].']'.$GLOBALS['ABSOLUTE_URI_STUDIP']."about.php?username=".$user['username'].' ';
         } else {
             return stripslashes($mention);
         }
