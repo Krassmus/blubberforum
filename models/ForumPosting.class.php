@@ -196,7 +196,6 @@ class ForumPosting extends SimpleORMap {
             }
         }
         if ($parameter['user_id']) {
-            //$joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
             $where_and[] = "AND px_topics.Seminar_id = ".$db->quote($parameter['user_id']);
             $where_and[] = "AND px_topics.context_type = 'public' ";
         }
@@ -275,10 +274,24 @@ class ForumPosting extends SimpleORMap {
     }
     
     public function delete() {
+        NotificationCenter::postNotification("PostingWillDelete", $this);
         foreach ((array) self::findBySQL(__class__, "parent_id = ".DBManager::get()->quote($this->getId())) as $child_posting) {
             $child_posting->delete();
         }
-        return parent::delete();
+        $success = parent::delete();
+        if ($success) {
+            NotificationCenter::postNotification("PostingHasDeleted", $this);
+        }
+        return $success;
+    }
+    
+    public function store() {
+        NotificationCenter::postNotification("PostingWillSave", $this);
+        $success = parent::store();
+        if ($success) {
+            NotificationCenter::postNotification("PostingHasSaved", $this);
+        }
+        return $success;
     }
     
     public function isRelated($user_id = null) {

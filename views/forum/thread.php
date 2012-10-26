@@ -10,7 +10,7 @@
  */
 
 $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
-ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+ForumPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
 $related_users = $thread['context_type'] === "private" ? $thread->getRelatedUsers() : array();
 
 ?>
@@ -25,7 +25,17 @@ $related_users = $thread['context_type'] === "private" ? $thread->getRelatedUser
 <script>jQuery(function () { jQuery("#browser_start_time").val(Math.floor(new Date().getTime() / 1000)); });</script>
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 <p>
-    <a href="<?= $thread['context_type'] === "course" ? URLHelper::getLink("plugins.php/blubber/forum/forum", array('cid' => $thread['Seminar_id'])) : URLHelper::getLink("plugins.php/blubber/forum/globalstream") ?>">
+    <? switch ($thread['context_type']) {
+        case "course":
+            $overview_url = URLHelper::getURL("plugins.php/blubber/forum/forum", array('cid' => $thread['Seminar_id']));
+            break;
+        case "public":
+            $overview_url = URLHelper::getURL("plugins.php/blubber/forum/profile", array('username' => get_username($thread['user_id'])));
+            break;
+        default: 
+            $overview_url = URLHelper::getURL("plugins.php/blubber/forum/globalstream");
+    } ?> 
+    <a href="<?= URLHelper::getLink($overview_url) ?>">
         <?= Assets::img('icons/16/blue/arr_1left', array('class' => 'text-top')) ?>
         <?= _('Zurück zur Übersicht') ?>
     </a>

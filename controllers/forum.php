@@ -498,14 +498,17 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
 
-        if (Navigation::hasItem('/course/blubberforum')) {
+        $this->thread = new ForumPosting($thread_id);
+        
+        if ($this->thread['context_type'] === "course") {
             Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
             Navigation::activateItem('/course/blubberforum');
+        } elseif($this->thread['context_type'] === "public") {
+            Navigation::activateItem('/profile/blubber');
         } else {
             Navigation::activateItem('/community/blubber');
         }
         
-        $this->thread        = new ForumPosting($thread_id);
         $this->course_id     = $_SESSION['SessionSeminar'];
         $this->single_thread = true;
         ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
