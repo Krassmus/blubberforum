@@ -299,7 +299,7 @@ class ForumPosting extends SimpleORMap {
         $db = DBManager::get();
         return (bool) $db->query(
             "SELECT 1 " .
-            "FROM blubber_private_relation " .
+            "FROM blubber_mentions " .
             "WHERE user_id = ".$db->quote($user_id)." " .
                 "AND topic_id = ".$db->quote($this['root_id'])." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
