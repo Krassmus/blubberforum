@@ -63,7 +63,7 @@ class ForumPosting extends SimpleORMap {
                 _("Sie wurden erwähnt.")
             );
             DBManager::get()->exec(
-                "INSERT IGNORE INTO blubber_private_relation " .
+                "INSERT IGNORE INTO blubber_mentions " .
                 "SET user_id = ".DBManager::get()->quote($user_id).", " .
                     "topic_id = ".DBManager::get()->quote($thread_id).", " .
                     "mkdate = UNIX_TIMESTAMP() " .
@@ -145,8 +145,8 @@ class ForumPosting extends SimpleORMap {
             $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") ) ";
             
             //private Blubber
-            $where_or[] = "OR (px_topics.context_type = 'private' AND blubber_private_relation.user_id = ".$db->quote($GLOBALS['user']->id).") ";
-            $joins[] = "LEFT JOIN blubber_private_relation ON (blubber_private_relation.topic_id = px_topics.root_id) ";
+            $joins[] = "LEFT JOIN blubber_mentions ON (blubber_mentions.topic_id = px_topics.root_id) ";
+            $where_or[] = "OR (px_topics.context_type != 'course' AND blubber_mentions.user_id = ".$db->quote($GLOBALS['user']->id).") ";
             
             if ($parameter['search'] && is_array($parameter['search'])) {
                 foreach ((array) $parameter['search'] as $searchword) {
@@ -218,8 +218,8 @@ class ForumPosting extends SimpleORMap {
             }
             
             //private Blubber
-            $where_or[] = "OR (px_topics.context_type = 'private' AND blubber_private_relation.user_id = ".$db->quote($GLOBALS['user']->id).") ";
-            $joins[] = "LEFT JOIN blubber_private_relation ON (blubber_private_relation.topic_id = px_topics.root_id) ";
+            $where_or[] = "OR (px_topics.context_type != 'course' AND blubber_mentions.user_id = ".$db->quote($GLOBALS['user']->id).") ";
+            $joins[] = "LEFT JOIN blubber_mentions ON (blubber_mentions.topic_id = px_topics.root_id) ";
             
             if ($parameter['search'] && is_array($parameter['search'])) {
                 foreach ($parameter['search'] as $searchword) {
@@ -308,9 +308,9 @@ class ForumPosting extends SimpleORMap {
     public function getRelatedUsers() {
         $db = DBManager::get();
         return (array) $db->query(
-            "SELECT blubber_private_relation.user_id " .
-            "FROM blubber_private_relation " .
-                "INNER JOIN auth_user_md5 ON (blubber_private_relation.user_id = auth_user_md5.user_id) " .
+            "SELECT blubber_mentions.user_id " .
+            "FROM blubber_mentions " .
+                "INNER JOIN auth_user_md5 ON (blubber_mentions.user_id = auth_user_md5.user_id) " .
             "WHERE topic_id = ".$db->quote($this['root_id'])." " .
             "ORDER BY auth_user_md5.Nachname ASC, auth_user_md5.Vorname ASC " .
         "")->fetchAll(PDO::FETCH_COLUMN, 0);

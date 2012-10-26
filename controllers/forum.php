@@ -23,7 +23,7 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
-        PageLayout::setTitle($this->plugin->getDisplayTitle());
+        PageLayout::setTitle(_("Globaler Blubberstream"));
         Navigation::activateItem("/community/blubber");
 
         $parameter = array(
@@ -79,9 +79,9 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
-        PageLayout::setTitle("Blubber");
 
         $this->user_id = get_userid(Request::get("username"));
+        PageLayout::setTitle(get_fullname($this->user_id)." - Blubber");
         PageLayout::addHeadElement("link", array(
             'rel' => "alternate",
             'type' => "application/atom+xml",
@@ -496,10 +496,17 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
-        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
-
-        $this->thread = new ForumPosting($thread_id);
         
+        
+        $this->thread = new ForumPosting($thread_id);
+        if ($this->thread['context_type'] === "course") {
+            PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
+        } elseif($this->thread['context_type'] === "public") {
+            PageLayout::setTitle(get_fullname($this->thread['user_id'])." - Blubber");
+        } elseif($this->thread['context_type'] === "private") {
+            PageLayout::setTitle(_("Privater Blubber"));
+        }
+
         if ($this->thread['context_type'] === "course") {
             Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
             Navigation::activateItem('/course/blubberforum');
