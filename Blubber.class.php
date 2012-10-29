@@ -73,7 +73,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                 UpdateInformation::setInformation("Blubber.getNewPosts", $output);
             }
         }
-        if (Navigation::hasItem("/course") && $this->isActivated() && version_compare($GLOBALS['SOFTWARE_VERSION'], "2.2") <= 0) {
+        if (Navigation::hasItem("/course") && $this->isActivated() && version_compare($GLOBALS['SOFTWARE_VERSION'], "2.4") <= 0) {
             $tab = new AutoNavigation($this->getDisplayTitle(), PluginEngine::getLink($this, array(), "forum/forum"));
             $tab->setImage($this->getPluginURL()."/assets/images/blubber_white.png");
             Navigation::addItem("/course/blubberforum", $tab);
