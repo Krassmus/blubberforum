@@ -1,5 +1,5 @@
 <?php
-class PrivateBlubberPostings extends DBMigration
+class PrivateBlubberMentions extends DBMigration
 {
     function up(){
         $db = DBManager::get();
@@ -25,7 +25,7 @@ class PrivateBlubberPostings extends DBMigration
             "");
         }
         $db->exec("
-            CREATE TABLE IF NOT EXISTS `blubber_private_relation` (
+            CREATE TABLE IF NOT EXISTS `blubber_mentions` (
             `topic_id` varchar(32) NOT NULL,
             `user_id` varchar(32) NOT NULL,
             `mkdate` int(11) NOT NULL,

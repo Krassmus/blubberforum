@@ -23,7 +23,7 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
-        PageLayout::setTitle($this->plugin->getDisplayTitle());
+        PageLayout::setTitle(_("Globaler Blubberstream"));
         Navigation::activateItem("/community/blubber");
 
         $parameter = array(
@@ -79,9 +79,9 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
-        PageLayout::setTitle("Blubber");
 
         $this->user_id = get_userid(Request::get("username"));
+        PageLayout::setTitle(get_fullname($this->user_id)." - Blubber");
         PageLayout::addHeadElement("link", array(
             'rel' => "alternate",
             'type' => "application/atom+xml",
@@ -105,7 +105,7 @@ class ForumController extends ApplicationController {
         if ($thread['user_id'] !== $thread['Seminar_id'] && !$GLOBALS['perm']->have_studip_perm("autor", $thread['Seminar_id'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        ForumPosting::$course_hashes = $thread['context_type'] === "course" ? $thread['Seminar_id'] : false;
 
         $output = array(
             'more' => false,
@@ -189,14 +189,14 @@ class ForumController extends ApplicationController {
         $thread['seminar_id'] = $context_type === "course" ? $context : $GLOBALS['user']->id;
         $thread['context_type'] = $context_type;
         $thread['parent_id'] = 0;
-        $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
-        if ($thread->isNew() && !$thread->getId()) {
-            $thread->setId($thread->getNewId());
-        }
         
-        //mentions einbauen:
-        $content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
-        $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+        if ($thread->isNew() && !$thread->getId()) {
+            $thread->store();
+        }
+        ForumPosting::$mention_thread_id = $thread->getId();
+        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
+        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
+        $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         
         if (strpos($content, "\n") !== false) {
             $thread['name'] = substr($content, 0, strpos($content, "\n"));
@@ -274,9 +274,12 @@ class ForumController extends ApplicationController {
         }
         $old_content = $posting['description'];
         $messaging = new messaging();
+        ForumPosting::$mention_thread_id = $thread->getId();
+        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
+        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
         $new_content = transformBeforeSave(studip_utf8decode(Request::get("content")));
-        $new_content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
-        $new_content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        //$new_content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        //$new_content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
         
         if ($new_content && $old_content !== $new_content) {
             $posting['description'] = $new_content;
@@ -346,6 +349,9 @@ class ForumController extends ApplicationController {
             $output = array();
             $posting = new ForumPosting();
             
+            ForumPosting::$mention_thread_id = $thread->getId();
+            StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
+            StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
             $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
             
             //mentions einbauen:
@@ -490,16 +496,26 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/autoresize.jquery.min.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
-        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
+        
+        
+        $this->thread = new ForumPosting($thread_id);
+        if ($this->thread['context_type'] === "course") {
+            PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
+        } elseif($this->thread['context_type'] === "public") {
+            PageLayout::setTitle(get_fullname($this->thread['user_id'])." - Blubber");
+        } elseif($this->thread['context_type'] === "private") {
+            PageLayout::setTitle(_("Privater Blubber"));
+        }
 
-        if (Navigation::hasItem('/course/blubberforum')) {
+        if ($this->thread['context_type'] === "course") {
             Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
             Navigation::activateItem('/course/blubberforum');
+        } elseif($this->thread['context_type'] === "public") {
+            Navigation::activateItem('/profile/blubber');
         } else {
             Navigation::activateItem('/community/blubber');
         }
         
-        $this->thread        = new ForumPosting($thread_id);
         $this->course_id     = $_SESSION['SessionSeminar'];
         $this->single_thread = true;
         ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
