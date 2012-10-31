@@ -216,7 +216,7 @@ class ForumController extends ApplicationController {
         if ($thread->store()) {
             if ($context_type === "private") {
                 $statement = DBManager::get()->prepare(
-                    "INSERT IGNORE INTO blubber_private_relation " .
+                    "INSERT IGNORE INTO blubber_mentions " .
                     "SET user_id = :user_id, " .
                         "topic_id = :thread_id, " .
                         "mkdate = UNIX_TIMESTAMP() " .
