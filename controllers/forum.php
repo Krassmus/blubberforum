@@ -179,8 +179,7 @@ class ForumController extends ApplicationController {
     public function new_posting_action() {
         $context = Request::option("context");
         $context_type = Request::option("context_type");
-        if (!$context 
-                || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
+        if ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context)) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         ForumPosting::$course_hashes = ($context_type === "course" ? $context : false);
