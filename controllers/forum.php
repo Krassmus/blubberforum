@@ -483,7 +483,7 @@ class ForumController extends ApplicationController {
                     if (strpos($file['type'], 'audio') !== false || strpos($document['filename'], '.ogg') !== false) {
                          $type = "audio";
                     }
-                    $url = GetDownloadLink($newfile->getId(), $newfile['filename'], $context_type === "course" ? 0 : 8);
+                    $url = GetDownloadLink($newfile->getId(), $newfile['filename']);
                     if ($type) {
                         $output['inserts'][] = "[".$type."]".$url;
                     } else {
