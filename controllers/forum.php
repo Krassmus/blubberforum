@@ -408,10 +408,9 @@ class ForumController extends ApplicationController {
     }
 
     public function post_files_action() {
-        $context = Request::option("context");
+        $context = Request::option("context") ? Request::get("context") : $GLOBALS['user']->id;
         $context_type = Request::option("context_type");
         if (!Request::isPost()
-                || !$context
                 || ($context_type === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $context))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
@@ -419,10 +418,13 @@ class ForumController extends ApplicationController {
         $db = DBManager::get();
         $folder_id = md5("Blubber_".$context."_".$GLOBALS['user']->id);
         $parent_folder_id = md5("Blubber_".$context);
+        if ($context_type !== "course") {
+            $folder_id = $parent_folder_id;
+        }
         $folder = $db->query(
             "SELECT * " .
             "FROM folder " .
-            "WHERE folder_id = ".$db->quote($context_type === "course" ? $folder_id : $parent_folder_id)." " .
+            "WHERE folder_id = ".$db->quote($folder_id)." " .
         "")->fetch(PDO::FETCH_COLUMN, 0);
         if (!$folder) {
             $folder = $db->query(
@@ -460,10 +462,12 @@ class ForumController extends ApplicationController {
 
         foreach ($_FILES as $file) {
             $GLOBALS['msg'] = '';
-            validate_upload($file);
-            if ($GLOBALS['msg']) {
-                $output['errors'][] = $file['name'] . ': ' . studip_utf8encode(html_entity_decode(trim(substr($GLOBALS['msg'],6), '§')));
-                continue;
+            if ($context_type === "course") {
+                validate_upload($file);
+                if ($GLOBALS['msg']) {
+                    $output['errors'][] = $file['name'] . ': ' . studip_utf8encode(html_entity_decode(trim(substr($GLOBALS['msg'],6), '§')));
+                    continue;
+                }
             }
             if ($file['size']) {
                 $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['name']));
@@ -479,10 +483,11 @@ class ForumController extends ApplicationController {
                     if (strpos($file['type'], 'audio') !== false || strpos($document['filename'], '.ogg') !== false) {
                          $type = "audio";
                     }
+                    $url = GetDownloadLink($newfile->getId(), $newfile['filename'], $context_type === "course" ? 0 : 8);
                     if ($type) {
-                        $output['inserts'][] = "[".$type."]".GetDownloadLink($newfile->getId(), $newfile['filename']);
+                        $output['inserts'][] = "[".$type."]".$url;
                     } else {
-                        $output['inserts'][] = "[".$newfile['filename']."]".GetDownloadLink($newfile->getId(), $newfile['filename']);
+                        $output['inserts'][] = "[".$newfile['filename']."]".$url;
                     }
                 }
             }
