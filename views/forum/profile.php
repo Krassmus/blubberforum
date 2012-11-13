@@ -80,6 +80,6 @@ $infobox = array(
     )
 );
 $infobox = array(
-    'picture' => $assets_url . "/images/foam.png",
+    'picture' => Avatar::getAvatar($user_id)->getURL(Avatar::NORMAL),
     'content' => $infobox
 );

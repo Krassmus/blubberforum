@@ -79,6 +79,6 @@ $infobox = array(
     )
 );
 $infobox = array(
-    'picture' => $assets_url . "/images/foam.png",
+    'picture' => CourseAvatar::getAvatar($course_id)->getURL(Avatar::NORMAL),
     'content' => $infobox
 );
