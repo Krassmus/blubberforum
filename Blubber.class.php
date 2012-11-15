@@ -71,6 +71,20 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                     );
                 }
                 UpdateInformation::setInformation("Blubber.getNewPosts", $output);
+
+                //Events-Queue:
+                $db = DBManager::get();
+                $events = $db->query(
+                    "SELECT event_type, item_id " .
+                    "FROM blubber_events_queue " .
+                    "WHERE mkdate >= ".$db->quote($last_check)." " .
+                    "ORDER BY mkdate ASC " .
+                "")->fetchAll(PDO::FETCH_ASSOC);
+                UpdateInformation::setInformation("Blubber.blubberEvents", $events);
+                $db->exec(
+                    "DELETE FROM blubber_events_queue " .
+                    "WHERE mkdate < UNIX_TIMESTAMP() - 60 * 60 * 6 " .
+                "");
             }
         }
         if (Navigation::hasItem("/course") && $this->isActivated() && version_compare($GLOBALS['SOFTWARE_VERSION'], "2.4") <= 0) {
