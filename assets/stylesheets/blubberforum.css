@@ -143,13 +143,14 @@
     width: 100%;
 }
 #forum_threads .content_column {
-    background: url('../images/blubb.svg') bottom right no-repeat;
-    background-size: 0px 0px;
 }
-#forum_threads .content_column > .name a {
+#forum_threads .content_column > .name {
     color: #888888;
     font-weight: bold;
     font-size: 0.8em;
+}
+#forum_threads .content_column > .name a {
+    color: #888888;
 }
 #forum_threads .content_column > .content {
     margin-top: 7px;

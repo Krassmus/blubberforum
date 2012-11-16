@@ -12,7 +12,9 @@
 $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 ForumPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
 $related_users = $thread['context_type'] === "private" ? $thread->getRelatedUsers() : array();
-
+$author = $thread->getUser();
+$author_name = $author->getName();
+$author_name or $author_name = $posting['author'];
 ?>
 <? if (@$single_thread): ?>
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
@@ -79,9 +81,13 @@ $related_users = $thread['context_type'] === "private" ? $thread->getRelatedUser
     <? endif ?>
     <div class="avatar_column">
         <div class="avatar">
-            <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">
-                <div style="background-image: url('<?= Avatar::getAvatar($thread['user_id'])->getURL(Avatar::MEDIUM)?>');" class="avatar_image"></div>
+            <? if (!$author->isNew()) : ?>
+            <a href="<?= URLHelper::getLink($author->getURL(), array(), true) ?>">
+            <? endif ?>
+                <div style="background-image: url('<?= $author->getAvatar()->getURL(Avatar::MEDIUM)?>');" class="avatar_image"></div>
+            <? if (!$author->isNew()) : ?>
             </a>
+            <? endif ?>
         </div>
     </div>
     <div class="content_column">
@@ -97,9 +103,13 @@ $related_users = $thread['context_type'] === "private" ? $thread->getRelatedUser
             <? endif ?>
         </div>
         <div class="name">
-            <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($thread['user_id']))) ?>">
-                <?= htmlReady(get_fullname($thread['user_id'])) ?>
+            <? if (!$author->isNew()) : ?>
+            <a href="<?= URLHelper::getLink($author->getURL(), array(), true) ?>">
+            <? endif ?>
+                <?= htmlReady($author_name) ?>
+            <? if (!$author->isNew()) : ?>
             </a>
+            <? endif ?>
         </div>
         <div class="content">
             <? 

@@ -315,5 +315,11 @@ class ForumPosting extends SimpleORMap {
             "ORDER BY auth_user_md5.Nachname ASC, auth_user_md5.Vorname ASC " .
         "")->fetchAll(PDO::FETCH_COLUMN, 0);
     }
+    
+    public function getUser() {
+        return $this['external_contact'] 
+            ? new BlubberExternalContact($this['user_id']) 
+            : new BlubberUser($this['user_id']);
+    }
 
 }

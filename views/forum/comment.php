@@ -11,13 +11,22 @@
 if (!$last_visit) {
     $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
 }
+$author = $posting->getUser();
+$author_name = $author->getName();
+if (!$author_name) {
+    $author_name = $posting['author'];
+}
 ?>
 <li class="comment posting<?= $posting['mkdate'] > $last_visit ? " new" : "" ?>" id="posting_<?= $posting->getId() ?>" mkdate="<?= htmlReady($posting['mkdate']) ?>" data-autor="<?= htmlReady($posting['user_id']) ?>">
     <div class="avatar_column">
         <div class="avatar">
-            <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($posting['user_id']))) ?>">
-                <div style="background-image: url('<?= Avatar::getAvatar($posting['user_id'])->getURL(Avatar::MEDIUM)?>');" class="avatar_image"></div>
+            <? if (!$author->isNew()) : ?>
+            <a href="<?= URLHelper::getLink($author->getURL(), array(), true) ?>">
+            <? endif ?>
+                <div style="background-image: url('<?= $author->getAvatar()->getURL(Avatar::MEDIUM)?>');" class="avatar_image"></div>
+            <? if (!$author->isNew()) : ?>
             </a>
+            <? endif ?>
         </div>
     </div>
     <div class="content_column">
@@ -30,9 +39,13 @@ if (!$last_visit) {
             <? endif ?>
         </div>
         <div class="name">
-            <a href="<?= URLHelper::getLink("about.php", array('username' => get_username($posting['user_id']))) ?>">
-                <?= htmlReady(get_fullname($posting['user_id'])) ?>
+            <? if (!$author->isNew()) : ?>
+            <a href="<?= URLHelper::getLink($author->getURL(), array(), true) ?>">
+            <? endif ?>
+                <?= htmlReady($author_name) ?>
+            <? if (!$author->isNew()) : ?>
             </a>
+            <? endif ?>
         </div>
         <div class="content">
             <?= ForumPosting::format($posting['description']) ?>
