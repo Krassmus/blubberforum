@@ -274,6 +274,7 @@ class ForumPosting extends SimpleORMap {
     }
     
     public function delete() {
+        $id = $this->getId();
         NotificationCenter::postNotification("PostingWillDelete", $this);
         foreach ((array) self::findBySQL(__class__, "parent_id = ".DBManager::get()->quote($this->getId())) as $child_posting) {
             $child_posting->delete();
@@ -282,6 +283,12 @@ class ForumPosting extends SimpleORMap {
         if ($success) {
             NotificationCenter::postNotification("PostingHasDeleted", $this);
         }
+        DBManager::get()->exec(
+            "INSERT INTO blubber_events_queue " .
+            "SET event_type = 'delete', " .
+                "item_id = ".DBManager::get()->quote($id).", " .
+                "mkdate = UNIX_TIMESTAMP() " .
+        "");
         return $success;
     }
     

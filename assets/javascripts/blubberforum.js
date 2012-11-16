@@ -23,6 +23,13 @@ STUDIP.Blubber = {
         }
         STUDIP.Blubber.updateTimestamps();
     },
+    blubberEvents: function (events) {
+        jQuery.each(events, function (index, event) {
+            if (event.event_type === "delete") {
+                jQuery("#posting_" + event.item_id).fadeOut(function () { jQuery("#posting_" + event.item_id).remove(); });
+            }
+        });
+    },
     alreadyThreadWriting: false,
     newPosting: function () {
         if (STUDIP.Blubber.alreadyThreadWriting) {
