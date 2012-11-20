@@ -15,6 +15,7 @@ class ExternalContactsMigration extends DBMigration
                 `mail_identifier` varchar(256) DEFAULT NULL,
                 `contact_type` varchar(16) NOT NULL DEFAULT 'anonymous',
                 `name` varchar(256) NOT NULL,
+                `data` TEXT NULL,
                 `chdate` bigint(20) NOT NULL,
                 `mkdate` bigint(20) NOT NULL,
                 PRIMARY KEY (`external_contact_id`)

@@ -323,10 +323,32 @@ class ForumPosting extends SimpleORMap {
         "")->fetchAll(PDO::FETCH_COLUMN, 0);
     }
     
+    /**
+     * Returns an object of the author of this posting. This object may be BlubberUser
+     * or BlubberExternalContact or any other object that implemenst the 
+     * BlubberContact-interface (see there).
+     * @return \BlubberContact
+     */
     public function getUser() {
-        return $this['external_contact'] 
-            ? new BlubberExternalContact($this['user_id']) 
-            : new BlubberUser($this['user_id']);
+        if ($this['external_contact']) {
+            $statement = DBManager::get()->prepare(
+                "SELECT * FROM blubber_external_contact WHERE external_contact_id = ? " .
+            "");
+            $statement->execute(array($this['user_id']));
+            $data = $statement->fetch(PDO::FETCH_ASSOC);
+            if (class_exists($data['contact_type'])) {
+                $user = new $data['contact_type']();
+                if (is_a($user, "BlubberContact")) {
+                    $user->setData($data);
+                    return $user;
+                }
+            }
+            $user = new BlubberExternalContact();
+            $user->setData($data);
+            return $user;
+        } else {
+            return new BlubberUser($this['user_id']);
+        }
     }
 
 }
