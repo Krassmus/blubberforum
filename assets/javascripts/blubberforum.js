@@ -394,7 +394,15 @@ jQuery("#forum_threads textarea.corrector").live("keydown", function (event) {
 });
 jQuery(".writer > textarea").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
-        STUDIP.Blubber.write(this);
+        if (jQuery('#user_id').val() !== "nobody") {
+            STUDIP.Blubber.write(this);
+        } else {
+            jQuery("#identity_window").dialog({
+                modal: true,
+                title: jQuery("#identity_window_title").text(),
+                width: "50%"
+            });
+        }
         event.preventDefault();
     }
 });

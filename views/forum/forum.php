@@ -29,6 +29,34 @@
     <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"><?= htmlReady($search) ?></textarea>
 </div>
 
+<? if ($GLOBALS['user']->id === "nobody") : ?>
+<div id="identity_window_title" style="display: none;"><?= _("Namen eingeben") ?></div>
+<div id="identity_window" style="display: none;">
+    <table>
+        <tbody>
+            <tr>
+                <td><?= _("Name") ?></td>
+                <td><input type="text" id="anonymous_name" value=""></td>
+            </tr>
+            <tr>
+                <td><?= _("Email") ?></td>
+                <td><input type="text" id="anonymous_email"></td>
+            </tr>
+            <tr>
+                <? $_SESSION['blubber_anonymous_security'] or $_SESSION['blubber_anonymous_security'] = strrev(substr(md5(uniqid()), 0, 5)) ?>
+                <td><?= _("Sicherheitsfrage! Schreibe folgendes rückwärts: ").strrev($_SESSION['blubber_anonymous_security']) ?></td>
+                <td><input type="text" id="anonymous_security"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><?= \Studip\Button::create(_("abschicken"), array('onclick' => "STUDIP.Blubber.write(this);")) ?></td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+</div>
+<? endif ?>
+
 <ul id="forum_threads" class="coursestream">
     <? foreach ($threads as $thread) : ?>
     <?= $this->render_partial("forum/thread.php", array('thread' => $thread)) ?>
