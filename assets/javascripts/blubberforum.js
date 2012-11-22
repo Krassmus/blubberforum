@@ -157,6 +157,7 @@ STUDIP.Blubber = {
                 }
             }
         }
+        STUDIP.Markup.element("#posting_" + posting_id);
         STUDIP.Blubber.makeTextareasAutoresizable();
         STUDIP.Blubber.updateTimestamps();
     },
@@ -202,6 +203,7 @@ STUDIP.Blubber = {
                 'success': function (new_content) {
                     if (new_content) {
                         jQuery("#posting_" + id + " > .content_column .content").html(new_content);
+                        STUDIP.Markup.element("#posting_" + id);
                     } else {
                         jQuery("#posting_" + id).fadeOut(function () {jQuery("#posting_" + id).remove();});
                     }
