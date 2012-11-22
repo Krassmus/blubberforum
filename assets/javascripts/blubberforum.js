@@ -398,6 +398,7 @@ jQuery(".writer > textarea").live("keydown", function (event) {
         if (jQuery('#user_id').val() !== "nobody") {
             STUDIP.Blubber.write(this);
         } else {
+            jQuery("#identity_window_textarea_id").val(jQuery(this).attr("id"));
             jQuery("#identity_window").dialog({
                 modal: true,
                 title: jQuery("#identity_window_title").text(),

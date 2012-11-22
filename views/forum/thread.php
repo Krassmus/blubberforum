@@ -135,7 +135,7 @@ $author_name or $author_name = $posting['author'];
     <? endforeach ?>
     </ul>
     <div class="writer">
-        <textarea placeholder="<?= _("Kommentiere dies") ?>"></textarea>
+        <textarea placeholder="<?= _("Kommentiere dies") ?>" id="writer_<?= md5(uniqid()) ?>"></textarea>
     </div>
 </li>
 

@@ -32,6 +32,7 @@
 <? if ($GLOBALS['user']->id === "nobody") : ?>
 <div id="identity_window_title" style="display: none;"><?= _("Namen eingeben") ?></div>
 <div id="identity_window" style="display: none;">
+    <input type="hidden" id="identity_window_textarea_id" value="">
     <table>
         <tbody>
             <tr>
