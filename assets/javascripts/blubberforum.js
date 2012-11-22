@@ -123,6 +123,7 @@ STUDIP.Blubber = {
                 }
             }
         }
+        STUDIP.Markup.element("#posting_" + posting_id);
         STUDIP.Blubber.updateTimestamps();
     },
     insertThread: function (posting_id, mkdate, comment) {
