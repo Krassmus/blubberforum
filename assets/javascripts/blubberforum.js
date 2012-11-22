@@ -219,6 +219,7 @@ STUDIP.Blubber = {
                 },
                 'success': function (new_content) {
                     jQuery("#posting_" + id + " > .content_column .content").html(new_content);
+                    STUDIP.Markup.element("#posting_" + id);
                 }
             });
         }
