@@ -26,7 +26,7 @@ STUDIP.Blubber = {
     blubberEvents: function (events) {
         jQuery.each(events, function (index, event) {
             if (event.event_type === "delete") {
-                jQuery("#posting_" + event.item_id).fadeOut(function () { jQuery("#posting_" + event.item_id).remove(); });
+                jQuery("#posting_" + event.item_id).fadeOut(function () {jQuery("#posting_" + event.item_id).remove();});
             }
         });
     },
@@ -48,7 +48,10 @@ STUDIP.Blubber = {
                     'context_type': context_type,
                     'context': jQuery("#context_selector [name=context]").val(),
                     'content': content,
-                    'contact_groups': jQuery("#contact_groups").val()
+                    'contact_groups': jQuery("#contact_groups").val(),
+                    'anonymous_name': jQuery("#anonymous_name").val(),        //nobody only
+                    'anonymous_email': jQuery("#anonymous_email").val(),      //nobody only
+                    'anonymous_security': jQuery("#anonymous_security").val() //nobody only
                 },
                 dataType: "json",
                 type: "POST",
@@ -79,7 +82,10 @@ STUDIP.Blubber = {
                 'context': jQuery(textarea).closest("li").find(".hiddeninfo > input[name=context]").val(),
                 'context_type': jQuery(textarea).closest("li").find(".hiddeninfo > input[name=context_type]").val(),
                 'thread': thread,
-                'content': content
+                'content': content,
+                'anonymous_name': jQuery("#anonymous_name").val(),        //nobody only
+                'anonymous_email': jQuery("#anonymous_email").val(),      //nobody only
+                'anonymous_security': jQuery("#anonymous_security").val() //nobody only
             },
             dataType: "json",
             type: "POST",
@@ -89,6 +95,7 @@ STUDIP.Blubber = {
             },
             complete: function () {
                 STUDIP.Blubber.alreadyWriting = false;
+                jQuery("#identity_window").dialog("close");
             }
         });
     },
@@ -373,6 +380,13 @@ STUDIP.Blubber = {
             jQuery("#submit_button").show();
             STUDIP.Blubber.showContextWindow();
         }
+    },
+    submitAnonymousPosting: function () {
+        if (jQuery('#identity_window_textarea_id').val() === "new_posting") {
+            STUDIP.Blubber.newPosting();
+        } else {
+            STUDIP.Blubber.write('#' + jQuery('#identity_window_textarea_id').val());
+        }
     }
 };
 
@@ -380,7 +394,16 @@ jQuery(STUDIP.Blubber.updateTimestamps);
 
 jQuery("#threadwriter > textarea").live("keydown", function (event) {
     if (event.keyCode === 13 && !event.altKey && !event.ctrlKey && !event.shiftKey) {
-        STUDIP.Blubber.newPosting();
+        if (jQuery('#user_id').val() !== "nobody") {
+            STUDIP.Blubber.newPosting();
+        } else {
+            jQuery("#identity_window_textarea_id").val(jQuery(this).attr("id"));
+            jQuery("#identity_window").dialog({
+                modal: true,
+                title: jQuery("#identity_window_title").text(),
+                width: "50%"
+            });
+        }
         event.preventDefault();
     }
 });

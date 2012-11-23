@@ -9,6 +9,17 @@ class BlubberExternalContact extends SimpleORMap implements BlubberContact {
         return self::find(__class__, $user_id);
     }
     
+    static public function findByEmail($email) {
+        $email = strtolower($email);
+        $user = self::findBySQL(__class__, "mail_identifier = ".DBManager::get()->quote($email));
+        if (!count($user)) {
+            $user = new BlubberExternalContact();
+            $user['mail_identifier'] = $email;
+            return $user;
+        }
+        return $user[0];
+    }
+    
     public function getName() {
         return $this['name'];
     }
@@ -18,28 +29,38 @@ class BlubberExternalContact extends SimpleORMap implements BlubberContact {
     }
     
     public function getAvatar() {
-        return BluberContactAvatar::getAvatar($this->getId());
+        return BlubberContactAvatar::getAvatar($this->getId());
     }
     
     function __construct($id = null)
     {
         $this->db_table = 'blubber_external_contact';
-        $this->registerCallback('before_store', 'cbSerializeData');
-        $this->registerCallback('after_store after_initialize', 'cbUnserializeData');
+        //$this->registerCallback('before_store', 'cbSerializeData');
+        //$this->registerCallback('after_store after_initialize', 'cbUnserializeData');
         parent::__construct($id);
+    }
+    
+    public function restore() {
+        parent::restore();
+        $this->cbUnserializeData();
+    }
+    
+    public function store() {
+        $this->cbSerializeData();
+        parent::store();
     }
 
     function cbSerializeData()
     {
         $this->content['data'] = serialize($this->content['data']);
-        $this->content_db['data'] = serialize($this->content_db['data']);
+        //$this->content_db['data'] = serialize($this->content_db['data']);
         return true;
     }
 
     function cbUnserializeData()
     {
-        $this->content['data'] = (array)unserialize($this->content['data']);
-        $this->content_db['data'] = (array)unserialize($this->content_db['data']);
+        $this->content['data'] = (array) unserialize($this->content['data']);
+        //$this->content_db['data'] = (array)unserialize($this->content_db['data']);
         return true;
     }
 }

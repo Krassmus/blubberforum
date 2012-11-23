@@ -37,20 +37,20 @@
         <tbody>
             <tr>
                 <td><?= _("Name") ?></td>
-                <td><input type="text" id="anonymous_name" value=""></td>
+                <td><input type="text" id="anonymous_name" value="<?= htmlReady($_SESSION['anonymous_name']) ?>"></td>
             </tr>
             <tr>
                 <td><?= _("Email") ?></td>
-                <td><input type="text" id="anonymous_email"></td>
+                <td><input type="text" id="anonymous_email" value="<?= htmlReady($_SESSION['anonymous_email']) ?>"></td>
             </tr>
             <tr>
-                <? $_SESSION['blubber_anonymous_security'] or $_SESSION['blubber_anonymous_security'] = strrev(substr(md5(uniqid()), 0, 5)) ?>
+                <? $_SESSION['blubber_anonymous_security'] or $_SESSION['blubber_anonymous_security'] = substr(md5(uniqid()), 0, 5) ?>
                 <td><?= _("Sicherheitsfrage! Schreibe folgendes rückwärts: ").strrev($_SESSION['blubber_anonymous_security']) ?></td>
-                <td><input type="text" id="anonymous_security"></td>
+                <td><input type="text" id="anonymous_security" value="<?= $_SESSION['anonymous_email'] ? htmlReady($_SESSION['blubber_anonymous_security']) : "" ?>"></td>
             </tr>
             <tr>
                 <td></td>
-                <td><?= \Studip\Button::create(_("abschicken"), array('onclick' => "STUDIP.Blubber.write(this);")) ?></td>
+                <td><?= \Studip\Button::create(_("abschicken"), array('onclick' => "STUDIP.Blubber.submitAnonymousPosting();")) ?></td>
             </tr>
         </tbody>
     </table>

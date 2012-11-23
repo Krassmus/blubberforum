@@ -6,7 +6,7 @@ require_once dirname(__file__)."/BlubberExternalContact.class.php";
 class BlubberContactAvatar extends Avatar {
     
     static function getAvatar($user_id) {
-        return new Avatar($user_id);
+        return new BlubberContactAvatar($user_id);
     }
     
     /**
@@ -53,7 +53,8 @@ class BlubberContactAvatar extends Avatar {
         if ($this->is_customized()) {
             return $this->getCustomAvatarUrl($size, $ext);
         } else {
-            $email = BlubberExternalContact::find($this->user_id)->email_identifier;
+            $contact = new BlubberExternalContact($this->user_id);
+            $email = $contact['mail_identifier'];
             $email_hash = md5(strtolower(trim($email)));
             $width = $this->getDimension($size);
             return URLHelper::getURL(

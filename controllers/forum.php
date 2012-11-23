@@ -222,8 +222,22 @@ class ForumController extends ApplicationController {
             }
             $thread['description'] = $content;
         }
-        $thread['user_id'] = $GLOBALS['user']->id;
-        $thread['author'] = get_fullname();
+        if ($GLOBALS['user']->id !== "nobody") {
+            $thread['user_id'] = $GLOBALS['user']->id;
+            $thread['author'] = get_fullname();
+        } else {
+            if (Request::get("anonymous_security") === $_SESSION['blubber_anonymous_security']) {
+                $contact_user = BlubberExternalContact::findByEmail(Request::get("anonymous_email"));
+                $_SESSION['anonymous_email'] = Request::get("anonymous_email");
+                $_SESSION['anonymous_name'] = $contact_user['name'] = Request::get("anonymous_name");
+                $contact_user->store();
+                $thread['user_id'] = $contact_user->getId();
+                $thread['external_contact'] = 1;
+                $thread['author'] = Request::get("anonymous_name");
+            } else {
+                throw new AccessDeniedException("No permission to write posting.");
+            }
+        }
         $thread['author_host'] = $_SERVER['REMOTE_ADDR'];
         $thread['root_id'] = $thread->getId();
         if ($thread->store()) {
@@ -378,8 +392,22 @@ class ForumController extends ApplicationController {
             $posting['seminar_id'] = $thread['Seminar_id'];
             $posting['root_id'] = $posting['parent_id'] = Request::option("thread");
             $posting['name'] = "Re: ".$thread['name'];
-            $posting['user_id'] = $GLOBALS['user']->id;
-            $posting['author'] = get_fullname();
+            if ($GLOBALS['user']->id !== "nobody") {
+                $posting['user_id'] = $GLOBALS['user']->id;
+                $posting['author'] = get_fullname();
+            } else {
+                if (Request::get("anonymous_security") === $_SESSION['blubber_anonymous_security']) {
+                    $contact_user = BlubberExternalContact::findByEmail(Request::get("anonymous_email"));
+                    $_SESSION['anonymous_email'] = Request::get("anonymous_email");
+                    $_SESSION['anonymous_name'] = $contact_user['name'] = Request::get("anonymous_name");
+                    $contact_user->store();
+                    $posting['user_id'] = $contact_user->getId();
+                    $posting['external_contact'] = 1;
+                    $posting['author'] = Request::get("anonymous_name");
+                } else {
+                    throw new AccessDeniedException("No permission to write posting.");
+                }
+            }
             $posting['author_host'] = $_SERVER['REMOTE_ADDR'];
             if ($posting->store()) {
                 $factory = new Flexi_TemplateFactory($this->plugin->getPluginPath()."/views/forum");
