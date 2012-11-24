@@ -33,7 +33,7 @@
 #forum_threads > li.thread .contextinfo:hover {
     opacity: 1;
 }
-#forum_threads.coursestream > li.thread .contextinfo {
+#forum_threads.coursestream > li.thread .contextinfo, #forum_threads.profilestream > li.thread .contextinfo  {
     display: none;
 }
 #forum_threads.globalstream {

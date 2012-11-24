@@ -23,7 +23,7 @@ if (!$author_name) {
             <? if (!$author->isNew()) : ?>
             <a href="<?= URLHelper::getLink($author->getURL(), array(), true) ?>">
             <? endif ?>
-                <div style="background-image: url('<?= $author->getAvatar()->getURL(Avatar::MEDIUM)?>');" class="avatar_image"></div>
+                <div style="background-image: url('<?= $author->getAvatar()->getURL(Avatar::MEDIUM)?>');" class="avatar_image"<?= $author->isNew() ? ' title="'._("Nicht registrierter Nutzer").'"' : "" ?>></div>
             <? if (!$author->isNew()) : ?>
             </a>
             <? endif ?>
