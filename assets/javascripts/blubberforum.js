@@ -3,6 +3,7 @@ STUDIP.Blubber = {
     periodicalPushData: function () {
         return {
             'context_id': jQuery("#context_id").val(),
+            'extern': jQuery("#extern").val(),
             'stream': jQuery("#stream").val(),
             'last_check': jQuery('#last_check').val(),
             'search': jQuery("#search").val()

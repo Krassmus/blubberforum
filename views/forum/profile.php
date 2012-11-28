@@ -12,7 +12,8 @@
 <input type="hidden" id="last_check" value="<?= time() ?>">
 <input type="hidden" id="base_url" value="plugins.php/blubber/forum/">
 <input type="hidden" id="user_id" value="<?= htmlReady($GLOBALS['user']->id) ?>">
-<input type="hidden" id="context_id" value="<?= htmlReady($user_id) ?>">
+<input type="hidden" id="context_id" value="<?= htmlReady($user->getId()) ?>">
+<input type="hidden" id="extern" value="<?= is_a($user, "BlubberExternalContact") ? 1 : 0 ?>">
 <input type="hidden" id="stream" value="profile">
 <input type="hidden" id="stream_time" value="<?= time() ?>">
 <input type="hidden" id="browser_start_time" value="">
@@ -20,11 +21,11 @@
 <input type="hidden" id="loaded" value="1">
 <div id="editing_question" style="display: none;"><?= _("Wollen Sie den Beitrag wirklich bearbeiten?") ?></div>
 
-<? if ($user_id === $GLOBALS['user']->id) : ?>
+<? if ($user->getId() === $GLOBALS['user']->id) : ?>
 <div id="threadwriter">
     <div id="context_selector" style="display: none;">
         <input type="hidden" name="context_type" value="public" checked="checked">
-        <input type="hidden" name="context" value="<?= htmlReady($user_id) ?>">
+        <input type="hidden" name="context" value="<?= htmlReady($user->getId()) ?>">
     </div>
     <textarea id="new_posting" placeholder="<?= _("Schreib was, frag was.") ?>"></textarea>
 </div>
@@ -80,6 +81,6 @@ $infobox = array(
     )
 );
 $infobox = array(
-    'picture' => Avatar::getAvatar($user_id)->getURL(Avatar::NORMAL),
+    'picture' => $user->getAvatar()->getURL(Avatar::NORMAL),
     'content' => $infobox
 );

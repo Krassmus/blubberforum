@@ -6,7 +6,14 @@ require_once dirname(__file__)."/BlubberContactAvatar.class.php";
 class BlubberExternalContact extends SimpleORMap implements BlubberContact {
     
     static public function find($user_id) {
-        return self::find(__class__, $user_id);
+        $user = parent::find(__class__, $user_id);
+        if (class_exists($user['contact_type'])) {
+            $new_user = new $user['contact_type']();
+            $new_user->setData($user->getData());
+            return $new_user;
+        } else {
+            return $user;
+        }
     }
     
     static public function findByEmail($email) {

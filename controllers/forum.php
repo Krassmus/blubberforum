@@ -84,17 +84,21 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
 
-        $this->user_id = get_userid(Request::get("username"));
-        PageLayout::setTitle(get_fullname($this->user_id)." - Blubber");
+        if (Request::get("extern")) {
+            $this->user = BlubberExternalContact::find(Request::get("user_id"));
+        } else {
+            $this->user = new BlubberUser(Request::get("user_id"));
+        }
+        PageLayout::setTitle(htmlReady($this->user->getName())." - Blubber");
         PageLayout::addHeadElement("link", array(
             'rel' => "alternate",
             'type' => "application/atom+xml",
-            'href' => PluginEngine::getLink($this->plugin, array(), "forum/feed/".$this->user_id),
+            'href' => PluginEngine::getLink($this->plugin, array(), "forum/feed/".$this->user->getId()),
             'title' => "Blubber von ".get_fullname($user_id)
         ));
         
         $this->threads = ForumPosting::getThreads(array(
-            'user_id' => $this->user_id,
+            'user_id' => $this->user->getId(),
             'limit' => $this->max_threads + 1
         ));
         $this->more_threads = count($this->threads) > $this->max_threads;
@@ -421,12 +425,12 @@ class ForumController extends ApplicationController {
                 //Notifications:
                 if (class_exists("PersonalNotifications")) {
                     $user_ids = array();
-                    if ($thread['user_id'] !== $GLOBALS['user']->id) {
+                    if ($thread['user_id'] && $thread['user_id'] !== $GLOBALS['user']->id) {
                         $user_ids[] = $thread['user_id'];
                     }
-                    foreach ($thread->getChildren() as $comments) {
-                        if ($comments['user_id'] !== $GLOBALS['user']->id) {
-                            $user_ids[] = $comments['user_id'];
+                    foreach ((array) $thread->getChildren() as $comment) {
+                        if ($comment['user_id'] && ($comment['user_id'] !== $GLOBALS['user']->id) && (!$comment['external_contact'])) {
+                            $user_ids[] = $comment['user_id'];
                         }
                     }
                     $user_ids = array_unique($user_ids);

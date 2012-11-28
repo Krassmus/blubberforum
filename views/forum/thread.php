@@ -32,7 +32,7 @@ $author_name or $author_name = $posting['author'];
             $overview_url = URLHelper::getURL("plugins.php/blubber/forum/forum", array('cid' => $thread['Seminar_id']));
             break;
         case "public":
-            $overview_url = URLHelper::getURL("plugins.php/blubber/forum/profile", array('username' => get_username($thread['user_id'])));
+            $overview_url = URLHelper::getURL("plugins.php/blubber/forum/profile", array('user_id' => $thread['user_id'], 'extern' => $thread['external_contact'] ? $thread['external_contact'] : null));
             break;
         default: 
             $overview_url = URLHelper::getURL("plugins.php/blubber/forum/globalstream");
@@ -123,16 +123,18 @@ $author_name or $author_name = $posting['author'];
     </div>
 
     <ul class="comments">
-        <? $postings = $thread->getChildren() ?>
-    <? if (count($postings) > 3) : ?>
+    <? $postings = $thread->getChildren() ?>
+    <? if ($postings) : ?>
+        <? if (count($postings) > 3) : ?>
         <li class="more">
             <?= sprintf(ngettext('%u weiterer Kommentar', '%u weitere Kommentare', count($postings) - 3), count($postings) - 3)?>
             ...
         </li>
-    <? endif; ?>
-    <? foreach (array_slice($postings, -3) as $posting) : ?>
+        <? endif; ?>
+        <? foreach (array_slice($postings, -3) as $posting) : ?>
         <?= $this->render_partial("forum/comment.php", array('posting' => $posting, 'last_visit' => $last_visit)) ?>
-    <? endforeach ?>
+        <? endforeach ?>
+    <? endif ?>
     </ul>
     <div class="writer">
         <textarea placeholder="<?= _("Kommentiere dies") ?>" id="writer_<?= md5(uniqid()) ?>"></textarea>

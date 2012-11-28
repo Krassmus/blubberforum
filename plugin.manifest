@@ -2,5 +2,5 @@ pluginclassname=Blubber
 pluginname=Blubber
 origin=data-quest
 version=2.0
-studipMinVersion=2.4
+studipMinVersion=2.3.99
 studipMaxVersion=2.99

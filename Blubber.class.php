@@ -101,7 +101,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         }
         
         if (Navigation::hasItem("/profile")) {
-            $nav = new AutoNavigation(_("Blubber"), PluginEngine::getURL($this, array('username' => Request::get("username")), "forum/profile"));
+            $nav = new AutoNavigation(_("Blubber"), PluginEngine::getURL($this, array('user_id' => get_userid(Request::get("username"))), "forum/profile"));
             Navigation::addItem("/profile/blubber", $nav);
         }
     }
