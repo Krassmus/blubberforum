@@ -57,7 +57,6 @@
     <br>
 </div>
 <? endif ?>
-
 <ul id="forum_threads" class="coursestream">
     <? foreach ($threads as $thread) : ?>
     <?= $this->render_partial("forum/thread.php", array('thread' => $thread)) ?>

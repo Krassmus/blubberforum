@@ -60,7 +60,6 @@ class ForumController extends ApplicationController {
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
         Navigation::getItem("/course/blubberforum")->setImage($this->plugin->getPluginURL()."/assets/images/blubber.png");
         Navigation::activateItem("/course/blubberforum");
-        
         $parameter = array(
             'seminar_id' => $_SESSION['SessionSeminar'],
             'limit' => $this->max_threads + 1

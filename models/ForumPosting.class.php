@@ -244,20 +244,22 @@ class ForumPosting extends SimpleORMap {
         return $threads;
     }
     
-    public function restore() {
-        parent::restore();
-        if ($this['topic_id'] === $this['root_id']) {
-            $db = DBManager::get();
-            $this->content['discussion_time'] = $db->query(
-                "SELECT mkdate " .
-                "FROM px_topics " .
-                "WHERE root_id = ".$db->quote($this->getId())." " .
-                "ORDER BY mkdate DESC " .
-                "LIMIT 1 " .
-            "")->fetch(PDO::FETCH_COLUMN, 0);
-        } else {
-            $this->content['discussion_time'] = $this['mkdate'];
-        }
+    public function __construct($id = null) {
+        $this->additional_fields['discussion_time']['get'] = function($posting) {
+            if ($posting['topic_id'] === $posting['root_id']) {
+                $db = DBManager::get();
+                return $db->query(
+                    "SELECT mkdate " .
+                    "FROM px_topics " .
+                    "WHERE root_id = ".$db->quote($posting->getId())." " .
+                    "ORDER BY mkdate DESC " .
+                    "LIMIT 1 " .
+                "")->fetch(PDO::FETCH_COLUMN, 0);
+            } else {
+                return $posting['mkdate'];
+            }
+        };
+        parent::__construct($id);
     }
     
     public function isThread() {
@@ -267,7 +269,7 @@ class ForumPosting extends SimpleORMap {
     public function getChildren() {
         if ($this->isThread()) {
             $db = DBManager::get();
-            return self::findBySQL(__class__, "root_id = ".$db->quote($this->getId())." AND parent_id != '0' ORDER BY mkdate ASC");
+            return self::findBySQL("root_id = ".$db->quote($this->getId())." AND parent_id != '0' ORDER BY mkdate ASC");
         } else {
             return false;
         }
