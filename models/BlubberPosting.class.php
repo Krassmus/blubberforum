@@ -11,14 +11,14 @@
 require_once 'lib/classes/SimpleORMap.class.php';
 require_once 'lib/forum.inc.php';
 
-class ForumPosting extends SimpleORMap {
+class BlubberPosting extends SimpleORMap {
 
     protected $db_table = "px_topics";
     static public $course_hashes = false;
     static public $mention_thread_id = false;
 
     static public function format($text) {
-        StudipFormat::addStudipMarkup("blubberhashtag", "(^|\s)#([\w\d_\.\-]*[\w\d])", "", "ForumPosting::markupHashtags");
+        StudipFormat::addStudipMarkup("blubberhashtag", "(^|\s)#([\w\d_\.\-]*[\w\d])", "", "BlubberPosting::markupHashtags");
         $output = formatReady($text);
         StudipFormat::removeStudipMarkup("blubberhashtag");
         return $output;
@@ -46,7 +46,7 @@ class ForumPosting extends SimpleORMap {
                 "SELECT user_id FROM auth_user_md5 WHERE CONCAT(Vorname, ' ', Nachname) = ".$db->quote($name)." " .
             "")->fetch(PDO::FETCH_COLUMN, 0);
         }
-        $thread = new ForumPosting($thread_id);
+        $thread = new BlubberPosting($thread_id);
         if (!$thread->isNew() && $user_id && $user_id !== $GLOBALS['user']->id) {
             $user = new User($user_id);
             $messaging = new messaging();
@@ -101,6 +101,17 @@ class ForumPosting extends SimpleORMap {
         return $contact_ids;
     }
 
+    static public function getMyExternalContacts() {
+        $db = DBManager::get();
+        $contact_ids = $db->query(
+            "SELECT blubber_follower.external_contact_id " .
+            "FROM blubber_follower " .
+            "WHERE studip_user_id = ".$db->quote($GLOBALS['user']->id)." " .
+                "AND left_follows_right = '1' " .
+        "")->fetchAll(PDO::FETCH_COLUMN, 0);
+        return $contact_ids;
+    }
+
     static public function getThreads($parameter = array()) {
         $defaults = array(
             'seminar_id' => null,
@@ -142,7 +153,13 @@ class ForumPosting extends SimpleORMap {
                             (count($seminar_ids) ? "OR px_topics.Seminar_id IN (".$db->quote($seminar_ids).") " : "") .
                        ") ";
             $user_ids = self::getMyBlubberBuddys();
-            $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") ) ";
+            if (count($user_ids)) {
+                $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") AND px_topics.external_contact = '0') ";
+            }
+            $user_ids = self::getMyExternalContacts();
+            if (count($user_ids)) {
+                $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") AND px_topics.external_contact = '1') ";
+            }
             
             //private Blubber
             $joins[] = "LEFT JOIN blubber_mentions ON (blubber_mentions.topic_id = px_topics.root_id) ";
@@ -167,7 +184,7 @@ class ForumPosting extends SimpleORMap {
         "")->fetchAll(PDO::FETCH_COLUMN, 0);
         $threads = array();
         foreach ($thread_ids as $thread_id) {
-            $threads[] = new ForumPosting($thread_id);
+            $threads[] = new BlubberPosting($thread_id);
         }
         return $threads;
     }
@@ -214,8 +231,14 @@ class ForumPosting extends SimpleORMap {
             $user_ids = self::getMyBlubberBuddys();
             if (count($user_ids)) {
                 //$joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
-                $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") ) ";
+                $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") AND px_topics.external_contact = '0') ";
             }
+            $user_ids = self::getMyExternalContacts();
+            if (count($user_ids)) {
+                //$joins[] = "INNER JOIN px_topics AS thread ON (thread.topic_id = px_topics.root_id) ";
+                $where_or[] = "OR (px_topics.context_type = 'public' AND px_topics.Seminar_id IN (".$db->quote($user_ids).") AND px_topics.external_contact = '1' ) ";
+            }
+            
             
             //private Blubber
             $where_or[] = "OR (px_topics.context_type != 'course' AND blubber_mentions.user_id = ".$db->quote($GLOBALS['user']->id).") ";
@@ -239,7 +262,7 @@ class ForumPosting extends SimpleORMap {
         "")->fetchAll(PDO::FETCH_COLUMN, 0);
         $threads = array();
         foreach ($thread_ids as $thread_id) {
-            $threads[] = new ForumPosting($thread_id);
+            $threads[] = new BlubberPosting($thread_id);
         }
         return $threads;
     }

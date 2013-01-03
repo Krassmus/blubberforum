@@ -10,7 +10,7 @@
 
 require_once "lib/classes/UpdateInformation.class.php";
 require_once 'lib/datei.inc.php';
-require_once dirname(__file__)."/models/ForumPosting.class.php";
+require_once dirname(__file__)."/models/BlubberPosting.class.php";
 require_once dirname(__file__)."/models/BlubberExternalContact.class.php";
 
 if (!function_exists("transformBeforeSave")) {
@@ -49,7 +49,7 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                 if ($data['Blubber']['search']) {
                     $parameter['search'] = $data['Blubber']['search'];
                 }
-                $new_postings = ForumPosting::getPostings($parameter);
+                $new_postings = BlubberPosting::getPostings($parameter);
 
                 $factory = new Flexi_TemplateFactory($this->getPluginPath()."/views");
                 foreach ($new_postings as $new_posting) {
@@ -58,11 +58,11 @@ class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $template = $factory->open("forum/thread.php");
                         $template->set_attribute('thread', $new_posting);
                     } else {
-                        $thread = new ForumPosting($new_posting['root_id']);
+                        $thread = new BlubberPosting($new_posting['root_id']);
                         $template = $factory->open("forum/comment.php");
                         $template->set_attribute('posting', $new_posting);
                     }
-                    ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+                    BlubberPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
                     $template->set_attribute("course_id", $data['Blubber']['seminar_id']);
                     $output['postings'][] = array(
                         'posting_id' => $new_posting['topic_id'],

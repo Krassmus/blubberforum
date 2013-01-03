@@ -48,7 +48,7 @@ if (!$author_name) {
             <? endif ?>
         </div>
         <div class="content">
-            <?= ForumPosting::format($posting['description']) ?>
+            <?= BlubberPosting::format($posting['description']) ?>
         </div>
     </div>
 </li>

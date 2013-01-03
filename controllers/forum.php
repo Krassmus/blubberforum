@@ -35,7 +35,7 @@ class ForumController extends ApplicationController {
         if ($this->search) {
             $parameter['search'] = $this->search;
         }
-        $this->threads = ForumPosting::getThreads($parameter);
+        $this->threads = BlubberPosting::getThreads($parameter);
         $this->more_threads = count($this->threads) > $this->max_threads;
         if ($this->more_threads) {
             $this->threads = array_slice($this->threads, 0, $this->max_threads);
@@ -70,7 +70,7 @@ class ForumController extends ApplicationController {
         if ($this->search) {
             $parameter['search'] = $this->search;
         }
-        $this->threads = ForumPosting::getThreads($parameter);
+        $this->threads = BlubberPosting::getThreads($parameter);
         $this->more_threads = count($this->threads) > $this->max_threads;
         $this->course_id = $_SESSION['SessionSeminar'];
         if ($this->more_threads) {
@@ -96,7 +96,7 @@ class ForumController extends ApplicationController {
             'title' => "Blubber von ".get_fullname($user_id)
         ));
         
-        $this->threads = ForumPosting::getThreads(array(
+        $this->threads = BlubberPosting::getThreads(array(
             'user_id' => $this->user->getId(),
             'limit' => $this->max_threads + 1
         ));
@@ -108,7 +108,7 @@ class ForumController extends ApplicationController {
     }
 
     public function more_comments_action() {
-        $thread = new ForumPosting(Request::option("thread_id"));
+        $thread = new BlubberPosting(Request::option("thread_id"));
         if ($thread['context_type'] === "course") {
             //&& !$GLOBALS['perm']->have_studip_perm("autor", $thread['Seminar_id'])) {
             $seminar = new Seminar($thread['Seminar_id']);
@@ -116,7 +116,7 @@ class ForumController extends ApplicationController {
                 throw new AccessDeniedException("Kein Zugriff");
             }
         }
-        ForumPosting::$course_hashes = $thread['context_type'] === "course" ? $thread['Seminar_id'] : false;
+        BlubberPosting::$course_hashes = $thread['context_type'] === "course" ? $thread['Seminar_id'] : false;
 
         $output = array(
             'more' => false,
@@ -169,7 +169,7 @@ class ForumController extends ApplicationController {
         if (Request::get("stream") === "profile") {
             $parameter['user_id'] = $context_id;
         }
-        $threads = ForumPosting::getThreads($parameter);
+        $threads = BlubberPosting::getThreads($parameter);
         $output['more'] = count($threads) > $this->max_threads;
         if ($output['more']) {
             $threads = array_slice($threads, 0, $this->max_threads);
@@ -199,9 +199,9 @@ class ForumController extends ApplicationController {
                 throw new AccessDeniedException("Kein Zugriff");
             }
         }
-        ForumPosting::$course_hashes = ($context_type === "course" ? $context : false);
+        BlubberPosting::$course_hashes = ($context_type === "course" ? $context : false);
         $output = array();
-        $thread = new ForumPosting(Request::option("thread"));
+        $thread = new BlubberPosting(Request::option("thread"));
         $thread['seminar_id'] = $context_type === "course" ? $context : $GLOBALS['user']->id;
         $thread['context_type'] = $context_type;
         $thread['parent_id'] = 0;
@@ -209,9 +209,9 @@ class ForumController extends ApplicationController {
         if ($thread->isNew() && !$thread->getId()) {
             $thread->store();
         }
-        ForumPosting::$mention_thread_id = $thread->getId();
-        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
-        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
+        BlubberPosting::$mention_thread_id = $thread->getId();
+        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "BlubberPosting::mention");
+        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "BlubberPosting::mention");
         $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
         
         if (strpos($content, "\n") !== false) {
@@ -285,8 +285,8 @@ class ForumController extends ApplicationController {
     }
 
     public function get_source_action() {
-        $posting = new ForumPosting(Request::get("topic_id"));
-        $thread = new ForumPosting($posting['root_id']);
+        $posting = new BlubberPosting(Request::get("topic_id"));
+        $thread = new BlubberPosting($posting['root_id']);
         if (($thread['context_type'] === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) 
                 or ($thread['context_type'] === "private" && !$thread->isRelated())) {
             throw new AccessDeniedException("Kein Zugriff");
@@ -296,20 +296,20 @@ class ForumController extends ApplicationController {
     }
 
     public function edit_posting_action () {
-        $posting = new ForumPosting(Request::get("topic_id"));
-        $thread = new ForumPosting($posting['root_id']);
+        $posting = new BlubberPosting(Request::get("topic_id"));
+        $thread = new BlubberPosting($posting['root_id']);
         if (($posting['user_id'] !== $GLOBALS['user']->id) 
                 && (!$GLOBALS['perm']->have_studip_perm("tutor", $posting['Seminar_id']))) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         $old_content = $posting['description'];
         $messaging = new messaging();
-        ForumPosting::$mention_thread_id = $thread->getId();
-        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
-        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
+        BlubberPosting::$mention_thread_id = $thread->getId();
+        StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "BlubberPosting::mention");
+        StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "BlubberPosting::mention");
         $new_content = transformBeforeSave(studip_utf8decode(Request::get("content")));
-        //$new_content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
-        //$new_content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        //$new_content = preg_replace("/(@\"[^\n\"]*\")/e", "BlubberPosting::mention('\\1', '".$thread->getId()."')", $new_content);
+        //$new_content = preg_replace("/(@[^\s]+)/e", "BlubberPosting::mention('\\1', '".$thread->getId()."')", $new_content);
         
         if ($new_content && $old_content !== $new_content) {
             $posting['description'] = $new_content;
@@ -352,43 +352,43 @@ class ForumController extends ApplicationController {
             }
             $posting->delete();
         }
-        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
-        $this->render_text(studip_utf8encode(ForumPosting::format($posting['description'])));
+        BlubberPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        $this->render_text(studip_utf8encode(BlubberPosting::format($posting['description'])));
     }
 
     public function refresh_posting_action() {
-        $posting = new ForumPosting(Request::get("topic_id"));
-        $thread = new ForumPosting($posting['root_id']);
+        $posting = new BlubberPosting(Request::get("topic_id"));
+        $thread = new BlubberPosting($posting['root_id']);
         if (($thread['context_type'] === "course" && !$GLOBALS['perm']->have_studip_perm("autor", $posting['Seminar_id'])) 
                 or ($thread['context_type'] === "private" && !$thread->isRelated())) {
             throw new AccessDeniedException("Kein Zugriff");
         }
-        ForumPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
-        $this->render_text(studip_utf8encode(ForumPosting::format($posting['description'])));
+        BlubberPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
+        $this->render_text(studip_utf8encode(BlubberPosting::format($posting['description'])));
     }
 
     public function comment_action() {
         $context = Request::option("context");
-        $thread = new ForumPosting(Request::option("thread"));
+        $thread = new BlubberPosting(Request::option("thread"));
         if ($thread['context_type'] === "course") {
             $seminar = new Seminar($context);
             if ($seminar->write_level > 0 && !$GLOBALS['perm']->have_studip_perm("autor", $context)) {
                 throw new AccessDeniedException("Kein Zugriff");
             }
         }
-        ForumPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
+        BlubberPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
         if (Request::option("thread") && $thread['Seminar_id'] === $context) {
             $output = array();
-            $posting = new ForumPosting();
+            $posting = new BlubberPosting();
             
-            ForumPosting::$mention_thread_id = $thread->getId();
-            StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "ForumPosting::mention");
-            StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "ForumPosting::mention");
+            BlubberPosting::$mention_thread_id = $thread->getId();
+            StudipTransformFormat::addStudipMarkup("mention1", '@\"[^\n\"]*\"', "", "BlubberPosting::mention");
+            StudipTransformFormat::addStudipMarkup("mention2", '@[^\s]*[\d\w_]+', "", "BlubberPosting::mention");
             $content = transformBeforeSave(studip_utf8decode(Request::get("content")));
             
             //mentions einbauen:
-            $content = preg_replace("/(@\"[^\n\"]*\")/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
-            $content = preg_replace("/(@[^\s]+)/e", "ForumPosting::mention('\\1', '".$thread->getId()."')", $content);
+            $content = preg_replace("/(@\"[^\n\"]*\")/e", "BlubberPosting::mention('\\1', '".$thread->getId()."')", $content);
+            $content = preg_replace("/(@[^\s]+)/e", "BlubberPosting::mention('\\1', '".$thread->getId()."')", $content);
             
             $posting['description'] = $content;
             $posting['context_type'] = $thread['context_type'];
@@ -548,7 +548,7 @@ class ForumController extends ApplicationController {
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/blubberforum.js"), "");
         PageLayout::addHeadElement("script", array('src' => $this->assets_url."/javascripts/formdata.js"), "");
         
-        $this->thread = new ForumPosting($thread_id);
+        $this->thread = new BlubberPosting($thread_id);
         if ($this->thread['context_type'] === "course") {
             PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->plugin->getDisplayTitle());
         } elseif($this->thread['context_type'] === "public") {
@@ -568,13 +568,13 @@ class ForumController extends ApplicationController {
         
         $this->course_id     = $_SESSION['SessionSeminar'];
         $this->single_thread = true;
-        ForumPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
+        BlubberPosting::$course_hashes = ($thread['user_id'] !== $thread['Seminar_id'] ? $thread['Seminar_id'] : false);
     }
     
     public function feed_action($user_id) {
         $this->layout = null;
         $this->set_content_type("application/xml+atom");
-        $this->postings = ForumPosting::getThreads(array('user_id' => $user_id));
+        $this->postings = BlubberPosting::getThreads(array('user_id' => $user_id));
     }
 
 }

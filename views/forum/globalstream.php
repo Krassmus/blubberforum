@@ -90,7 +90,7 @@
                     <td>
                         <?= _("Im Kurs") ?>
                         <select name="context">
-                            <? foreach (ForumPosting::getMyBlubberCourses() as $course_id) : ?>
+                            <? foreach (BlubberPosting::getMyBlubberCourses() as $course_id) : ?>
                             <? $seminar = new Seminar($course_id) ?>
                             <option value="<?= htmlReady($course_id) ?>"><?= htmlReady($seminar->getName()) ?></option>
                             <? endforeach ?>

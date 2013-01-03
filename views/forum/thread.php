@@ -10,7 +10,7 @@
  */
 
 $last_visit = object_get_visit($_SESSION['SessionSeminar'], "forum");
-ForumPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
+BlubberPosting::$course_hashes = ($thread['context_type'] === "course" ? $thread['Seminar_id'] : false);
 $related_users = $thread['context_type'] === "private" ? $thread->getRelatedUsers() : array();
 $author = $thread->getUser();
 $author_name = $author->getName();
@@ -117,7 +117,7 @@ $author_name or $author_name = $posting['author'];
                 $content = $thread['name']."\n".$content;
             }
             ?>
-            <?= ForumPosting::format($content) ?>
+            <?= BlubberPosting::format($content) ?>
         </div>
     </div>
     <ul class="comments">
