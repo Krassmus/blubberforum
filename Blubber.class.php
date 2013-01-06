@@ -13,12 +13,6 @@ require_once 'lib/datei.inc.php';
 require_once dirname(__file__)."/models/BlubberPosting.class.php";
 require_once dirname(__file__)."/models/BlubberExternalContact.class.php";
 
-if (!function_exists("transformBeforeSave")) {
-    function transformBeforeSave($text) {
-        return $text;
-    }
-}
-
 class Blubber extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
     public $config = array();
